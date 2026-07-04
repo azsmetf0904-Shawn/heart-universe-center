@@ -7,6 +7,7 @@ const links = [
   { href: '/venues', label: '場地' },
   { href: '/events', label: '活動課程' },
   { href: '/rent', label: '租借申請' },
+  { href: '/my-booking', label: '查詢申請' },
 ]
 
 export default function Navbar() {

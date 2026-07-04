@@ -1,9 +1,11 @@
 'use client'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Event } from '@/lib/types'
-import { CheckCircle2 } from 'lucide-react'
+import QRCode from 'qrcode'
+
+type State = 'form' | 'success'
 
 export default function RegisterPage() {
   const params = useParams()
@@ -12,7 +14,9 @@ export default function RegisterPage() {
   const [event, setEvent] = useState<Event | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const [done, setDone] = useState(false)
+  const [state, setState] = useState<State>('form')
+  const [qrDataUrl, setQrDataUrl] = useState('')
+  const [regName, setRegName] = useState('')
   const [form, setForm] = useState({ name: '', phone: '', email: '', note: '' })
 
   useEffect(() => {
@@ -35,21 +39,59 @@ export default function RegisterPage() {
       email: form.email,
       note: form.note || null,
     })
+
+    if (!error) {
+      // 產生 QR Code（指向簽到頁）
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin
+      const checkInUrl = `${siteUrl}/events/${slug}/check-in`
+      const dataUrl = await QRCode.toDataURL(checkInUrl, {
+        width: 256,
+        margin: 2,
+        color: { dark: '#2C2C2C', light: '#FAFAF8' },
+      })
+      setQrDataUrl(dataUrl)
+      setRegName(form.name)
+
+      // 寄確認信
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'event_registration',
+          to: form.email,
+          name: form.name,
+          eventTitle: event.title,
+          checkInUrl,
+        }),
+      }).catch(() => {})
+
+      setState('success')
+    }
     setSubmitting(false)
-    if (!error) setDone(true)
   }
 
   if (loading) return <div className="py-40 text-center text-[var(--gray)] text-sm">載入中…</div>
   if (!event) return <div className="py-40 text-center text-[var(--gray)] text-sm">活動不存在</div>
 
-  if (done) {
+  if (state === 'success') {
     return (
-      <div className="py-40 flex flex-col items-center text-center container-narrow">
-        <CheckCircle2 size={40} className="text-[var(--gold)] mb-6" />
-        <h2 className="text-2xl mb-4">報名成功</h2>
+      <div className="py-20 flex flex-col items-center text-center container-narrow max-w-md">
+        <p className="label-tag mb-4">Registration Complete</p>
+        <h2 className="text-2xl mb-2">報名成功</h2>
         <div className="gold-divider mx-auto" />
-        <p className="text-[var(--gray)] text-sm mt-6 mb-2">感謝您報名《{event.title}》</p>
-        <p className="text-[var(--gray)] text-sm mb-8">活動當天請至現場掃描 QR Code 完成簽到</p>
+        <p className="text-[var(--gray)] text-sm mt-6">{regName}，感謝您報名</p>
+        <p className="font-serif text-lg mt-1 mb-8">《{event.title}》</p>
+
+        {/* QR Code */}
+        <div className="border border-[var(--border-color)] p-6 mb-4">
+          {qrDataUrl && <img src={qrDataUrl} alt="簽到 QR Code" className="w-48 h-48 mx-auto" />}
+          <p className="text-xs text-[var(--gray)] mt-4 text-center leading-relaxed">
+            活動當天出示此 QR Code<br />或至現場掃碼頁面輸入手機號碼完成簽到
+          </p>
+        </div>
+
+        <p className="text-xs text-[var(--gray)] mb-8">確認信已寄至您的 Email，請留意收件匣</p>
+
         <button
           onClick={() => router.push('/events')}
           className="text-sm text-[var(--gold)] tracking-widest hover:underline"

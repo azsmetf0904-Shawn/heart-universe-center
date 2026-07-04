@@ -5,7 +5,7 @@ export default async function AdminVenuesPage() {
   const supabase = await createClient()
   const { data: venues } = await supabase
     .from('venues')
-    .select('*, venue_photos(id, image_url, sort_order)')
+    .select('*, venue_photos(id, image_url, sort_order), venue_pricing(*)')
     .order('created_at')
   return (
     <div>

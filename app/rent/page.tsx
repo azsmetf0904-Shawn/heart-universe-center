@@ -35,6 +35,7 @@ function RentForm() {
   const [done, setDone] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
+  const [bookedSlots, setBookedSlots] = useState<string[]>([])
 
   const [form, setForm] = useState({
     venue_id: '',
@@ -74,6 +75,16 @@ function RentForm() {
     const v = venues.find(x => x.id === id) ?? null
     setForm(p => ({ ...p, venue_id: id, time_slot: '', layout_config: '' }))
     setSelectedVenue(v)
+    if (form.booking_date) fetchAvailability(id, form.booking_date)
+  }
+
+  async function fetchAvailability(venueId: string, date: string) {
+    if (!date) return
+    const params = new URLSearchParams({ date })
+    if (venueId) params.set('venue_id', venueId)
+    const res = await fetch(`/api/availability?${params}`)
+    const { booked } = await res.json()
+    setBookedSlots(booked)
   }
 
   // 即時計算費用
@@ -136,8 +147,23 @@ function RentForm() {
         }))
       )
     }
+    if (!error) {
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'rental_request',
+          to: form.email,
+          name: form.name,
+          eventTitle: form.event_title,
+          venueName: selectedVenue?.name,
+          bookingDate: form.booking_date,
+          timeSlot: form.time_slot ? TIME_SLOT_LABEL[form.time_slot as TimeSlot] : null,
+        }),
+      }).catch(() => {})
+      setDone(true)
+    }
     setSubmitting(false)
-    if (!error) setDone(true)
   }
 
   if (done) return (
@@ -221,7 +247,11 @@ function RentForm() {
               <div>
                 <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>租借日期</label>
                 <input type="date" required value={form.booking_date}
-                  onChange={e => setForm(p => ({ ...p, booking_date: e.target.value }))}
+                  onChange={e => {
+                    const date = e.target.value
+                    setForm(p => ({ ...p, booking_date: date, time_slot: '' }))
+                    fetchAvailability(form.venue_id, date)
+                  }}
                   className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)] transition-colors"
                 />
                 {form.booking_date && (
@@ -237,17 +267,27 @@ function RentForm() {
                     const pricing = selectedVenue?.venue_pricing ?? []
                     const dayType = isHolidayDate ? 'holiday' : 'weekday'
                     const p = pricing.find((x: VenuePricing) => x.day_type === dayType && x.time_slot === slot)
+                    const isBooked = bookedSlots.includes(slot)
                     return (
-                      <label key={slot} className={`flex items-center justify-between border px-4 py-2.5 cursor-pointer transition-colors ${form.time_slot === slot ? 'border-[var(--gold)] bg-[var(--card-bg)]' : 'border-[var(--border-color)]'}`}>
+                      <label key={slot} className={`flex items-center justify-between border px-4 py-2.5 transition-colors
+                        ${isBooked ? 'border-[var(--border-color)] bg-[var(--surface)] opacity-50 cursor-not-allowed' :
+                          form.time_slot === slot ? 'border-[var(--gold)] bg-[var(--card-bg)] cursor-pointer' :
+                          'border-[var(--border-color)] cursor-pointer hover:border-[var(--gold)]/50'}`}>
                         <div className="flex items-center gap-3">
                           <input type="radio" name="time_slot" value={slot}
                             checked={form.time_slot === slot}
-                            onChange={() => setForm(pr => ({ ...pr, time_slot: slot }))}
+                            disabled={isBooked}
+                            onChange={() => !isBooked && setForm(pr => ({ ...pr, time_slot: slot }))}
                             className="accent-[var(--gold)]"
                           />
                           <span className="text-sm">{TIME_SLOT_LABEL[slot]}</span>
                         </div>
-                        {p && <span className="text-xs text-[var(--gold)]">NT$ {p.price.toLocaleString()}</span>}
+                        <span className="text-xs">
+                          {isBooked
+                            ? <span className="text-[var(--gray)]">已被預約</span>
+                            : p ? <span className="text-[var(--gold)]">NT$ {p.price.toLocaleString()}</span> : null
+                          }
+                        </span>
                       </label>
                     )
                   })}
