@@ -3,6 +3,27 @@ export type AddonUnit = 'per_session' | 'per_hour' | 'per_person' | 'per_unit'
 export type RentalStatus = 'pending' | 'confirmed' | 'payment_pending' | 'completed' | 'cancelled'
 export type EventStatus = 'draft' | 'published' | 'ended'
 export type RegistrationStatus = 'registered' | 'cancelled'
+export type DayType = 'weekday' | 'holiday'
+export type TimeSlot = 'morning' | 'afternoon' | 'evening'
+
+export const TIME_SLOT_LABEL: Record<TimeSlot, string> = {
+  morning:   '早上 09:00–12:00',
+  afternoon: '下午 14:00–17:00',
+  evening:   '晚上 18:30–21:30',
+}
+
+export const LAYOUT_TYPES = ['教室型', '蜈蚣型', '分組型', '講座型', 'U型'] as const
+export type LayoutType = typeof LAYOUT_TYPES[number]
+
+export interface VenuePricing {
+  id: string
+  venue_id: string
+  day_type: DayType
+  time_slot: TimeSlot
+  price: number
+  overtime_per_30min: number
+  created_at: string
+}
 
 export interface Venue {
   id: string
@@ -10,11 +31,14 @@ export interface Venue {
   slug: string
   description: string | null
   capacity: number | null
+  area_ping: number | null
+  layout_capacities: Partial<Record<LayoutType, number>> | null
   equipment: string[] | null
   cover_image_url: string | null
   is_active: boolean
   created_at: string
   venue_photos?: VenuePhoto[]
+  venue_pricing?: VenuePricing[]
 }
 
 export interface VenuePhoto {
@@ -47,6 +71,11 @@ export interface RentalRequest {
   event_title: string
   event_type: string | null
   guest_count: number | null
+  booking_date: string | null
+  time_slot: TimeSlot | null
+  layout_config: LayoutType | null
+  is_holiday: boolean
+  session_count: number
   start_time: string
   end_time: string
   note: string | null
@@ -132,4 +161,18 @@ export const EVENT_STATUS_LABEL: Record<EventStatus, string> = {
   draft: '草稿',
   published: '已發布',
   ended: '已結束',
+}
+
+export function isHoliday(date: Date): boolean {
+  const day = date.getDay()
+  return day === 0 || day === 6
+}
+
+export function getPriceForSlot(
+  pricing: VenuePricing[],
+  date: Date,
+  slot: TimeSlot
+): VenuePricing | null {
+  const dayType: DayType = isHoliday(date) ? 'holiday' : 'weekday'
+  return pricing.find(p => p.day_type === dayType && p.time_slot === slot) ?? null
 }

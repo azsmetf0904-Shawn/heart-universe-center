@@ -8,6 +8,8 @@ CREATE TABLE IF NOT EXISTS venues (
   slug text UNIQUE NOT NULL,
   description text,
   capacity int,
+  area_ping numeric,                  -- 坪數
+  layout_capacities jsonb,            -- {"教室型":38,"蜈蚣型":35,"分組型":44,"講座型":60,"U型":35}
   equipment text[],
   cover_image_url text,
   is_active boolean DEFAULT true,
@@ -37,6 +39,18 @@ CREATE TABLE IF NOT EXISTS venue_addons (
   created_at timestamptz DEFAULT now()
 );
 
+-- 場地定價（每個時段 × 平日/假日）
+CREATE TABLE IF NOT EXISTS venue_pricing (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  venue_id uuid REFERENCES venues(id) ON DELETE CASCADE,
+  day_type text NOT NULL,             -- weekday / holiday
+  time_slot text NOT NULL,            -- morning / afternoon / evening
+  price numeric NOT NULL,
+  overtime_per_30min numeric DEFAULT 0,
+  created_at timestamptz DEFAULT now(),
+  UNIQUE(venue_id, day_type, time_slot)
+);
+
 -- 租借申請
 CREATE TABLE IF NOT EXISTS rental_requests (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -47,6 +61,11 @@ CREATE TABLE IF NOT EXISTS rental_requests (
   event_title text NOT NULL,
   event_type text,
   guest_count int,
+  booking_date date,                  -- 租借日期
+  time_slot text,                     -- morning / afternoon / evening
+  session_count int DEFAULT 1,        -- 幾個時段（連租）
+  layout_config text,                 -- 座位配置：教室型/蜈蚣型/分組型/講座型/U型
+  is_holiday boolean DEFAULT false,
   start_time timestamptz NOT NULL,
   end_time timestamptz NOT NULL,
   note text,
@@ -111,6 +130,7 @@ CREATE TABLE IF NOT EXISTS event_photos (
 );
 
 -- RLS (Row Level Security)
+ALTER TABLE venue_pricing ENABLE ROW LEVEL SECURITY;
 ALTER TABLE venues ENABLE ROW LEVEL SECURITY;
 ALTER TABLE venue_photos ENABLE ROW LEVEL SECURITY;
 ALTER TABLE venue_addons ENABLE ROW LEVEL SECURITY;
@@ -120,7 +140,9 @@ ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE event_registrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE event_photos ENABLE ROW LEVEL SECURITY;
 
--- 前台：公開讀取場地、活動、加購、回顧照片
+-- 前台：公開讀取場地、定價、活動、加購、回顧照片
+CREATE POLICY "public read venue_pricing" ON venue_pricing FOR SELECT USING (true);
+CREATE POLICY "admin full access venue_pricing" ON venue_pricing FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "public read venues" ON venues FOR SELECT USING (is_active = true);
 CREATE POLICY "public read venue_photos" ON venue_photos FOR SELECT USING (true);
 CREATE POLICY "public read venue_addons" ON venue_addons FOR SELECT USING (is_available = true);
