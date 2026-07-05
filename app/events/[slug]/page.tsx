@@ -1,14 +1,27 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight, CalendarDays, MapPin, Users, DollarSign } from 'lucide-react'
 import type { Metadata } from 'next'
+
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('events').select('title, description').eq('slug', slug).single()
-  return { title: data?.title ?? '活動詳情', description: data?.description ?? '' }
+  const { data } = await supabase.from('events').select('title, description, cover_image_url').eq('slug', slug).single()
+  return {
+    title: data?.title ?? '活動詳情',
+    description: data?.description ?? `心宇宙商務中心活動：${data?.title ?? ''}`,
+    openGraph: {
+      title: `${data?.title ?? '活動'}｜心宇宙商務中心`,
+      description: data?.description ?? '',
+      url: `${SITE}/events/${slug}`,
+      type: 'website',
+      images: data?.cover_image_url ? [{ url: data.cover_image_url }] : [],
+    },
+  }
 }
 
 function formatDateTime(s: string) {
@@ -34,13 +47,41 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
   const registered = event.event_registrations?.filter((r: { status: string }) => r.status === 'registered').length ?? 0
   const isFull = event.capacity ? registered >= event.capacity : false
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: event.title,
+    description: event.description ?? '',
+    startDate: event.start_time,
+    endDate: event.end_time,
+    eventStatus: isEnded ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
+    eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+    location: {
+      '@type': 'Place',
+      name: event.venue?.name ?? '心宇宙商務中心',
+      address: { '@type': 'PostalAddress', addressLocality: '台北市', addressCountry: 'TW' },
+    },
+    organizer: event.organizer_name
+      ? { '@type': 'Organization', name: event.organizer_name }
+      : { '@type': 'Organization', name: '心宇宙商務中心', url: SITE },
+    offers: {
+      '@type': 'Offer',
+      price: event.is_paid ? String(event.price) : '0',
+      priceCurrency: 'TWD',
+      availability: isFull ? 'https://schema.org/SoldOut' : 'https://schema.org/InStock',
+      url: `${SITE}/events/${slug}/register`,
+    },
+    ...(event.cover_image_url ? { image: event.cover_image_url } : {}),
+  }
+
   return (
     <div className="py-20">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* Cover */}
       {event.cover_image_url && (
         <div className="container-wide mb-12">
-          <div className="aspect-[21/8] bg-[var(--surface)] overflow-hidden">
-            <img src={event.cover_image_url} alt={event.title} className="w-full h-full object-cover" />
+          <div className="relative aspect-[21/8] bg-[var(--surface)] overflow-hidden">
+            <Image src={event.cover_image_url} alt={event.title} fill className="object-cover" sizes="100vw" priority />
           </div>
         </div>
       )}

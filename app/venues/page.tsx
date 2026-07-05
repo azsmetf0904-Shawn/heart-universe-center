@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight, Users } from 'lucide-react'
 import type { Metadata } from 'next'
 
@@ -38,9 +39,9 @@ export default async function VenuesPage() {
                 href={`/venues/${v.slug}`}
                 className="group bg-[var(--card-bg)] border border-[var(--border-color)] overflow-hidden hover:border-[var(--gold)] transition-colors"
               >
-                <div className="aspect-video bg-[var(--surface)] overflow-hidden">
+                <div className="relative aspect-video bg-[var(--surface)] overflow-hidden">
                   {cover
-                    ? <img src={cover} alt={v.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                    ? <Image src={cover} alt={v.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, 50vw" />
                     : <div className="w-full h-full flex items-center justify-center text-[var(--gray)] text-xs tracking-widest">PHOTO</div>
                   }
                 </div>

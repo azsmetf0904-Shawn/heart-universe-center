@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight, CalendarDays, Users } from 'lucide-react'
 import type { Metadata } from 'next'
 
@@ -72,9 +73,9 @@ export default async function EventsPage({
               href={`/events/${ev.slug}`}
               className="group bg-[var(--card-bg)] border border-[var(--border-color)] overflow-hidden hover:border-[var(--gold)] transition-colors"
             >
-              <div className="aspect-video bg-[var(--surface)] overflow-hidden">
+              <div className="relative aspect-video bg-[var(--surface)] overflow-hidden">
                 {ev.cover_image_url
-                  ? <img src={ev.cover_image_url} alt={ev.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  ? <Image src={ev.cover_image_url} alt={ev.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                   : <div className="w-full h-full flex items-center justify-center text-[var(--gray)] text-xs tracking-widest">EVENT</div>
                 }
               </div>

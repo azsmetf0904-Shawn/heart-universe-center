@@ -2,8 +2,33 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { RentalRequest, RentalStatus } from '@/lib/types'
-import { RENTAL_STATUS_LABEL } from '@/lib/types'
-import { ChevronDown, ChevronUp } from 'lucide-react'
+import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
+import { ChevronDown, ChevronUp, Download } from 'lucide-react'
+
+function exportCsv(requests: RentalRequest[]) {
+  const headers = ['申請日期', '活動名稱', '申請人', '手機', 'Email', '場地', '租借日期', '時段', '人數', '狀態', '備註']
+  const rows = requests.map(r => [
+    new Date(r.created_at ?? '').toLocaleDateString('zh-TW'),
+    r.event_title,
+    r.name,
+    r.phone,
+    r.email,
+    (r as unknown as { venues?: { name: string } }).venues?.name ?? '',
+    r.booking_date ?? '',
+    r.time_slot ? TIME_SLOT_LABEL[r.time_slot as keyof typeof TIME_SLOT_LABEL] : '',
+    r.guest_count ?? '',
+    RENTAL_STATUS_LABEL[r.status],
+    (r.note ?? '').replace(/,/g, '，'),
+  ])
+  const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
+  const blob = new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8;' })
+  const url = URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.href = url
+  a.download = `rental-requests-${new Date().toISOString().slice(0, 10)}.csv`
+  a.click()
+  URL.revokeObjectURL(url)
+}
 
 const STATUS_COLORS: Record<RentalStatus, string> = {
   pending: 'bg-yellow-100 text-yellow-800',
@@ -37,6 +62,16 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
 
   return (
     <div className="flex flex-col gap-3">
+      {requests.length > 0 && (
+        <div className="flex justify-end mb-2">
+          <button
+            onClick={() => exportCsv(requests)}
+            className="flex items-center gap-2 text-xs px-4 py-2 border border-[var(--border-color)] text-[var(--gray)] hover:border-[var(--charcoal)] hover:text-[var(--charcoal)] transition-colors"
+          >
+            <Download size={13} /> 匯出 CSV
+          </button>
+        </div>
+      )}
       {requests.length === 0 && (
         <p className="text-sm text-[var(--gray)] py-10 text-center">尚無申請</p>
       )}

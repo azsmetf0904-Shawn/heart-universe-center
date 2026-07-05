@@ -33,9 +33,11 @@ function RentForm() {
   const [addons, setAddons] = useState<VenueAddon[]>([])
   const [selected, setSelected] = useState<Record<string, SelectedAddon>>({})
   const [done, setDone] = useState(false)
+  const [bookingId, setBookingId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [bookedSlots, setBookedSlots] = useState<string[]>([])
+  const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({})
 
   const [form, setForm] = useState({
     venue_id: '',
@@ -147,6 +149,7 @@ function RentForm() {
         }))
       )
     }
+    if (!error && req) setBookingId(req.id)
     if (!error) {
       const emailPayload = {
         name: form.name,
@@ -182,12 +185,24 @@ function RentForm() {
       <CheckCircle2 size={48} className="text-[var(--gold)] mb-6" />
       <h2 className="text-2xl mb-4">申請已送出</h2>
       <div className="gold-divider mx-auto" />
+      {bookingId && (
+        <div className="mt-6 bg-[var(--card-bg)] border border-[var(--border-color)] px-6 py-3">
+          <p className="text-xs text-[var(--gray)] mb-1">申請編號</p>
+          <p className="text-xs font-mono text-[var(--charcoal)] select-all">{bookingId}</p>
+        </div>
+      )}
       <p className="text-[var(--gray)] text-sm mt-6 mb-8 leading-relaxed">
         我們將於一個工作日內與您確認時段，<br />敬請留意電話或 Email 通知。
       </p>
-      <button onClick={() => router.push('/')} className="text-sm text-[var(--gold)] tracking-widest hover:underline">
-        返回首頁
-      </button>
+      <div className="flex gap-4">
+        <button onClick={() => router.push('/my-booking')} className="text-sm text-[var(--gold)] tracking-widest hover:underline">
+          查詢申請狀態
+        </button>
+        <span className="text-[var(--border-color)]">|</span>
+        <button onClick={() => router.push('/')} className="text-sm text-[var(--gray)] tracking-widest hover:underline">
+          返回首頁
+        </button>
+      </div>
     </div>
   )
 
@@ -230,9 +245,24 @@ function RentForm() {
                   <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>{f.label}</label>
                   <input type={f.type} required={f.required}
                     value={form[f.key as keyof typeof form] as string}
-                    onChange={e => setForm(p => ({ ...p, [f.key]: e.target.value }))}
-                    className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)] transition-colors"
+                    onChange={e => {
+                      setForm(p => ({ ...p, [f.key]: e.target.value }))
+                      if (errors[f.key as keyof typeof form]) setErrors(p => ({ ...p, [f.key]: '' }))
+                    }}
+                    onBlur={e => {
+                      if (f.required && !e.target.value.trim()) {
+                        setErrors(p => ({ ...p, [f.key]: `請填寫${f.label}` }))
+                      } else if (f.key === 'email' && e.target.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e.target.value)) {
+                        setErrors(p => ({ ...p, [f.key]: 'Email 格式不正確' }))
+                      } else if (f.key === 'phone' && e.target.value && !/^[\d\-+]{8,}$/.test(e.target.value)) {
+                        setErrors(p => ({ ...p, [f.key]: '請輸入有效電話號碼' }))
+                      }
+                    }}
+                    className={`w-full border bg-transparent px-4 py-3 text-sm focus:outline-none transition-colors ${errors[f.key as keyof typeof form] ? 'border-red-400 focus:border-red-400' : 'border-[var(--border-color)] focus:border-[var(--gold)]'}`}
                   />
+                  {errors[f.key as keyof typeof form] && (
+                    <p className="text-xs text-red-500 mt-1">{errors[f.key as keyof typeof form]}</p>
+                  )}
                 </div>
               ))}
             </div>
@@ -261,11 +291,13 @@ function RentForm() {
                   onChange={e => {
                     const date = e.target.value
                     setForm(p => ({ ...p, booking_date: date, time_slot: '' }))
+                    setErrors(p => ({ ...p, booking_date: '' }))
                     fetchAvailability(form.venue_id, date)
                   }}
-                  className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)] transition-colors"
+                  className={`w-full border bg-transparent px-4 py-3 text-sm focus:outline-none transition-colors ${errors.booking_date ? 'border-red-400' : 'border-[var(--border-color)] focus:border-[var(--gold)]'}`}
                 />
-                {form.booking_date && (
+                {errors.booking_date && <p className="text-xs text-red-500 mt-1">{errors.booking_date}</p>}
+                {!errors.booking_date && form.booking_date && (
                   <p className={`text-xs mt-1 ${isHolidayDate ? 'text-[var(--gold)]' : 'text-[var(--gray)]'}`}>
                     {isHolidayDate ? '假日計費' : '平日計費'}
                   </p>
@@ -273,6 +305,7 @@ function RentForm() {
               </div>
               <div>
                 <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>租借時段</label>
+                {errors.time_slot && <p className="text-xs text-red-500 mb-2">{errors.time_slot}</p>}
                 <div className="flex flex-col gap-2">
                   {TIME_SLOTS.map(slot => {
                     const pricing = selectedVenue?.venue_pricing ?? []
@@ -361,10 +394,15 @@ function RentForm() {
             )}
 
             <button onClick={() => {
-              if (!form.name || !form.phone || !form.email || !form.event_title || !form.booking_date || !form.time_slot) {
-                alert('請填寫必填欄位（含日期與時段）')
-                return
-              }
+              const newErrors: Partial<Record<keyof typeof form, string>> = {}
+              if (!form.name) newErrors.name = '請填寫申請人姓名'
+              if (!form.phone) newErrors.phone = '請填寫手機號碼'
+              if (!form.email) newErrors.email = '請填寫 Email'
+              else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) newErrors.email = 'Email 格式不正確'
+              if (!form.event_title) newErrors.event_title = '請填寫活動名稱'
+              if (!form.booking_date) newErrors.booking_date = '請選擇租借日期'
+              if (!form.time_slot) newErrors.time_slot = '請選擇租借時段'
+              if (Object.keys(newErrors).length > 0) { setErrors(newErrors); return }
               setStep(2)
             }} className="w-full py-3 bg-[var(--gold)] text-white text-sm tracking-widest hover:bg-[var(--gold-dark)] transition-colors">
               下一步：選加購
