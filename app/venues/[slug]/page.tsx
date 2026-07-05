@@ -102,7 +102,7 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
   const supabase = await createClient()
   const { data: venue } = await supabase
     .from('venues')
-    .select('*, venue_photos(image_url, sort_order), venue_pricing(*)')
+    .select('*, venue_photos(image_url, alt_text, sort_order), venue_pricing(*)')
     .eq('slug', slug)
     .eq('is_active', true)
     .single()
@@ -122,7 +122,7 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
     },
   }
 
-  const photos = (venue.venue_photos ?? []).sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order)
+  const photos = (venue.venue_photos ?? []).sort((a: { sort_order: number; alt_text?: string }, b: { sort_order: number }) => a.sort_order - b.sort_order)
   const pricing: VenuePricing[] = venue.venue_pricing ?? []
   const layouts: Partial<Record<LayoutType, number>> = venue.layout_capacities ?? {}
 
@@ -147,11 +147,11 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
       {photos.length > 0 && (
         <div className="container-wide mb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {photos.map((p: { image_url: string; sort_order: number }, i: number) => (
+            {photos.map((p: { image_url: string; alt_text?: string; sort_order: number }, i: number) => (
               <div key={i} className={`relative aspect-video bg-[var(--surface)] overflow-hidden ${i === 0 ? 'md:col-span-2' : ''}`}>
                 <Image
                   src={p.image_url}
-                  alt={`${venue.name} 場地照片 ${i + 1}`}
+                  alt={p.alt_text ?? `${venue.name} 場地照片 ${i + 1}`}
                   fill
                   className="object-cover"
                   sizes={i === 0 ? '100vw' : '(max-width: 768px) 100vw, 50vw'}
