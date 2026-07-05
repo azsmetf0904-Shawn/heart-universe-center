@@ -148,18 +148,29 @@ function RentForm() {
       )
     }
     if (!error) {
+      const emailPayload = {
+        name: form.name,
+        phone: form.phone,
+        email: form.email,
+        eventTitle: form.event_title,
+        venueName: selectedVenue?.name,
+        bookingDate: form.booking_date,
+        timeSlot: form.time_slot ? TIME_SLOT_LABEL[form.time_slot as TimeSlot] : null,
+        guestCount: form.guest_count,
+        eventType: form.event_type,
+        note: form.note,
+      }
+      // 通知申請者
       fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'rental_request',
-          to: form.email,
-          name: form.name,
-          eventTitle: form.event_title,
-          venueName: selectedVenue?.name,
-          bookingDate: form.booking_date,
-          timeSlot: form.time_slot ? TIME_SLOT_LABEL[form.time_slot as TimeSlot] : null,
-        }),
+        body: JSON.stringify({ type: 'rental_request', to: form.email, ...emailPayload }),
+      }).catch(() => {})
+      // 通知管理員
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'admin_rental_notification', ...emailPayload }),
       }).catch(() => {})
       setDone(true)
     }

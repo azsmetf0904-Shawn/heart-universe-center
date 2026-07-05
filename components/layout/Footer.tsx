@@ -20,6 +20,7 @@ export default function Footer() {
                 { href: '/venues', label: '場地介紹' },
                 { href: '/events', label: '活動課程' },
                 { href: '/rent', label: '租借申請' },
+                { href: '/my-booking', label: '查詢申請狀態' },
               ].map(l => (
                 <Link key={l.href} href={l.href} className="text-sm hover:text-white transition-colors">
                   {l.label}
@@ -35,8 +36,12 @@ export default function Footer() {
             </p>
           </div>
         </div>
-        <div className="border-t border-white/10 mt-12 pt-6 text-xs text-center">
-          © {new Date().getFullYear()} 心宇宙商務中心 Heart Universe Business Center
+        <div className="border-t border-white/10 mt-12 pt-6 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+          <p>© {new Date().getFullYear()} 心宇宙商務中心 Heart Universe Business Center</p>
+          <div className="flex gap-6">
+            <Link href="/privacy" className="hover:text-white transition-colors">隱私政策</Link>
+            <Link href="/terms" className="hover:text-white transition-colors">服務條款</Link>
+          </div>
         </div>
       </div>
     </footer>

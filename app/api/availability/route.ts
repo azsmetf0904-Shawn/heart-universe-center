@@ -1,7 +1,11 @@
 import { createAdminClient } from '@/lib/supabase/server'
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/rate-limit'
 
 export async function GET(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
+  const { ok } = rateLimit(ip, 30, 60_000)
+  if (!ok) return NextResponse.json({ booked: [] }, { status: 429 })
   const { searchParams } = new URL(req.url)
   const venue_id = searchParams.get('venue_id')
   const date = searchParams.get('date')

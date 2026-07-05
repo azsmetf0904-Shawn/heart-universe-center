@@ -1,10 +1,17 @@
 import { Resend } from 'resend'
 import { NextRequest, NextResponse } from 'next/server'
+import { rateLimit } from '@/lib/rate-limit'
 
 const FROM = process.env.RESEND_FROM ?? 'noreply@heart-universe.tw'
 const BRAND = '心宇宙商務中心'
 
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
+  const { ok } = rateLimit(ip, 5, 60_000)
+  if (!ok) {
+    return NextResponse.json({ ok: false, error: 'rate_limited' }, { status: 429 })
+  }
+
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json({ ok: false, error: 'RESEND_API_KEY not set' }, { status: 200 })
   }
@@ -56,6 +63,37 @@ export async function POST(req: NextRequest) {
           `,
         }),
       })
+    }
+
+    if (type === 'admin_rental_notification') {
+      const adminEmail = process.env.ADMIN_EMAIL
+      if (adminEmail) {
+        const { name, phone, email, eventTitle, venueName, bookingDate, timeSlot, guestCount, eventType, note } = body
+        await resend.emails.send({
+          from: `${BRAND} <${FROM}>`,
+          to: adminEmail,
+          subject: `【新租借申請】${eventTitle} — ${name}`,
+          html: emailHtml({
+            title: '新場地租借申請通知',
+            content: `
+              <p>有一筆新的租借申請，請儘速確認：</p>
+              <table style="margin-top:16px;border-collapse:collapse;width:100%;font-size:14px">
+                <tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE;width:120px">申請人</td><td style="padding:8px 12px">${name}</td></tr>
+                <tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">手機</td><td style="padding:8px 12px">${phone}</td></tr>
+                <tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">Email</td><td style="padding:8px 12px">${email}</td></tr>
+                <tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">活動名稱</td><td style="padding:8px 12px"><strong>${eventTitle}</strong></td></tr>
+                ${venueName ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">場地</td><td style="padding:8px 12px">${venueName}</td></tr>` : ''}
+                ${bookingDate ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">日期</td><td style="padding:8px 12px">${bookingDate}</td></tr>` : ''}
+                ${timeSlot ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">時段</td><td style="padding:8px 12px">${timeSlot}</td></tr>` : ''}
+                ${guestCount ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">人數</td><td style="padding:8px 12px">${guestCount} 人</td></tr>` : ''}
+                ${eventType ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">活動類型</td><td style="padding:8px 12px">${eventType}</td></tr>` : ''}
+                ${note ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">備註</td><td style="padding:8px 12px">${note}</td></tr>` : ''}
+              </table>
+              <p style="margin-top:20px"><a href="${process.env.NEXT_PUBLIC_SITE_URL ?? ''}/admin/rental-requests" style="color:#C9A96E">前往後台查看申請</a></p>
+            `,
+          }),
+        })
+      }
     }
 
     return NextResponse.json({ ok: true })

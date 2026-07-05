@@ -1,16 +1,28 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ArrowRight, Users, CheckCircle2 } from 'lucide-react'
 import type { Metadata } from 'next'
 import type { VenuePricing, TimeSlot, LayoutType } from '@/lib/types'
 import { TIME_SLOT_LABEL, LAYOUT_TYPES } from '@/lib/types'
 
+const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
+
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createClient()
   const { data } = await supabase.from('venues').select('name, description').eq('slug', slug).single()
-  return { title: data?.name ?? '場地詳情', description: data?.description ?? '' }
+  return {
+    title: data?.name ?? '場地詳情',
+    description: data?.description ?? `心宇宙商務中心 ${data?.name ?? '場地'} — 台北八德路精品場地租借`,
+    openGraph: {
+      title: `${data?.name ?? '場地詳情'}｜心宇宙商務中心`,
+      description: data?.description ?? '',
+      url: `${SITE}/venues/${slug}`,
+      type: 'website',
+    },
+  }
 }
 
 function PricingTable({ pricing }: { pricing: VenuePricing[] }) {
@@ -97,12 +109,29 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
 
   if (!venue) notFound()
 
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Place',
+    name: venue.name,
+    description: venue.description ?? '',
+    url: `${SITE}/venues/${slug}`,
+    containedInPlace: {
+      '@type': 'LocalBusiness',
+      name: '心宇宙商務中心',
+      url: SITE,
+    },
+  }
+
   const photos = (venue.venue_photos ?? []).sort((a: { sort_order: number }, b: { sort_order: number }) => a.sort_order - b.sort_order)
   const pricing: VenuePricing[] = venue.venue_pricing ?? []
   const layouts: Partial<Record<LayoutType, number>> = venue.layout_capacities ?? {}
 
   return (
     <div className="py-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="container-narrow mb-10">
         <p className="label-tag mb-4">Venue</p>
         <div className="flex items-end gap-4 flex-wrap">
@@ -119,8 +148,15 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
         <div className="container-wide mb-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {photos.map((p: { image_url: string; sort_order: number }, i: number) => (
-              <div key={i} className={`aspect-video bg-[var(--surface)] overflow-hidden ${i === 0 ? 'md:col-span-2' : ''}`}>
-                <img src={p.image_url} alt={`${venue.name} ${i + 1}`} className="w-full h-full object-cover" />
+              <div key={i} className={`relative aspect-video bg-[var(--surface)] overflow-hidden ${i === 0 ? 'md:col-span-2' : ''}`}>
+                <Image
+                  src={p.image_url}
+                  alt={`${venue.name} 場地照片 ${i + 1}`}
+                  fill
+                  className="object-cover"
+                  sizes={i === 0 ? '100vw' : '(max-width: 768px) 100vw, 50vw'}
+                  priority={i === 0}
+                />
               </div>
             ))}
           </div>
