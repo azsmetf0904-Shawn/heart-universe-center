@@ -17,18 +17,17 @@ export default function Navbar() {
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b"
-      style={{ background: 'rgba(13,10,5,0.94)', borderColor: 'var(--dark-border)' }}
+      style={{ background: 'rgba(244,239,230,0.96)', borderColor: 'var(--border-color)' }}
     >
       <div className="container-wide flex items-center justify-between h-16">
 
-        <Link href="/" className="flex items-center shrink-0" style={{ isolation: 'isolate' }}>
+        <Link href="/" className="flex items-center shrink-0">
           <Image
-            src="/logo.png"
+            src="/logo.svg"
             alt="心宇宙商務中心"
             width={52}
             height={52}
             priority
-            style={{ mixBlendMode: 'screen' }}
           />
         </Link>
 
@@ -38,15 +37,15 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-xs tracking-widest transition-colors hover:text-[var(--gold)]"
-              style={{ color: 'var(--dark-muted)' }}
+              className="text-xs tracking-widest transition-colors hover:text-[var(--charcoal)]"
+              style={{ color: 'var(--gray)' }}
             >
               {l.label}
             </Link>
           ))}
           <Link
             href="/rent"
-            className="text-xs tracking-widest uppercase px-5 py-2 border transition-all hover:bg-[var(--gold)] hover:text-[#0D0A05]"
+            className="text-xs tracking-widest uppercase px-5 py-2 border transition-all hover:bg-[var(--gold)] hover:text-white"
             style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}
           >
             立即預約
@@ -55,7 +54,7 @@ export default function Navbar() {
 
         <button
           className="md:hidden"
-          style={{ color: 'var(--dark-muted)' }}
+          style={{ color: 'var(--gray)' }}
           onClick={() => setOpen(!open)}
           aria-label="選單"
         >
@@ -66,7 +65,7 @@ export default function Navbar() {
       {open && (
         <div
           className="md:hidden px-6 py-6 flex flex-col gap-6 border-t"
-          style={{ background: '#0D0A05', borderColor: 'var(--dark-border)' }}
+          style={{ background: 'var(--cream)', borderColor: 'var(--border-color)' }}
         >
           {links.map(l => (
             <Link
@@ -74,7 +73,7 @@ export default function Navbar() {
               href={l.href}
               onClick={() => setOpen(false)}
               className="text-sm tracking-widest"
-              style={{ color: 'var(--dark-muted)' }}
+              style={{ color: 'var(--gray)' }}
             >
               {l.label}
             </Link>

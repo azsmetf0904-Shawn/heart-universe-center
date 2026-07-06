@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Footer() {
   return (
@@ -6,10 +7,9 @@ export default function Footer() {
       <div className="container-wide py-16">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
-            <h3 className="font-serif text-base tracking-widest mb-4" style={{ color: 'var(--dark-text)' }}>
-              心宇宙商務中心
-            </h3>
-            <div className="w-10 h-px mb-5" style={{ background: 'var(--gold)' }} />
+            <div className="mb-4">
+              <Image src="/logo.svg" alt="心宇宙商務中心" width={56} height={56} />
+            </div>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--dark-muted)' }}>
               台北市八德路<br />
               精品場地租借 × 活動課程

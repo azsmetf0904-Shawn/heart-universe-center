@@ -151,15 +151,13 @@
   }
 }
 
-/* Dark theme hover utilities */
-.btn-dark-gold { background: var(--gold); color: var(--dark-bg); transition: background 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-dark-gold:hover { background: var(--gold-dark); }
-.btn-dark-ghost { border: 1px solid rgba(184,152,64,0.4); color: var(--gold); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-dark-ghost:hover { background: var(--gold); color: var(--dark-bg); }
+/* Button utilities */
+.btn-gold-fill { background: var(--gold); color: #fff; transition: background 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-gold-fill:hover { background: var(--gold-dark); }
 .btn-cta-ghost { border: 1px solid var(--gold); color: var(--gold); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-cta-ghost:hover { background: var(--gold); color: var(--dark-bg); }
+.btn-cta-ghost:hover { background: var(--gold); color: #fff; }
 .event-row { transition: background 0.2s; }
-.event-row:hover { background: var(--dark-bg2); }
+.event-row:hover { background: var(--card-bg); }
 
 /* Dark brand theme variables */
 :root {
