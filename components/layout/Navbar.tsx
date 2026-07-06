@@ -7,6 +7,7 @@ import { Menu, X } from 'lucide-react'
 const links = [
   { href: '/venues', label: '場地' },
   { href: '/events', label: '活動課程' },
+  { href: '/showcase', label: '活動回顧' },
   { href: '/rent', label: '租借申請' },
   { href: '/my-booking', label: '查詢申請' },
 ]

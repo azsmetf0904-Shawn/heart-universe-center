@@ -381,6 +381,29 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ─── Showcase teaser ─── */}
+      <section style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '80px 0' }}>
+        <div className="container-wide">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+            <div>
+              <p className="text-[10px] tracking-[0.5em] uppercase mb-3" style={{ color: 'var(--gold)' }}>Showcase</p>
+              <h2 className="font-serif text-3xl md:text-4xl mb-4" style={{ color: 'var(--charcoal)', letterSpacing: '0.05em' }}>
+                過去的活動回顧
+              </h2>
+              <p className="text-sm leading-loose" style={{ color: 'var(--gray)', letterSpacing: '0.06em', maxWidth: '420px' }}>
+                從企業培訓到社群聚會，每一場在心宇宙舉辦的活動都留下了精彩的畫面。
+              </p>
+            </div>
+            <Link
+              href="/showcase"
+              className="btn-gold-fill shrink-0 text-xs tracking-widest px-10 py-3"
+            >
+              查看活動相簿
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* ─── CTA ─── */}
       <section
         className="text-center"
