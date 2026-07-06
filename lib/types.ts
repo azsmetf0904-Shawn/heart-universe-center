@@ -73,6 +73,7 @@ export interface RentalRequest {
   guest_count: number | null
   booking_date: string | null
   time_slot: TimeSlot | null
+  time_slots: TimeSlot[] | null
   layout_config: LayoutType | null
   is_holiday: boolean
   session_count: number

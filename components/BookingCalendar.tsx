@@ -13,13 +13,13 @@ type MonthMap = Record<string, Record<string, string>>
 export interface CalendarSelection {
   date: Date
   dateStr: string // YYYY-MM-DD local
-  slot: TimeSlot
+  slots: TimeSlot[] // multi-select
 }
 
 interface Props {
   venueId: string
   pricing: VenuePricing[]
-  onSelect: (sel: CalendarSelection) => void
+  onSelect: (sel: CalendarSelection | null) => void
   selected?: CalendarSelection | null
 }
 
@@ -88,8 +88,29 @@ export function BookingCalendar({ venueId, pricing, onSelect, selected }: Props)
     return 'available'
   }
 
-  function isSelected(date: Date, slot: TimeSlot) {
-    return selected?.dateStr === toLocalDateStr(date) && selected.slot === slot
+  function isSlotSelected(date: Date, slot: TimeSlot) {
+    return selected?.dateStr === toLocalDateStr(date) && selected.slots.includes(slot)
+  }
+
+  function handleSlotClick(date: Date, slot: TimeSlot) {
+    const dateStr = toLocalDateStr(date)
+
+    // Clicking a different date → start fresh on new date
+    if (selected && selected.dateStr !== dateStr) {
+      onSelect({ date, dateStr, slots: [slot] })
+      return
+    }
+
+    const currentSlots = selected?.dateStr === dateStr ? selected.slots : []
+
+    if (currentSlots.includes(slot)) {
+      // Toggle off
+      const next = currentSlots.filter(s => s !== slot)
+      onSelect(next.length === 0 ? null : { date, dateStr, slots: next })
+    } else {
+      // Toggle on
+      onSelect({ date, dateStr, slots: [...currentSlots, slot] })
+    }
   }
 
   const cells = buildCells(year, month)
@@ -128,9 +149,10 @@ export function BookingCalendar({ venueId, pricing, onSelect, selected }: Props)
           const isPst = isPastDate(date)
           const isHol = isHolidayDate(date)
           const isToday = toLocalDateStr(date) === toLocalDateStr(today)
+          const isThisDateSelected = selected?.dateStr === toLocalDateStr(date)
 
           return (
-            <div key={i} className={`min-h-[56px] p-0.5 ${isPst ? 'opacity-40' : ''}`}>
+            <div key={i} className={`min-h-[56px] p-0.5 ${isPst ? 'opacity-40' : ''} ${isThisDateSelected ? 'ring-1 ring-[var(--gold)] ring-inset' : ''}`}>
               {/* Date number */}
               <div className={`text-center text-[10px] mb-0.5 font-medium
                 ${isToday ? 'text-[var(--gold)]' : isHol ? 'text-red-400' : 'text-[var(--charcoal)]'}`}>
@@ -140,7 +162,7 @@ export function BookingCalendar({ venueId, pricing, onSelect, selected }: Props)
               <div className="flex flex-col gap-0.5">
                 {SLOTS.map(slot => {
                   const status = getStatus(date, slot)
-                  const sel = isSelected(date, slot)
+                  const sel = isSlotSelected(date, slot)
                   const canSelect = status === 'available'
 
                   return (
@@ -148,10 +170,7 @@ export function BookingCalendar({ venueId, pricing, onSelect, selected }: Props)
                       key={slot}
                       type="button"
                       disabled={!canSelect}
-                      onClick={() => {
-                        const dateStr = toLocalDateStr(date)
-                        onSelect({ date, dateStr, slot })
-                      }}
+                      onClick={() => handleSlotClick(date, slot)}
                       className={[
                         'w-full text-[9px] leading-none py-0.5 rounded-sm transition-colors',
                         sel
@@ -195,29 +214,48 @@ export function BookingCalendar({ venueId, pricing, onSelect, selected }: Props)
       </div>
 
       {/* Price preview */}
-      {selected && (
-        <PricePreview pricing={pricing} date={selected.date} slot={selected.slot} />
+      {selected && selected.slots.length > 0 && (
+        <MultiPricePreview pricing={pricing} date={selected.date} slots={selected.slots} />
       )}
     </div>
   )
 }
 
-function PricePreview({ pricing, date, slot }: { pricing: VenuePricing[]; date: Date; slot: TimeSlot }) {
-  const p = getPriceForSlot(pricing, date, slot)
-  if (!p) return null
+function MultiPricePreview({ pricing, date, slots }: { pricing: VenuePricing[]; date: Date; slots: TimeSlot[] }) {
+  const isHol = isHolidayDate(date)
+  const dayType = isHol ? 'holiday' : 'weekday'
+
+  const items = slots
+    .map(slot => {
+      const p = getPriceForSlot(pricing, date, slot)
+      return p ? { slot, price: p.price, overtime: p.overtime_per_30min } : null
+    })
+    .filter(Boolean) as { slot: TimeSlot; price: number; overtime: number }[]
+
+  if (!items.length) return null
+
+  const total = items.reduce((sum, x) => sum + x.price, 0)
+
   return (
-    <div className="mt-3 p-3 bg-[var(--surface)] border border-[var(--border-color)] flex items-center justify-between">
-      <div>
-        <p className="text-[10px] text-[var(--gray)] mb-0.5">
-          {isHolidayDate(date) ? '假日' : '平日'} · {TIME_SLOT_LABEL[slot]}
-        </p>
-        {p.overtime_per_30min > 0 && (
-          <p className="text-[10px] text-[var(--gray)]">超時每 30 分 +NT$ {p.overtime_per_30min}</p>
+    <div className="mt-3 border border-[var(--border-color)] bg-[var(--surface)]">
+      <div className="px-3 py-2 border-b border-[var(--border-color)] flex justify-between items-center">
+        <span className="text-[10px] tracking-wider text-[var(--gray)]">{isHol ? '假日' : '平日'} · 已選 {slots.length} 個時段</span>
+        {items.length > 1 && (
+          <span className="text-base font-light text-[var(--charcoal)]">NT$ {total.toLocaleString()}</span>
         )}
       </div>
-      <p className="text-lg font-light text-[var(--charcoal)]">
-        NT$ {p.price.toLocaleString()}
-      </p>
+      {items.map(x => (
+        <div key={x.slot} className="px-3 py-1.5 flex items-center justify-between border-b border-[var(--border-color)] last:border-0">
+          <span className="text-[10px] text-[var(--gray)]">{TIME_SLOT_LABEL[x.slot]}</span>
+          <span className="text-sm text-[var(--charcoal)]">NT$ {x.price.toLocaleString()}</span>
+        </div>
+      ))}
+      {items.length === 1 && (
+        <div className="px-3 py-1.5 flex justify-between">
+          <span className="text-[10px] text-[var(--gray)]"></span>
+          <span className="text-base font-light text-[var(--charcoal)]">NT$ {total.toLocaleString()}</span>
+        </div>
+      )}
     </div>
   )
 }

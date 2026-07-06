@@ -38,7 +38,7 @@ function RentForm() {
   const [bookingId, setBookingId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
-  const [calSel, setCalSel] = useState<CalendarSelection | null>(null)
+  const [calSel, setCalSel] = useState<CalendarSelection | null>(null) // slots = multi-select
   const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({})
 
   const [form, setForm] = useState({
@@ -51,6 +51,7 @@ function RentForm() {
     guest_count: '',
     booking_date: '',
     time_slot: '' as TimeSlot | '',
+    time_slots: [] as TimeSlot[],
     session_count: '1',
     layout_config: '' as LayoutType | '',
     note: '',
@@ -82,22 +83,33 @@ function RentForm() {
     setCalSel(null)
   }
 
-  function handleCalendarSelect(sel: CalendarSelection) {
+  function handleCalendarSelect(sel: CalendarSelection | null) {
     setCalSel(sel)
-    setForm(p => ({ ...p, booking_date: sel.dateStr, time_slot: sel.slot }))
+    if (!sel || sel.slots.length === 0) {
+      setForm(p => ({ ...p, booking_date: '', time_slot: '' as TimeSlot | '', time_slots: [] }))
+      return
+    }
+    const orderedSlots: TimeSlot[] = ['morning', 'afternoon', 'evening']
+    const sorted = orderedSlots.filter(s => sel.slots.includes(s))
+    setForm(p => ({
+      ...p,
+      booking_date: sel.dateStr,
+      time_slot: sorted[0],   // first slot for backward compat
+      time_slots: sorted,
+      session_count: String(sorted.length),
+    }))
     setErrors(p => ({ ...p, booking_date: '', time_slot: '' }))
   }
 
-  // 即時計算費用（依 calSel 選定的日期+時段）
+  // 即時計算費用（多時段加總）
   const estimatedPrice = (() => {
-    if (!selectedVenue?.venue_pricing || !calSel) return null
+    if (!selectedVenue?.venue_pricing || !calSel || calSel.slots.length === 0) return null
     const pricing: VenuePricing[] = selectedVenue.venue_pricing
-    const p = pricing.find(x =>
-      x.day_type === (isHoliday(calSel.date) ? 'holiday' : 'weekday') &&
-      x.time_slot === calSel.slot
-    )
-    if (!p) return null
-    return p.price * parseInt(form.session_count || '1')
+    const dayType = isHoliday(calSel.date) ? 'holiday' : 'weekday'
+    return calSel.slots.reduce((sum, slot) => {
+      const p = pricing.find(x => x.day_type === dayType && x.time_slot === slot)
+      return sum + (p?.price ?? 0)
+    }, 0)
   })()
 
   function toggleAddon(addon: VenueAddon) {
@@ -130,6 +142,7 @@ function RentForm() {
       guest_count: form.guest_count ? parseInt(form.guest_count) : null,
       booking_date: form.booking_date || null,
       time_slot: form.time_slot || null,
+      time_slots: form.time_slots.length > 0 ? form.time_slots : null,
       session_count: parseInt(form.session_count || '1'),
       layout_config: form.layout_config || null,
       is_holiday: isHolidayDate,
@@ -158,7 +171,7 @@ function RentForm() {
         eventTitle: form.event_title,
         venueName: selectedVenue?.name,
         bookingDate: form.booking_date,
-        timeSlot: form.time_slot ? TIME_SLOT_LABEL[form.time_slot as TimeSlot] : null,
+        timeSlot: form.time_slots.length > 0 ? form.time_slots.map(s => TIME_SLOT_LABEL[s]).join('、') : (form.time_slot ? TIME_SLOT_LABEL[form.time_slot as TimeSlot] : null),
         guestCount: form.guest_count,
         eventType: form.event_type,
         note: form.note,
@@ -297,10 +310,10 @@ function RentForm() {
                   selected={calSel}
                 />
               </div>
-              {calSel && (
+              {calSel && calSel.slots.length > 0 && (
                 <p className="text-xs text-[var(--gray)] mt-2">
                   已選：{calSel.dateStr}（{isHoliday(calSel.date) ? '假日' : '平日'}）
-                  · {TIME_SLOT_LABEL[calSel.slot]}
+                  · {calSel.slots.map(s => TIME_SLOT_LABEL[s]).join('、')}
                 </p>
               )}
             </div>
@@ -457,7 +470,7 @@ function RentForm() {
                   ['活動類型', form.event_type || '—'],
                   ['預計人數', form.guest_count || '—'],
                   ['租借日期', `${form.booking_date}（${isHolidayDate ? '假日' : '平日'}）`],
-                  ['租借時段', form.time_slot ? TIME_SLOT_LABEL[form.time_slot as TimeSlot] : '—'],
+                  ['租借時段', form.time_slots.length > 0 ? form.time_slots.map(s => TIME_SLOT_LABEL[s]).join('、') : (form.time_slot ? TIME_SLOT_LABEL[form.time_slot as TimeSlot] : '—')],
                   ['時段數', `${form.session_count} 個`],
                   ['座位配置', form.layout_config || '不指定'],
                 ].map(([k, v]) => (
