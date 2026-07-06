@@ -26,125 +26,181 @@ export default async function HomePage() {
       .limit(3),
   ])
 
+  // Pick first available venue photo as hero background
+  type VenuePhoto = { image_url: string; sort_order: number }
+  const heroCover = venues
+    ?.flatMap(v => {
+      const photos = v.venue_photos as VenuePhoto[] | null
+      return photos?.sort((a, b) => a.sort_order - b.sort_order) ?? []
+    })
+    .find(p => p.image_url)?.image_url ?? null
+
   return (
     <>
-      {/* ─── Hero — 左右分割 ─── */}
+      {/* ─── Hero — 全幅場地照片 ─── */}
       <section
-        className="grid"
-        style={{
-          minHeight: 'calc(100vh - 4rem)',
-          gridTemplateColumns: '1.1fr 1fr',
-        }}
+        className="relative flex items-end overflow-hidden"
+        style={{ minHeight: 'calc(100vh - 4rem)' }}
       >
-        {/* Left: logo */}
-        <div
-          className="relative flex items-center justify-center p-12 border-r"
-          style={{
-            background: 'var(--cream)',
-            borderColor: 'var(--border-color)',
-          }}
-        >
+        {/* Background: venue photo or fallback gradient */}
+        {heroCover ? (
+          <Image
+            src={heroCover}
+            alt="心宇宙商務中心場地"
+            fill
+            priority
+            className="object-cover"
+            sizes="100vw"
+            style={{ zIndex: 0 }}
+          />
+        ) : (
           <div
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0"
             style={{
-              background: 'radial-gradient(ellipse 70% 70% at 40% 60%, rgba(184,152,64,0.06) 0%, transparent 65%)',
+              background: 'linear-gradient(135deg, var(--charcoal) 0%, #5a3a20 40%, #3d2a14 70%, var(--charcoal) 100%)',
+              zIndex: 0,
             }}
           />
-          <Image
-            src="/logo.svg"
-            alt="心宇宙商務中心"
-            width={520}
-            height={520}
-            priority
-            style={{ width: '100%', maxWidth: '480px', height: 'auto', position: 'relative', zIndex: 1 }}
-          />
-        </div>
+        )}
 
-        {/* Right: text */}
+        {/* Dark overlay for text legibility */}
         <div
-          className="flex flex-col justify-center px-14 py-16"
-          style={{ background: 'var(--surface)' }}
+          className="absolute inset-0"
+          style={{
+            background: 'linear-gradient(to top, rgba(26,16,8,0.92) 0%, rgba(26,16,8,0.55) 45%, rgba(26,16,8,0.25) 100%)',
+            zIndex: 1,
+          }}
+        />
+
+        {/* Content */}
+        <div
+          className="relative w-full container-wide"
+          style={{ zIndex: 2, paddingTop: '60px', paddingBottom: '64px' }}
         >
-          {/* Eyebrow */}
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-6 h-px" style={{ background: 'var(--gold)', opacity: 0.5 }} />
-            <p className="text-[10px] tracking-[0.45em] uppercase" style={{ color: 'var(--gold)' }}>
-              Heart Universe · Taipei
-            </p>
-          </div>
+          <div className="grid items-end gap-16" style={{ gridTemplateColumns: '1fr auto' }}>
+            {/* Left: main text */}
+            <div>
+              {/* Brand eyebrow */}
+              <div className="flex items-center gap-3 mb-5">
+                <div className="w-8 h-px" style={{ background: 'var(--gold)', opacity: 0.6 }} />
+                <p className="text-[11px] tracking-[0.4em]" style={{ color: 'rgba(244,239,230,0.55)' }}>
+                  心宇宙商務中心 · TAIPEI
+                </p>
+              </div>
 
-          {/* Brand name */}
-          <h1
-            className="font-serif mb-3 leading-snug"
-            style={{ fontSize: 'clamp(28px, 3vw, 44px)', fontWeight: 500, color: 'var(--charcoal)', letterSpacing: '0.08em' }}
-          >
-            心宇宙商務中心
-          </h1>
-
-          {/* Tagline */}
-          <p
-            className="font-serif mb-6"
-            style={{ fontSize: 'clamp(14px, 1.4vw, 18px)', color: 'var(--gold)', letterSpacing: '0.12em', fontWeight: 400 }}
-          >
-            台北精品場地空間
-          </p>
-
-          {/* Description */}
-          <p
-            className="text-sm leading-loose mb-7"
-            style={{ color: 'var(--gray)', letterSpacing: '0.06em', maxWidth: '360px' }}
-          >
-            位於台北市八德路，提供企業培訓、<br />
-            品牌發表、工作坊及社群聚會<br />
-            所需的彈性場地與完善服務。
-          </p>
-
-          {/* Service chips */}
-          <div className="flex flex-wrap gap-2 mb-9">
-            {['場地租借', '課程活動', '工作坊', '企業培訓'].map(s => (
-              <span
-                key={s}
-                className="text-[10px] tracking-widest px-3 py-1 border"
-                style={{ borderColor: 'var(--border-color)', color: 'var(--gray)' }}
+              {/* Service type — LARGEST text */}
+              <h1
+                className="font-serif leading-tight mb-6"
+                style={{
+                  fontSize: 'clamp(44px, 7vw, 88px)',
+                  fontWeight: 600,
+                  color: '#fff',
+                  letterSpacing: '0.05em',
+                  lineHeight: 1.1,
+                }}
               >
-                {s}
-              </span>
-            ))}
-          </div>
+                台北<span style={{ color: 'var(--gold)' }}>精品</span><br />場地出租
+              </h1>
 
-          {/* CTA */}
-          <div className="flex">
-            <Link
-              href="/venues"
-              className="px-10 py-3 text-xs tracking-widest transition-all btn-gold-fill"
-            >
-              瀏覽場地
-            </Link>
-            <Link
-              href="/rent"
-              className="px-8 py-3 text-xs tracking-widest border transition-colors hover:border-[var(--gold)] hover:text-[var(--charcoal)]"
-              style={{ borderColor: 'var(--border-color)', color: 'var(--gray)', borderLeft: 'none' }}
-            >
-              租借申請
-            </Link>
+              <p
+                className="text-sm leading-loose mb-10"
+                style={{ color: 'rgba(244,239,230,0.62)', letterSpacing: '0.08em', maxWidth: '420px' }}
+              >
+                位於台北市八德路，捷運步行可達<br />
+                企業培訓 · 品牌發表 · 工作坊 · 社群聚會
+              </p>
+
+              <div className="flex gap-3">
+                <Link
+                  href="/venues"
+                  className="btn-gold-fill text-xs tracking-widest px-12 py-3"
+                >
+                  瀏覽場地空間
+                </Link>
+                <Link
+                  href="/rent"
+                  className="text-xs tracking-widest px-8 py-3 transition-colors hover:border-[var(--gold)] hover:text-white"
+                  style={{
+                    border: '1px solid rgba(244,239,230,0.28)',
+                    color: 'rgba(244,239,230,0.65)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  租借申請
+                </Link>
+              </div>
+            </div>
+
+            {/* Right: quick stats */}
+            <div className="hidden lg:flex flex-col gap-7 text-right">
+              {[
+                { n: '3', u: '間', l: '精品場地空間' },
+                { n: '80', u: '人', l: '最大容納人數' },
+                { n: '1', u: '日', l: '工作日確認回覆' },
+              ].map(s => (
+                <div key={s.l}>
+                  <div
+                    className="font-serif"
+                    style={{ fontSize: '34px', fontWeight: 600, color: 'var(--gold)', fontStyle: 'italic', lineHeight: 1 }}
+                  >
+                    {s.n}<span style={{ fontSize: '17px' }}>{s.u}</span>
+                  </div>
+                  <div className="text-[10px] mt-1 tracking-widest" style={{ color: 'rgba(244,239,230,0.38)' }}>
+                    {s.l}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* ─── Tagline 2-col ─── */}
-      <section style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)', padding: '64px 0' }}>
-        <div className="container-wide grid grid-cols-1 md:grid-cols-[1fr_2px_1fr] gap-16 items-center">
-          <h2 className="font-serif text-3xl md:text-4xl leading-relaxed" style={{ color: 'var(--charcoal)', letterSpacing: '0.05em' }}>
-            適合每一種<br />商務場合的空間
-          </h2>
-          <div className="hidden md:block self-stretch" style={{ background: 'var(--border-color)' }} />
-          <p className="text-sm leading-loose" style={{ color: 'var(--muted-foreground)', letterSpacing: '0.06em' }}>
-            無論是企業培訓、品牌發表、社群聚會，<br />
-            或一場需要安靜專注的工作坊，<br />
-            我們為您的每一個需求提供最合適的場地配置。
-          </p>
+      {/* ─── Venue quick strip ─── */}
+      {venues && venues.length > 0 && (
+        <div
+          className="grid"
+          style={{
+            gridTemplateColumns: `repeat(${venues.length}, 1fr)`,
+            background: 'var(--cream)',
+            borderBottom: '1px solid var(--border-color)',
+          }}
+        >
+          {venues.map((v, i) => {
+            const photos = v.venue_photos as VenuePhoto[] | null
+            const cover = photos?.sort((a, b) => a.sort_order - b.sort_order)[0]?.image_url
+            return (
+              <Link
+                key={v.id}
+                href={`/venues/${v.slug}`}
+                className="event-row flex items-center gap-4 px-8 py-6"
+                style={{
+                  borderRight: i < venues.length - 1 ? '1px solid var(--border-color)' : 'none',
+                }}
+              >
+                {cover ? (
+                  <div className="relative shrink-0 overflow-hidden" style={{ width: 52, height: 52 }}>
+                    <Image src={cover} alt={v.name} fill className="object-cover" sizes="52px" />
+                  </div>
+                ) : (
+                  <div
+                    className="shrink-0 flex items-center justify-center text-lg"
+                    style={{ width: 52, height: 52, background: 'var(--surface)', border: '1px solid var(--border-color)' }}
+                  >
+                    🏛
+                  </div>
+                )}
+                <div>
+                  <h3 className="font-serif text-sm mb-1" style={{ color: 'var(--charcoal)' }}>{v.name}</h3>
+                  <p className="text-[10px] tracking-wider" style={{ color: 'var(--gray)' }}>
+                    {[v.capacity && `最多 ${v.capacity} 人`, v.area_ping && `${v.area_ping} 坪`].filter(Boolean).join(' · ')}
+                  </p>
+                </div>
+              </Link>
+            )
+          })}
         </div>
-      </section>
+      )}
 
       {/* ─── Features 3-col ─── */}
       <section style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--card-bg)' }}>

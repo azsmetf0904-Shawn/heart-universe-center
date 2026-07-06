@@ -21,14 +21,22 @@ export default function Navbar() {
     >
       <div className="container-wide flex items-center justify-between h-16">
 
-        <Link href="/" className="flex items-center shrink-0">
+        <Link href="/" className="flex items-center gap-3 shrink-0">
           <Image
             src="/logo.svg"
             alt="心宇宙商務中心"
-            width={52}
-            height={52}
+            width={40}
+            height={40}
             priority
           />
+          <div className="hidden sm:block">
+            <p className="font-serif text-sm leading-tight" style={{ color: 'var(--charcoal)', letterSpacing: '0.08em' }}>
+              心宇宙商務中心
+            </p>
+            <p className="text-[9px] leading-tight" style={{ color: 'var(--gray)', letterSpacing: '0.25em' }}>
+              HEART UNIVERSE · TAIPEI
+            </p>
+          </div>
         </Link>
 
         {/* Desktop nav */}
