@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, MapPin, Users, Clock, CalendarDays } from 'lucide-react'
+import { ArrowRight, MapPin, Clock, CalendarDays } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
 const DB = 'var(--dark-bg)'
@@ -45,53 +45,37 @@ export default async function HomePage() {
         {/* 心宇宙 watermark */}
         <span
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-serif pointer-events-none select-none whitespace-nowrap"
-          style={{ fontSize: 280, fontWeight: 700, color: `rgba(184,152,64,0.05)`, letterSpacing: '-0.02em' }}
+          style={{ fontSize: 280, fontWeight: 700, color: `rgba(184,152,64,0.04)`, letterSpacing: '-0.02em' }}
         >心宇宙</span>
 
-        <div className="relative z-10 flex flex-col items-center px-6" style={{ isolation: 'isolate' }}>
-          {/* Large logo */}
+        <div className="relative z-10 flex flex-col items-center px-6">
+          {/* Large logo — 85vw */}
           <Image
             src="/logo.png"
             alt="心宇宙商務中心"
-            width={220}
-            height={220}
+            width={1200}
+            height={1200}
             priority
-            style={{ mixBlendMode: 'screen' }}
-            className="mb-6"
+            style={{ width: '85vw', maxWidth: '1020px', height: 'auto', mixBlendMode: 'screen' }}
           />
-
-          <p
-            className="text-xs tracking-[0.45em] uppercase mb-8"
-            style={{ color: GOLD }}
-          >台北精品場地空間</p>
 
           <div
-            className="w-20 h-px mb-8"
-            style={{ background: GOLD, opacity: 0.5 }}
+            className="w-20 h-px mb-6"
+            style={{ background: GOLD, opacity: 0.4 }}
           />
 
           <p
-            className="text-sm tracking-[0.2em] leading-loose mb-10 max-w-xs"
+            className="text-sm tracking-[0.22em] leading-loose mb-10"
             style={{ color: MUTED }}
           >
             場地租借 · 課程活動 · 活動紀錄
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link
-              href="/rent"
-              className="inline-flex items-center gap-2 px-10 py-3 text-xs tracking-widest transition-colors"
-              style={{ background: GOLD, color: DB }}
-              onMouseEnter={e => ((e.currentTarget as HTMLAnchorElement).style.background = 'var(--gold-dark)')}
-              onMouseLeave={e => ((e.currentTarget as HTMLAnchorElement).style.background = GOLD)}
-            >
+            <Link href="/rent" className="btn-dark-gold px-10 py-3 text-xs tracking-widest">
               租借申請 <ArrowRight size={13} />
             </Link>
-            <Link
-              href="/venues"
-              className="inline-flex items-center gap-2 px-10 py-3 text-xs tracking-widest border transition-all"
-              style={{ borderColor: `rgba(184,152,64,0.4)`, color: GOLD }}
-            >
+            <Link href="/venues" className="btn-dark-ghost px-10 py-3 text-xs tracking-widest">
               瀏覽場地 <ArrowRight size={13} />
             </Link>
           </div>
@@ -104,8 +88,8 @@ export default async function HomePage() {
           <div className="mb-12">
             <p className="text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: GOLD }}>Venue</p>
             <h2 className="font-serif text-4xl mb-4" style={{ color: TEXT }}>精品場地空間</h2>
-            <div className="w-16 h-px" style={{ background: GOLD, opacity: 0.5 }} />
-            <p className="text-sm leading-relaxed mt-5 max-w-lg" style={{ color: MUTED }}>
+            <div className="w-16 h-px mb-5" style={{ background: GOLD, opacity: 0.5 }} />
+            <p className="text-sm leading-relaxed max-w-lg" style={{ color: MUTED }}>
               寬敞明亮的多功能空間，提供彈性座位配置，適合課程講座、企業培訓、小型展覽、社群聚會。
             </p>
           </div>
@@ -120,8 +104,12 @@ export default async function HomePage() {
                   <Link
                     key={v.id}
                     href={`/venues/${v.slug}`}
-                    className={`group relative overflow-hidden ${isLarge ? 'col-span-2' : ''}`}
-                    style={{ aspectRatio: isLarge ? '21/9' : '16/9', background: DB3 }}
+                    className="group relative overflow-hidden"
+                    style={{
+                      aspectRatio: isLarge ? '21/9' : '16/9',
+                      gridColumn: isLarge ? 'span 2' : undefined,
+                      background: DB3,
+                    }}
                   >
                     {cover ? (
                       <Image
@@ -136,7 +124,6 @@ export default async function HomePage() {
                         <span className="text-xs tracking-widest" style={{ color: MUTED }}>PHOTO</span>
                       </div>
                     )}
-                    {/* Overlay */}
                     <div
                       className="absolute inset-0 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}
@@ -162,10 +149,7 @@ export default async function HomePage() {
 
       {/* ─── Stats ─── */}
       <section>
-        <div
-          className="container-wide grid grid-cols-2 md:grid-cols-4 gap-px"
-          style={{ background: BORDER }}
-        >
+        <div className="container-wide grid grid-cols-2 md:grid-cols-4 gap-px" style={{ background: BORDER }}>
           {[
             { num: '3+', label: '專業場地' },
             { num: '50+', label: '坪數空間' },
@@ -173,7 +157,7 @@ export default async function HomePage() {
             { num: '∞', label: '可能性' },
           ].map(s => (
             <div key={s.label} className="py-10 text-center" style={{ background: DB }}>
-              <p className="font-serif text-4xl italic mb-2" style={{ color: GOLD, fontFamily: "'Playfair Display', serif" }}>
+              <p className="font-serif text-4xl italic mb-2" style={{ color: GOLD }}>
                 {s.num}
               </p>
               <p className="text-[10px] tracking-widest" style={{ color: MUTED }}>{s.label}</p>
@@ -197,13 +181,11 @@ export default async function HomePage() {
                 <Link
                   key={ev.id}
                   href={`/events/${ev.slug}`}
-                  className="group grid items-center gap-6 py-5 border-b transition-colors"
+                  className="event-row grid items-center gap-6 py-5 border-b"
                   style={{
                     gridTemplateColumns: '80px 1fr auto',
                     borderColor: BORDER,
                   }}
-                  onMouseEnter={e => (e.currentTarget.style.background = DB2)}
-                  onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
                 >
                   <div className="text-center pl-4">
                     <p className="font-serif text-2xl italic leading-none" style={{ color: GOLD }}>
@@ -223,7 +205,7 @@ export default async function HomePage() {
                     <p className="text-sm mb-1" style={{ color: TEXT }}>
                       {ev.is_paid ? `NT$ ${ev.price.toLocaleString()}` : '免費'}
                     </p>
-                    <span className="text-[10px] tracking-widest flex items-center gap-1 justify-end group-hover:gap-3 transition-all" style={{ color: GOLD }}>
+                    <span className="text-[10px] tracking-widest flex items-center gap-1 justify-end" style={{ color: GOLD }}>
                       報名 <ArrowRight size={10} />
                     </span>
                   </div>
@@ -274,11 +256,7 @@ export default async function HomePage() {
                 </div>
               </div>
             </div>
-            <Link
-              href="/rent"
-              className="mt-8 inline-flex items-center gap-2 px-8 py-3 text-xs tracking-widest transition-colors"
-              style={{ background: GOLD, color: DB }}
-            >
+            <Link href="/rent" className="btn-dark-gold mt-8 px-8 py-3 text-xs tracking-widest">
               立即申請租借 <ArrowRight size={13} />
             </Link>
           </div>
@@ -313,21 +291,7 @@ export default async function HomePage() {
           <p className="text-sm tracking-wide leading-loose mb-12 max-w-xs mx-auto" style={{ color: MUTED }}>
             填寫租借申請，我們將於一個工作日內與您確認
           </p>
-          <Link
-            href="/rent"
-            className="inline-flex items-center gap-2 px-12 py-3 border text-xs tracking-widest transition-all"
-            style={{ borderColor: GOLD, color: GOLD }}
-            onMouseEnter={e => {
-              const el = e.currentTarget as HTMLAnchorElement
-              el.style.background = GOLD
-              el.style.color = '#1A1008'
-            }}
-            onMouseLeave={e => {
-              const el = e.currentTarget as HTMLAnchorElement
-              el.style.background = 'transparent'
-              el.style.color = GOLD
-            }}
-          >
+          <Link href="/rent" className="btn-cta-ghost px-12 py-3 text-xs tracking-widest">
             立即申請 <ArrowRight size={13} />
           </Link>
         </div>
