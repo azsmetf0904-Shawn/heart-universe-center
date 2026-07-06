@@ -32,18 +32,24 @@ export default function RegisterPage() {
     if (!event) return
     setSubmitting(true)
     const supabase = createClient()
-    const { error } = await supabase.from('event_registrations').insert({
-      event_id: event.id,
-      name: form.name,
-      phone: form.phone,
-      email: form.email,
-      note: form.note || null,
-    })
 
-    if (!error) {
-      // 產生 QR Code（指向簽到頁）
+    // insert 後取回 check_in_token
+    const { data: reg, error } = await supabase
+      .from('event_registrations')
+      .insert({
+        event_id: event.id,
+        name: form.name,
+        phone: form.phone,
+        email: form.email,
+        note: form.note || null,
+      })
+      .select('check_in_token')
+      .single()
+
+    if (!error && reg) {
       const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? window.location.origin
-      const checkInUrl = `${siteUrl}/events/${slug}/check-in`
+      // token-based 個人化 QR（每人不同）
+      const checkInUrl = `${siteUrl}/check-in?token=${reg.check_in_token}`
       const dataUrl = await QRCode.toDataURL(checkInUrl, {
         width: 256,
         margin: 2,
@@ -52,7 +58,7 @@ export default function RegisterPage() {
       setQrDataUrl(dataUrl)
       setRegName(form.name)
 
-      // 寄確認信
+      // 寄含 QR 的確認信
       fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

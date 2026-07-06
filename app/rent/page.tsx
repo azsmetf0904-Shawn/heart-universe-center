@@ -5,10 +5,12 @@ import { createClient } from '@/lib/supabase/client'
 import type { Venue, VenueAddon, VenuePricing } from '@/lib/types'
 import {
   ADDON_CATEGORY_LABEL, TIME_SLOT_LABEL, LAYOUT_TYPES,
-  isHoliday, getPriceForSlot,
+  isHoliday,
 } from '@/lib/types'
 import type { TimeSlot, LayoutType, AddonCategory } from '@/lib/types'
 import { CheckCircle2 } from 'lucide-react'
+import { BookingCalendar } from '@/components/BookingCalendar'
+import type { CalendarSelection } from '@/components/BookingCalendar'
 
 interface SelectedAddon { addon: VenueAddon; qty: number }
 
@@ -36,7 +38,7 @@ function RentForm() {
   const [bookingId, setBookingId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
-  const [bookedSlots, setBookedSlots] = useState<string[]>([])
+  const [calSel, setCalSel] = useState<CalendarSelection | null>(null)
   const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({})
 
   const [form, setForm] = useState({
@@ -77,26 +79,25 @@ function RentForm() {
     const v = venues.find(x => x.id === id) ?? null
     setForm(p => ({ ...p, venue_id: id, time_slot: '', layout_config: '' }))
     setSelectedVenue(v)
-    if (form.booking_date) fetchAvailability(id, form.booking_date)
+    setCalSel(null)
   }
 
-  async function fetchAvailability(venueId: string, date: string) {
-    if (!date) return
-    const params = new URLSearchParams({ date })
-    if (venueId) params.set('venue_id', venueId)
-    const res = await fetch(`/api/availability?${params}`)
-    const { booked } = await res.json()
-    setBookedSlots(booked)
+  function handleCalendarSelect(sel: CalendarSelection) {
+    setCalSel(sel)
+    setForm(p => ({ ...p, booking_date: sel.dateStr, time_slot: sel.slot }))
+    setErrors(p => ({ ...p, booking_date: '', time_slot: '' }))
   }
 
-  // 即時計算費用
+  // 即時計算費用（依 calSel 選定的日期+時段）
   const estimatedPrice = (() => {
-    if (!selectedVenue?.venue_pricing || !form.booking_date || !form.time_slot) return null
-    const date = new Date(form.booking_date)
+    if (!selectedVenue?.venue_pricing || !calSel) return null
     const pricing: VenuePricing[] = selectedVenue.venue_pricing
-    const slot = getPriceForSlot(pricing, date, form.time_slot as TimeSlot)
-    if (!slot) return null
-    return slot.price * parseInt(form.session_count || '1')
+    const p = pricing.find(x =>
+      x.day_type === (isHoliday(calSel.date) ? 'holiday' : 'weekday') &&
+      x.time_slot === calSel.slot
+    )
+    if (!p) return null
+    return p.price * parseInt(form.session_count || '1')
   })()
 
   function toggleAddon(addon: VenueAddon) {
@@ -114,8 +115,7 @@ function RentForm() {
   const addonTotal = Object.values(selected).reduce((sum, s) => sum + s.addon.price * s.qty, 0)
   const grouped = groupBy(addons, 'category')
 
-  const selectedDate = form.booking_date ? new Date(form.booking_date) : null
-  const isHolidayDate = selectedDate ? isHoliday(selectedDate) : false
+  const isHolidayDate = calSel ? isHoliday(calSel.date) : false
 
   async function handleSubmit() {
     setSubmitting(true)
@@ -283,60 +283,26 @@ function RentForm() {
               </div>
             )}
 
-            {/* Date + time slot */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>租借日期</label>
-                <input type="date" required value={form.booking_date}
-                  onChange={e => {
-                    const date = e.target.value
-                    setForm(p => ({ ...p, booking_date: date, time_slot: '' }))
-                    setErrors(p => ({ ...p, booking_date: '' }))
-                    fetchAvailability(form.venue_id, date)
-                  }}
-                  className={`w-full border bg-transparent px-4 py-3 text-sm focus:outline-none transition-colors ${errors.booking_date ? 'border-red-400' : 'border-[var(--border-color)] focus:border-[var(--gold)]'}`}
+            {/* Booking Calendar */}
+            <div>
+              <label className="label-tag mb-3 block" style={{ color: 'var(--charcoal)' }}>選擇日期與時段</label>
+              {(errors.booking_date || errors.time_slot) && (
+                <p className="text-xs text-red-500 mb-2">請在日曆上選擇日期與時段</p>
+              )}
+              <div className="border border-[var(--border-color)] p-4 bg-[var(--card-bg)]">
+                <BookingCalendar
+                  venueId={form.venue_id}
+                  pricing={selectedVenue?.venue_pricing ?? []}
+                  onSelect={handleCalendarSelect}
+                  selected={calSel}
                 />
-                {errors.booking_date && <p className="text-xs text-red-500 mt-1">{errors.booking_date}</p>}
-                {!errors.booking_date && form.booking_date && (
-                  <p className={`text-xs mt-1 ${isHolidayDate ? 'text-[var(--gold)]' : 'text-[var(--gray)]'}`}>
-                    {isHolidayDate ? '假日計費' : '平日計費'}
-                  </p>
-                )}
               </div>
-              <div>
-                <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>租借時段</label>
-                {errors.time_slot && <p className="text-xs text-red-500 mb-2">{errors.time_slot}</p>}
-                <div className="flex flex-col gap-2">
-                  {TIME_SLOTS.map(slot => {
-                    const pricing = selectedVenue?.venue_pricing ?? []
-                    const dayType = isHolidayDate ? 'holiday' : 'weekday'
-                    const p = pricing.find((x: VenuePricing) => x.day_type === dayType && x.time_slot === slot)
-                    const isBooked = bookedSlots.includes(slot)
-                    return (
-                      <label key={slot} className={`flex items-center justify-between border px-4 py-2.5 transition-colors
-                        ${isBooked ? 'border-[var(--border-color)] bg-[var(--surface)] opacity-50 cursor-not-allowed' :
-                          form.time_slot === slot ? 'border-[var(--gold)] bg-[var(--card-bg)] cursor-pointer' :
-                          'border-[var(--border-color)] cursor-pointer hover:border-[var(--gold)]/50'}`}>
-                        <div className="flex items-center gap-3">
-                          <input type="radio" name="time_slot" value={slot}
-                            checked={form.time_slot === slot}
-                            disabled={isBooked}
-                            onChange={() => !isBooked && setForm(pr => ({ ...pr, time_slot: slot }))}
-                            className="accent-[var(--gold)]"
-                          />
-                          <span className="text-sm">{TIME_SLOT_LABEL[slot]}</span>
-                        </div>
-                        <span className="text-xs">
-                          {isBooked
-                            ? <span className="text-[var(--gray)]">已被預約</span>
-                            : p ? <span className="text-[var(--gold)]">NT$ {p.price.toLocaleString()}</span> : null
-                          }
-                        </span>
-                      </label>
-                    )
-                  })}
-                </div>
-              </div>
+              {calSel && (
+                <p className="text-xs text-[var(--gray)] mt-2">
+                  已選：{calSel.dateStr}（{isHoliday(calSel.date) ? '假日' : '平日'}）
+                  · {TIME_SLOT_LABEL[calSel.slot]}
+                </p>
+              )}
             </div>
 
             {/* Sessions */}
