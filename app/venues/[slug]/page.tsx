@@ -2,7 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, Users, CheckCircle2 } from 'lucide-react'
+import { ArrowRight, Users, MapPin, Train, Car } from 'lucide-react'
 import type { Metadata } from 'next'
 import type { VenuePricing, TimeSlot, LayoutType } from '@/lib/types'
 import { TIME_SLOT_LABEL, LAYOUT_TYPES } from '@/lib/types'
@@ -43,7 +43,7 @@ function PricingTable({ pricing }: { pricing: VenuePricing[] }) {
         <table className="w-full text-sm border border-[var(--border-color)]">
           <thead>
             <tr className="bg-[var(--surface)]">
-              <th className="text-left px-4 py-2.5 text-xs text-[var(--gray)] font-normal tracking-widest border-b border-[var(--border-color)]">時段</th>
+              <th className="text-left px-4 py-2.5 text-xs text-[var(--gray)] font-normal tracking-widest border-b border-[var(--border-color)]">時段（每時段 3 小時）</th>
               <th className="text-center px-4 py-2.5 text-xs text-[var(--gray)] font-normal tracking-widest border-b border-[var(--border-color)]">平日</th>
               <th className="text-center px-4 py-2.5 text-xs text-[var(--gray)] font-normal tracking-widest border-b border-[var(--border-color)]">假日</th>
             </tr>
@@ -125,6 +125,7 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
   const photos = (venue.venue_photos ?? []).sort((a: { sort_order: number; alt_text?: string }, b: { sort_order: number }) => a.sort_order - b.sort_order)
   const pricing: VenuePricing[] = venue.venue_pricing ?? []
   const layouts: Partial<Record<LayoutType, number>> = venue.layout_capacities ?? {}
+  const suitableFor: string[] = venue.suitable_for ?? []
 
   return (
     <div className="py-20">
@@ -173,6 +174,24 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
             </div>
           )}
 
+          {/* Suitable activities */}
+          {suitableFor.length > 0 && (
+            <div className="mb-10">
+              <p className="label-tag mb-3">適合活動</p>
+              <div className="flex flex-wrap gap-2">
+                {suitableFor.map(tag => (
+                  <span
+                    key={tag}
+                    className="text-xs px-3 py-1.5 border tracking-wide"
+                    style={{ borderColor: 'var(--border-color)', color: 'var(--gray)' }}
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Layout capacities */}
           {Object.keys(layouts).length > 0 && <LayoutTable capacities={layouts} />}
 
@@ -182,15 +201,23 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
           {/* Equipment */}
           {venue.equipment?.length > 0 && (
             <div className="mb-10">
-              <p className="label-tag mb-3">基本設備</p>
-              <div className="grid grid-cols-2 gap-2">
-                {venue.equipment.map((eq: string) => (
-                  <div key={eq} className="flex items-center gap-2 text-sm text-[var(--charcoal)]">
-                    <CheckCircle2 size={14} className="text-[var(--gold)]" />
-                    {eq}
-                  </div>
-                ))}
-              </div>
+              <p className="label-tag mb-3">設備規格</p>
+              <table className="w-full text-sm border border-[var(--border-color)]">
+                <thead>
+                  <tr className="bg-[var(--surface)]">
+                    <th className="text-left px-4 py-2.5 text-xs text-[var(--gray)] font-normal tracking-widest border-b border-[var(--border-color)] w-8">序</th>
+                    <th className="text-left px-4 py-2.5 text-xs text-[var(--gray)] font-normal tracking-widest border-b border-[var(--border-color)]">設備說明</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {(venue.equipment as string[]).map((eq: string, i: number) => (
+                    <tr key={eq} className={i < venue.equipment.length - 1 ? 'border-b border-[var(--border-color)]' : ''}>
+                      <td className="px-4 py-3 text-[var(--gray)] text-xs">{i + 1}</td>
+                      <td className="px-4 py-3 text-[var(--charcoal)]">{eq}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           )}
 
@@ -208,6 +235,7 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
 
         {/* Sidebar */}
         <div className="flex flex-col gap-6">
+          {/* Quick stats + CTA */}
           <div className="bg-[var(--card-bg)] border border-[var(--border-color)] p-6">
             {venue.area_ping && (
               <div className="flex justify-between text-sm mb-3">
@@ -238,6 +266,34 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
             >
               申請租借 <ArrowRight size={14} />
             </Link>
+          </div>
+
+          {/* Transport info */}
+          <div className="bg-[var(--card-bg)] border border-[var(--border-color)] p-6">
+            <p className="label-tag mb-4">交通資訊</p>
+            <div className="flex flex-col gap-4 text-sm">
+              <div className="flex gap-3">
+                <Train size={15} className="shrink-0 mt-0.5" style={{ color: 'var(--gold)' }} />
+                <div>
+                  <p className="text-[var(--charcoal)] mb-0.5">捷運小巨蛋站</p>
+                  <p className="text-[var(--gray)] text-xs leading-relaxed">3 號出口，步行約 10 分鐘</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Train size={15} className="shrink-0 mt-0.5" style={{ color: 'var(--gold)' }} />
+                <div>
+                  <p className="text-[var(--charcoal)] mb-0.5">捷運國父紀念館站</p>
+                  <p className="text-[var(--gray)] text-xs leading-relaxed">1 號出口，步行約 10 分鐘</p>
+                </div>
+              </div>
+              <div className="flex gap-3">
+                <Car size={15} className="shrink-0 mt-0.5" style={{ color: 'var(--gold)' }} />
+                <div>
+                  <p className="text-[var(--charcoal)] mb-0.5">開車</p>
+                  <p className="text-[var(--gray)] text-xs leading-relaxed">周邊八德監理站停車場可停車</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

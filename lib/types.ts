@@ -12,7 +12,7 @@ export const TIME_SLOT_LABEL: Record<TimeSlot, string> = {
   evening:   '晚上 18:30–21:30',
 }
 
-export const LAYOUT_TYPES = ['教室型', '蜈蚣型', '分組型', '講座型', 'U型'] as const
+export const LAYOUT_TYPES = ['劇院型', '島嶼式', '教室型', '蜈蚣型', '分組型', '講座型', 'U型'] as const
 export type LayoutType = typeof LAYOUT_TYPES[number]
 
 export interface VenuePricing {
@@ -35,6 +35,7 @@ export interface Venue {
   layout_capacities: Partial<Record<LayoutType, number>> | null
   equipment: string[] | null
   cover_image_url: string | null
+  suitable_for: string[] | null
   is_active: boolean
   created_at: string
   venue_photos?: VenuePhoto[]
