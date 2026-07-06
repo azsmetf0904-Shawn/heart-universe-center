@@ -42,71 +42,78 @@ export default async function HomePage() {
 
         {/* Left: dark text panel */}
         <div
-          className="relative flex flex-col justify-center px-10 md:px-16 py-20"
+          className="relative flex flex-col px-10 md:px-16 py-12 md:py-16"
           style={{ background: 'var(--charcoal)', overflow: 'hidden' }}
         >
           {/* Decorative rings */}
-          <div className="absolute pointer-events-none" style={{ bottom: -80, right: -80, width: 240, height: 240, borderRadius: '50%', border: '1px solid rgba(176,120,80,0.15)' }} />
-          <div className="absolute pointer-events-none" style={{ bottom: -40, right: -40, width: 140, height: 140, borderRadius: '50%', border: '1px solid rgba(176,120,80,0.12)' }} />
+          <div className="absolute pointer-events-none" style={{ bottom: -80, right: -80, width: 280, height: 280, borderRadius: '50%', border: '1px solid rgba(176,120,80,0.12)' }} />
+          <div className="absolute pointer-events-none" style={{ bottom: -40, right: -40, width: 160, height: 160, borderRadius: '50%', border: '1px solid rgba(176,120,80,0.1)' }} />
 
-          {/* Eyebrow */}
-          <div className="flex items-center gap-3 mb-8">
-            <div className="w-6 h-px" style={{ background: 'var(--gold)' }} />
-            <p className="text-[9px] tracking-[0.5em]" style={{ color: 'var(--gold)' }}>
-              心宇宙商務中心 · TAIPEI
+          {/* Logo at top */}
+          <div className="flex items-center gap-4 mb-12">
+            <Image src="/logo.svg" alt="心宇宙商務中心" width={48} height={48} priority />
+            <div style={{ borderLeft: '1px solid rgba(176,120,80,0.3)', paddingLeft: 16 }}>
+              <p className="font-serif text-sm leading-tight" style={{ color: 'rgba(244,239,230,0.9)', letterSpacing: '0.08em' }}>心宇宙商務中心</p>
+              <p className="text-[9px] mt-0.5 tracking-[0.3em]" style={{ color: 'rgba(176,120,80,0.7)' }}>HEART UNIVERSE · TAIPEI</p>
+            </div>
+          </div>
+
+          {/* Main content — push to vertical center */}
+          <div className="flex-1 flex flex-col justify-center">
+            {/* H1 */}
+            <h1
+              className="font-serif leading-tight mb-5"
+              style={{ fontSize: 'clamp(36px, 4.5vw, 62px)', fontWeight: 600, color: '#fff', letterSpacing: '0.04em', lineHeight: 1.2 }}
+            >
+              台北最適合<br />
+              <span style={{ color: 'var(--gold)' }}>質感活動</span><br />
+              的場地
+            </h1>
+
+            {/* Gold divider */}
+            <div style={{ width: 40, height: 1, background: 'var(--gold)', opacity: 0.6, marginBottom: 20 }} />
+
+            <p className="text-sm leading-loose mb-8" style={{ color: 'rgba(244,239,230,0.5)', letterSpacing: '0.08em' }}>
+              台北八德路 · 100–150 人<br />
+              捷運步行可達 · 高規格設備齊全
             </p>
+
+            {/* Activity tags */}
+            <div className="flex flex-wrap gap-2 mb-10">
+              {['品牌講座', '女性成長課程', '企業培訓', '工作坊', '身心靈課程', '直播活動'].map(tag => (
+                <span key={tag} className="text-[10px] px-3 py-1.5 tracking-wide"
+                  style={{ border: '1px solid rgba(176,120,80,0.35)', color: 'rgba(176,120,80,0.85)' }}>
+                  {tag}
+                </span>
+              ))}
+            </div>
+
+            {/* CTA */}
+            <div className="flex gap-3 mb-12">
+              <Link href="/rent" className="btn-gold-fill text-xs tracking-widest px-10 py-3">
+                立即申請租借
+              </Link>
+              <Link href="/venues"
+                className="text-xs tracking-widest px-8 py-3 transition-colors"
+                style={{ border: '1px solid rgba(244,239,230,0.18)', color: 'rgba(244,239,230,0.55)', display: 'inline-flex', alignItems: 'center' }}>
+                查看場地照片
+              </Link>
+            </div>
           </div>
 
-          {/* H1 */}
-          <h1
-            className="font-serif leading-tight mb-6"
-            style={{ fontSize: 'clamp(36px, 4.5vw, 64px)', fontWeight: 600, color: '#fff', letterSpacing: '0.04em', lineHeight: 1.15 }}
-          >
-            台北最適合<br />
-            <span style={{ color: 'var(--gold)' }}>質感活動</span><br />
-            的場地
-          </h1>
-
-          <p className="text-sm leading-loose mb-8" style={{ color: 'rgba(244,239,230,0.55)', letterSpacing: '0.08em' }}>
-            台北八德路 · 100–150 人<br />
-            捷運步行可達 · 設備齊全
-          </p>
-
-          {/* Activity tags */}
-          <div className="flex flex-wrap gap-2 mb-10">
-            {['品牌講座', '女性成長課程', '企業培訓', '工作坊', '身心靈課程', '直播活動'].map(tag => (
-              <span key={tag} className="text-[10px] px-3 py-1.5 tracking-wide"
-                style={{ border: '1px solid rgba(176,120,80,0.4)', color: 'rgba(176,120,80,0.9)' }}>
-                {tag}
-              </span>
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div className="flex gap-3 mb-12">
-            <Link href="/rent" className="btn-gold-fill text-xs tracking-widest px-10 py-3">
-              立即申請租借
-            </Link>
-            <Link href="/venues"
-              className="text-xs tracking-widest px-8 py-3 transition-colors"
-              style={{ border: '1px solid rgba(244,239,230,0.2)', color: 'rgba(244,239,230,0.6)', display: 'inline-flex', alignItems: 'center' }}>
-              查看場地照片
-            </Link>
-          </div>
-
-          {/* Stats row */}
-          <div className="flex gap-0" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 28 }}>
+          {/* Stats row — pinned to bottom */}
+          <div className="flex gap-0" style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 24 }}>
             {[
               { n: '150', u: '人', l: '最大容納' },
               { n: '15K', u: '起', l: '平日場租' },
               { n: '3H', u: '', l: '每時段' },
             ].map((s, i) => (
               <div key={s.l} className="flex-1 text-center"
-                style={{ borderRight: i < 2 ? '1px solid rgba(255,255,255,0.08)' : 'none' }}>
-                <div className="font-serif" style={{ fontSize: 22, fontWeight: 600, color: 'var(--gold)', lineHeight: 1 }}>
-                  {s.n}<span style={{ fontSize: 12, marginLeft: 1 }}>{s.u}</span>
+                style={{ borderRight: i < 2 ? '1px solid rgba(255,255,255,0.07)' : 'none' }}>
+                <div className="font-serif" style={{ fontSize: 20, fontWeight: 600, color: 'var(--gold)', lineHeight: 1 }}>
+                  {s.n}<span style={{ fontSize: 11, marginLeft: 2 }}>{s.u}</span>
                 </div>
-                <div className="text-[9px] mt-1.5 tracking-[0.2em]" style={{ color: 'rgba(244,239,230,0.35)' }}>{s.l}</div>
+                <div className="text-[9px] mt-1.5 tracking-[0.2em]" style={{ color: 'rgba(244,239,230,0.3)' }}>{s.l}</div>
               </div>
             ))}
           </div>
