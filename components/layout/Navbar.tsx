@@ -1,5 +1,6 @@
 'use client'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
 
@@ -14,20 +15,21 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 bg-[var(--cream)]/95 backdrop-blur-sm border-b border-[var(--border-color)]">
+    <header
+      className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b"
+      style={{ background: 'rgba(26,16,8,0.94)', borderColor: 'var(--dark-border)' }}
+    >
       <div className="container-wide flex items-center justify-between h-16">
 
-        <Link href="/" className="flex items-center gap-3 group">
-          {/* Circular logo placeholder — swap with <Image> once logo file is ready */}
-          <div className="w-8 h-8 rounded-full border border-[var(--charcoal)] flex items-center justify-center shrink-0 transition-colors group-hover:border-[var(--gold)]">
-            <span
-              className="font-serif text-[13px] leading-none text-[var(--charcoal)] transition-colors group-hover:text-[var(--gold)] select-none"
-            >心</span>
-          </div>
-          <div className="flex flex-col leading-tight">
-            <span className="font-serif text-[15px] text-[var(--charcoal)] tracking-widest">心宇宙</span>
-            <span className="text-[8px] tracking-[0.22em] text-[var(--gray)] uppercase">Business Center</span>
-          </div>
+        <Link href="/" className="flex items-center shrink-0" style={{ isolation: 'isolate' }}>
+          <Image
+            src="/logo.png"
+            alt="心宇宙商務中心"
+            width={52}
+            height={52}
+            priority
+            style={{ mixBlendMode: 'screen' }}
+          />
         </Link>
 
         {/* Desktop nav */}
@@ -36,21 +38,36 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-sm tracking-widest text-[var(--charcoal)] hover:text-[var(--gold)] transition-colors"
+              className="text-sm tracking-widest transition-colors"
+              style={{ color: 'var(--dark-muted)' }}
+              onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold)')}
+              onMouseLeave={e => (e.currentTarget.style.color = 'var(--dark-muted)')}
             >
               {l.label}
             </Link>
           ))}
           <Link
             href="/rent"
-            className="text-xs tracking-widest uppercase px-5 py-2 border border-[var(--gold)] text-[var(--gold)] hover:bg-[var(--gold)] hover:text-white transition-all"
+            className="text-xs tracking-widest uppercase px-5 py-2 border transition-all"
+            style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}
+            onMouseEnter={e => {
+              const el = e.currentTarget as HTMLAnchorElement
+              el.style.background = 'var(--gold)'
+              el.style.color = 'var(--dark-bg)'
+            }}
+            onMouseLeave={e => {
+              const el = e.currentTarget as HTMLAnchorElement
+              el.style.background = 'transparent'
+              el.style.color = 'var(--gold)'
+            }}
           >
             立即預約
           </Link>
         </nav>
 
         <button
-          className="md:hidden text-[var(--charcoal)]"
+          className="md:hidden"
+          style={{ color: 'var(--dark-muted)' }}
           onClick={() => setOpen(!open)}
           aria-label="選單"
         >
@@ -59,13 +76,17 @@ export default function Navbar() {
       </div>
 
       {open && (
-        <div className="md:hidden bg-[var(--cream)] border-t border-[var(--border-color)] px-6 py-6 flex flex-col gap-6">
+        <div
+          className="md:hidden px-6 py-6 flex flex-col gap-6 border-t"
+          style={{ background: 'var(--dark-bg)', borderColor: 'var(--dark-border)' }}
+        >
           {links.map(l => (
             <Link
               key={l.href}
               href={l.href}
               onClick={() => setOpen(false)}
-              className="text-sm tracking-widest text-[var(--charcoal)] hover:text-[var(--gold)] transition-colors"
+              className="text-sm tracking-widest"
+              style={{ color: 'var(--dark-muted)' }}
             >
               {l.label}
             </Link>
@@ -73,7 +94,8 @@ export default function Navbar() {
           <Link
             href="/rent"
             onClick={() => setOpen(false)}
-            className="text-xs tracking-widest uppercase px-5 py-2 border border-[var(--gold)] text-[var(--gold)] text-center"
+            className="text-xs tracking-widest uppercase px-5 py-2 border text-center"
+            style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}
           >
             立即預約
           </Link>

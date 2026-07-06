@@ -151,6 +151,16 @@
   }
 }
 
+/* Dark brand theme variables */
+:root {
+  --dark-bg:     #1A1008;
+  --dark-bg2:    #231508;
+  --dark-bg3:    #2C1C0E;
+  --dark-border: #3D2A14;
+  --dark-text:   #F4EFE6;
+  --dark-muted:  #8A7A5A;
+}
+
 /* Utility classes */
 .gold-divider {
   width: 40px;
