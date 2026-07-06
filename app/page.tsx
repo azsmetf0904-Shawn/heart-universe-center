@@ -28,61 +28,104 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ─── Hero ─── */}
+      {/* ─── Hero — 左右分割 ─── */}
       <section
-        className="relative flex items-center justify-center text-center overflow-hidden"
+        className="grid"
         style={{
           minHeight: 'calc(100vh - 4rem)',
-          background: 'var(--cream)',
+          gridTemplateColumns: '1.1fr 1fr',
         }}
       >
+        {/* Left: logo */}
         <div
-          className="absolute inset-0 pointer-events-none"
+          className="relative flex items-center justify-center p-12 border-r"
           style={{
-            background: `
-              radial-gradient(ellipse 80% 60% at 15% 110%, rgba(184,152,64,0.07) 0%, transparent 55%),
-              radial-gradient(ellipse 60% 70% at 85% -10%, rgba(184,152,64,0.05) 0%, transparent 55%)
-            `,
+            background: 'var(--cream)',
+            borderColor: 'var(--border-color)',
           }}
-        />
-
-        <div className="relative z-10 flex flex-col items-center px-6">
-          <div className="flex items-center gap-5 mb-6">
-            <div className="w-8 h-px" style={{ background: 'var(--gold)', opacity: 0.5 }} />
-            <p className="text-[10px] tracking-[0.45em] uppercase" style={{ color: 'var(--gold)' }}>
-              Heart Universe · Taipei
-            </p>
-            <div className="w-8 h-px" style={{ background: 'var(--gold)', opacity: 0.5 }} />
-          </div>
-
+        >
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background: 'radial-gradient(ellipse 70% 70% at 40% 60%, rgba(184,152,64,0.06) 0%, transparent 65%)',
+            }}
+          />
           <Image
             src="/logo.svg"
             alt="心宇宙商務中心"
-            width={480}
-            height={480}
+            width={520}
+            height={520}
             priority
-            style={{ width: 'min(480px, 72vw)', height: 'auto', marginBottom: '8px' }}
+            style={{ width: '100%', maxWidth: '480px', height: 'auto', position: 'relative', zIndex: 1 }}
           />
+        </div>
 
-          <div className="w-px h-12 my-2" style={{ background: 'var(--gold)', opacity: 0.35 }} />
+        {/* Right: text */}
+        <div
+          className="flex flex-col justify-center px-14 py-16"
+          style={{ background: 'var(--surface)' }}
+        >
+          {/* Eyebrow */}
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-6 h-px" style={{ background: 'var(--gold)', opacity: 0.5 }} />
+            <p className="text-[10px] tracking-[0.45em] uppercase" style={{ color: 'var(--gold)' }}>
+              Heart Universe · Taipei
+            </p>
+          </div>
 
-          <p className="text-sm tracking-[0.22em] leading-loose mb-8" style={{ color: 'var(--muted-foreground)' }}>
-            台北八德路精品場地空間
+          {/* Brand name */}
+          <h1
+            className="font-serif mb-3 leading-snug"
+            style={{ fontSize: 'clamp(28px, 3vw, 44px)', fontWeight: 500, color: 'var(--charcoal)', letterSpacing: '0.08em' }}
+          >
+            心宇宙商務中心
+          </h1>
+
+          {/* Tagline */}
+          <p
+            className="font-serif mb-6"
+            style={{ fontSize: 'clamp(14px, 1.4vw, 18px)', color: 'var(--gold)', letterSpacing: '0.12em', fontWeight: 400 }}
+          >
+            台北精品場地空間
           </p>
 
+          {/* Description */}
+          <p
+            className="text-sm leading-loose mb-7"
+            style={{ color: 'var(--gray)', letterSpacing: '0.06em', maxWidth: '360px' }}
+          >
+            位於台北市八德路，提供企業培訓、<br />
+            品牌發表、工作坊及社群聚會<br />
+            所需的彈性場地與完善服務。
+          </p>
+
+          {/* Service chips */}
+          <div className="flex flex-wrap gap-2 mb-9">
+            {['場地租借', '課程活動', '工作坊', '企業培訓'].map(s => (
+              <span
+                key={s}
+                className="text-[10px] tracking-widest px-3 py-1 border"
+                style={{ borderColor: 'var(--border-color)', color: 'var(--gray)' }}
+              >
+                {s}
+              </span>
+            ))}
+          </div>
+
+          {/* CTA */}
           <div className="flex">
             <Link
-              href="/rent"
-              className="px-12 py-3 text-xs tracking-widest transition-all btn-gold-fill"
-            >
-              租借申請
-            </Link>
-            <Link
               href="/venues"
-              className="px-12 py-3 text-xs tracking-widest border transition-colors hover:border-[var(--gold)] hover:text-[var(--charcoal)]"
-              style={{ borderColor: 'var(--border-color)', color: 'var(--gray)' }}
+              className="px-10 py-3 text-xs tracking-widest transition-all btn-gold-fill"
             >
               瀏覽場地
+            </Link>
+            <Link
+              href="/rent"
+              className="px-8 py-3 text-xs tracking-widest border transition-colors hover:border-[var(--gold)] hover:text-[var(--charcoal)]"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--gray)', borderLeft: 'none' }}
+            >
+              租借申請
             </Link>
           </div>
         </div>
