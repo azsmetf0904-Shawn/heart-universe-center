@@ -72,15 +72,30 @@ export default async function HomePage() {
           }}
         />
 
+        {/* Activity tags — top strip */}
+        <div
+          className="absolute w-full flex justify-center gap-3 flex-wrap px-8 hidden md:flex"
+          style={{ top: 88, zIndex: 2 }}
+        >
+          {['品牌講座', '女性成長課程', '企業培訓', '工作坊', '社群聚會', '身心靈課程'].map(tag => (
+            <span
+              key={tag}
+              className="text-[9px] tracking-[0.25em] px-4 py-1.5"
+              style={{ border: '1px solid rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.5)' }}
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
         {/* Content */}
         <div
           className="relative w-full container-wide"
-          style={{ zIndex: 2, paddingTop: '60px', paddingBottom: '64px' }}
+          style={{ zIndex: 2, paddingTop: '60px', paddingBottom: '72px' }}
         >
-          <div className="grid items-end gap-16" style={{ gridTemplateColumns: '1fr auto' }}>
+          <div className="grid items-end gap-12" style={{ gridTemplateColumns: '1fr auto' }}>
             {/* Left: main text */}
             <div>
-              {/* Brand eyebrow */}
               <div className="flex items-center gap-3 mb-5">
                 <div className="w-8 h-px" style={{ background: 'var(--gold)', opacity: 0.6 }} />
                 <p className="text-[11px] tracking-[0.4em]" style={{ color: 'rgba(244,239,230,0.55)' }}>
@@ -88,7 +103,6 @@ export default async function HomePage() {
                 </p>
               </div>
 
-              {/* Service type — LARGEST text */}
               <h1
                 className="font-serif leading-tight mb-6"
                 style={{
@@ -106,15 +120,12 @@ export default async function HomePage() {
                 className="text-sm leading-loose mb-10"
                 style={{ color: 'rgba(244,239,230,0.62)', letterSpacing: '0.08em', maxWidth: '420px' }}
               >
-                位於台北市八德路，捷運步行可達<br />
-                企業培訓 · 品牌發表 · 工作坊 · 社群聚會
+                台北八德路 · 捷運步行可達 · 100–150 人<br />
+                高規格設備 · 劇院型 / 島嶼式彈性配置
               </p>
 
               <div className="flex gap-3">
-                <Link
-                  href="/venues"
-                  className="btn-gold-fill text-xs tracking-widest px-12 py-3"
-                >
+                <Link href="/venues" className="btn-gold-fill text-xs tracking-widest px-12 py-3">
                   瀏覽場地空間
                 </Link>
                 <Link
@@ -132,21 +143,33 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Right: quick stats */}
-            <div className="hidden lg:flex flex-col gap-7 text-right">
+            {/* Right: frosted glass stats card */}
+            <div
+              className="hidden lg:block shrink-0"
+              style={{
+                background: 'rgba(255,255,255,0.08)',
+                backdropFilter: 'blur(12px)',
+                border: '1px solid rgba(255,255,255,0.15)',
+                padding: '32px 28px',
+                minWidth: '180px',
+              }}
+            >
               {[
-                { n: '3', u: '間', l: '精品場地空間' },
-                { n: '80', u: '人', l: '最大容納人數' },
-                { n: '1', u: '日', l: '工作日確認回覆' },
-              ].map(s => (
+                { n: '150', u: '人', l: '最大容納人數' },
+                { n: '15K', u: '起', l: '平日場租 / 3小時' },
+                { n: '1', u: '工作日', l: '確認回覆時間' },
+              ].map((s, i) => (
                 <div key={s.l}>
+                  {i > 0 && (
+                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', margin: '20px 0' }} />
+                  )}
                   <div
                     className="font-serif"
-                    style={{ fontSize: '34px', fontWeight: 600, color: 'var(--gold)', fontStyle: 'italic', lineHeight: 1 }}
+                    style={{ fontSize: '32px', fontWeight: 600, color: 'white', lineHeight: 1 }}
                   >
-                    {s.n}<span style={{ fontSize: '17px' }}>{s.u}</span>
+                    {s.n}<span style={{ fontSize: '14px', color: 'var(--gold)', marginLeft: '3px' }}>{s.u}</span>
                   </div>
-                  <div className="text-[10px] mt-1 tracking-widest" style={{ color: 'rgba(244,239,230,0.38)' }}>
+                  <div className="text-[9px] mt-1.5 tracking-[0.2em]" style={{ color: 'rgba(244,239,230,0.45)' }}>
                     {s.l}
                   </div>
                 </div>
@@ -206,9 +229,9 @@ export default async function HomePage() {
       <section style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--card-bg)' }}>
         <div className="container-wide grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[var(--border-color)]">
           {[
-            { icon: '📍', title: '台北八德路', desc: '捷運步行可達，交通便利' },
-            { icon: '🪑', title: '多元配置', desc: '教室型 · 講座型 · 分組型，彈性佈置' },
-            { icon: '🕐', title: '三時段彈性', desc: '早午晚時段分開計費，依需租借' },
+            { icon: '🚇', title: '捷運步行可達', desc: '小巨蛋站 3 號出口 · 國父紀念館站 1 號出口，步行約 10 分鐘' },
+            { icon: '🪑', title: '彈性座位配置', desc: '劇院型 150 人 · 島嶼式 120 人，桌椅自由調整' },
+            { icon: '🎤', title: '高規格視聽設備', desc: '雷射投影機 · Sure 無線麥克風 × 4 · 專業音響，全包含於場租' },
           ].map(f => (
             <div key={f.title} className="px-10 py-12 text-center">
               <div className="text-2xl mb-4">{f.icon}</div>
@@ -223,9 +246,9 @@ export default async function HomePage() {
       <section style={{ background: 'var(--cream)', borderBottom: '1px solid var(--border-color)' }}>
         <div className="container-wide grid grid-cols-2 md:grid-cols-4 divide-x divide-[var(--border-color)]">
           {[
-            { n: '3', unit: '間', label: '精品場地空間' },
-            { n: '80', unit: '人', label: '最大容納人數' },
-            { n: '3', unit: '段', label: '靈活時段計費' },
+            { n: '150', unit: '人', label: '最大容納人數' },
+            { n: '15K', unit: '起', label: '平日場租 / 3 小時' },
+            { n: '10', unit: '分', label: '捷運步行可達' },
             { n: '1', unit: '日', label: '工作日確認回覆' },
           ].map(s => (
             <div key={s.label} className="text-center py-14 px-6">
