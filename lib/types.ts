@@ -113,6 +113,7 @@ export interface Event {
   is_paid: boolean
   capacity: number | null
   status: EventStatus
+  category: string | null
   created_at: string
   venue?: Venue
   event_photos?: EventPhoto[]
