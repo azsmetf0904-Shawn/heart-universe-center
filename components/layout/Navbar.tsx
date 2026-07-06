@@ -17,7 +17,7 @@ export default function Navbar() {
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b"
-      style={{ background: 'rgba(26,16,8,0.94)', borderColor: 'var(--dark-border)' }}
+      style={{ background: 'rgba(13,10,5,0.94)', borderColor: 'var(--dark-border)' }}
     >
       <div className="container-wide flex items-center justify-between h-16">
 
@@ -38,28 +38,16 @@ export default function Navbar() {
             <Link
               key={l.href}
               href={l.href}
-              className="text-sm tracking-widest transition-colors"
+              className="text-xs tracking-widest transition-colors hover:text-[var(--gold)]"
               style={{ color: 'var(--dark-muted)' }}
-              onMouseEnter={e => (e.currentTarget.style.color = 'var(--gold)')}
-              onMouseLeave={e => (e.currentTarget.style.color = 'var(--dark-muted)')}
             >
               {l.label}
             </Link>
           ))}
           <Link
             href="/rent"
-            className="text-xs tracking-widest uppercase px-5 py-2 border transition-all"
+            className="text-xs tracking-widest uppercase px-5 py-2 border transition-all hover:bg-[var(--gold)] hover:text-[#0D0A05]"
             style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}
-            onMouseEnter={e => {
-              const el = e.currentTarget as HTMLAnchorElement
-              el.style.background = 'var(--gold)'
-              el.style.color = 'var(--dark-bg)'
-            }}
-            onMouseLeave={e => {
-              const el = e.currentTarget as HTMLAnchorElement
-              el.style.background = 'transparent'
-              el.style.color = 'var(--gold)'
-            }}
           >
             立即預約
           </Link>
@@ -78,7 +66,7 @@ export default function Navbar() {
       {open && (
         <div
           className="md:hidden px-6 py-6 flex flex-col gap-6 border-t"
-          style={{ background: 'var(--dark-bg)', borderColor: 'var(--dark-border)' }}
+          style={{ background: '#0D0A05', borderColor: 'var(--dark-border)' }}
         >
           {links.map(l => (
             <Link

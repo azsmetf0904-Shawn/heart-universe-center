@@ -3,15 +3,6 @@ import Image from 'next/image'
 import { ArrowRight, MapPin, Clock, CalendarDays } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 
-const DB = 'var(--dark-bg)'
-const DB2 = 'var(--dark-bg2)'
-const DB3 = 'var(--dark-bg3)'
-const BORDER = 'var(--dark-border)'
-const TEXT = 'var(--dark-text)'
-const MUTED = 'var(--dark-muted)'
-const GOLD = 'var(--gold)'
-const GOLD_L = 'var(--gold-light)'
-
 function formatDate(s: string) {
   return new Date(s).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'short' })
 }
@@ -25,7 +16,7 @@ export default async function HomePage() {
       .select('id, name, slug, capacity, area_ping, venue_photos(image_url, sort_order)')
       .eq('is_active', true)
       .order('created_at')
-      .limit(4),
+      .limit(3),
     supabase
       .from('events')
       .select('id, title, slug, start_time, is_paid, price, cover_image_url, capacity')
@@ -37,19 +28,36 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ─── Hero ─── */}
+      {/* ─── Hero (dark for logo) ─── */}
       <section
-        className="relative min-h-[calc(100vh-4rem)] flex items-center justify-center text-center overflow-hidden"
-        style={{ background: `linear-gradient(160deg, ${DB} 0%, ${DB2} 50%, ${DB} 100%)` }}
+        className="relative flex items-center justify-center text-center overflow-hidden"
+        style={{
+          minHeight: 'calc(100vh - 4rem)',
+          background: 'linear-gradient(160deg, #0D0A05 0%, #1A1108 50%, #0D0A05 100%)',
+        }}
       >
-        {/* 心宇宙 watermark */}
-        <span
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 font-serif pointer-events-none select-none whitespace-nowrap"
-          style={{ fontSize: 280, fontWeight: 700, color: `rgba(184,152,64,0.04)`, letterSpacing: '-0.02em' }}
-        >心宇宙</span>
+        {/* Radial glow — Design C spirit in dark version */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(ellipse 60% 50% at 20% 100%, rgba(184,152,64,0.08) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 60% at 80% 0%, rgba(184,152,64,0.06) 0%, transparent 60%)
+            `,
+          }}
+        />
 
         <div className="relative z-10 flex flex-col items-center px-6">
-          {/* Large logo — 85vw */}
+          {/* Season line — Design C signature */}
+          <div className="flex items-center gap-5 mb-4">
+            <div className="w-10 h-px" style={{ background: 'var(--gold)', opacity: 0.5 }} />
+            <p className="text-[10px] tracking-[0.4em] uppercase" style={{ color: 'var(--gold)' }}>
+              Heart Universe · Taipei
+            </p>
+            <div className="w-10 h-px" style={{ background: 'var(--gold)', opacity: 0.5 }} />
+          </div>
+
+          {/* 85vw Logo */}
           <Image
             src="/logo.png"
             alt="心宇宙商務中心"
@@ -59,239 +67,237 @@ export default async function HomePage() {
             style={{ width: '85vw', maxWidth: '1020px', height: 'auto', mixBlendMode: 'screen' }}
           />
 
-          <div
-            className="w-20 h-px mb-6"
-            style={{ background: GOLD, opacity: 0.4 }}
-          />
+          {/* Vertical line — Design C signature */}
+          <div className="w-px h-14 my-2" style={{ background: 'var(--gold)', opacity: 0.4 }} />
 
-          <p
-            className="text-sm tracking-[0.22em] leading-loose mb-10"
-            style={{ color: MUTED }}
-          >
-            場地租借 · 課程活動 · 活動紀錄
+          <p className="text-sm tracking-[0.22em] leading-loose mb-8" style={{ color: 'var(--dark-muted)' }}>
+            台北八德路精品場地空間
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/rent" className="btn-dark-gold px-10 py-3 text-xs tracking-widest">
-              租借申請 <ArrowRight size={13} />
+          {/* Adjacent CTAs — Design C signature */}
+          <div className="flex">
+            <Link
+              href="/rent"
+              className="px-12 py-3 text-xs tracking-widest transition-all btn-dark-gold"
+            >
+              租借申請
             </Link>
-            <Link href="/venues" className="btn-dark-ghost px-10 py-3 text-xs tracking-widest">
-              瀏覽場地 <ArrowRight size={13} />
+            <Link
+              href="/venues"
+              className="px-12 py-3 text-xs tracking-widest border transition-colors"
+              style={{ borderColor: 'var(--dark-border)', color: 'var(--dark-muted)' }}
+            >
+              瀏覽場地
             </Link>
           </div>
         </div>
       </section>
 
-      {/* ─── Venues ─── */}
-      <section style={{ background: DB2, paddingTop: '100px', paddingBottom: '100px' }}>
-        <div className="container-wide">
-          <div className="mb-12">
-            <p className="text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: GOLD }}>Venue</p>
-            <h2 className="font-serif text-4xl mb-4" style={{ color: TEXT }}>精品場地空間</h2>
-            <div className="w-16 h-px mb-5" style={{ background: GOLD, opacity: 0.5 }} />
-            <p className="text-sm leading-relaxed max-w-lg" style={{ color: MUTED }}>
-              寬敞明亮的多功能空間，提供彈性座位配置，適合課程講座、企業培訓、小型展覽、社群聚會。
-            </p>
-          </div>
-
-          {venues && venues.length > 0 ? (
-            <div className="grid grid-cols-2 gap-px mb-10" style={{ background: BORDER }}>
-              {venues.map((v, i) => {
-                const photos = v.venue_photos as { image_url: string; sort_order: number }[] | null
-                const cover = photos?.sort((a, b) => a.sort_order - b.sort_order)[0]?.image_url
-                const isLarge = i === 0
-                return (
-                  <Link
-                    key={v.id}
-                    href={`/venues/${v.slug}`}
-                    className="group relative overflow-hidden"
-                    style={{
-                      aspectRatio: isLarge ? '21/9' : '16/9',
-                      gridColumn: isLarge ? 'span 2' : undefined,
-                      background: DB3,
-                    }}
-                  >
-                    {cover ? (
-                      <Image
-                        src={cover}
-                        alt={v.name}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-700"
-                        sizes={isLarge ? '100vw' : '50vw'}
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <span className="text-xs tracking-widest" style={{ color: MUTED }}>PHOTO</span>
-                      </div>
-                    )}
-                    <div
-                      className="absolute inset-0 flex items-end p-6 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                      style={{ background: 'linear-gradient(to top, rgba(0,0,0,0.8), transparent)' }}
-                    >
-                      <div>
-                        <p className="font-serif text-lg text-white mb-1">{v.name}</p>
-                        {v.capacity && <p className="text-xs" style={{ color: GOLD_L }}>{v.capacity} 人</p>}
-                      </div>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="mb-10 py-16 text-center text-sm" style={{ color: MUTED }}>場地資訊整理中，敬請期待</div>
-          )}
-
-          <Link href="/venues" className="inline-flex items-center gap-2 text-xs tracking-widest hover:gap-4 transition-all" style={{ color: GOLD }}>
-            查看所有場地 <ArrowRight size={13} />
-          </Link>
-        </div>
-      </section>
-
-      {/* ─── Stats ─── */}
-      <section>
-        <div className="container-wide grid grid-cols-2 md:grid-cols-4 gap-px" style={{ background: BORDER }}>
+      {/* ─── Features — Design C 3-col bordered ─── */}
+      <section style={{ borderTop: '1px solid var(--border-color)', borderBottom: '1px solid var(--border-color)' }}>
+        <div className="container-wide grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[var(--border-color)]">
           {[
-            { num: '3+', label: '專業場地' },
-            { num: '50+', label: '坪數空間' },
-            { num: '3', label: '彈性時段' },
-            { num: '∞', label: '可能性' },
-          ].map(s => (
-            <div key={s.label} className="py-10 text-center" style={{ background: DB }}>
-              <p className="font-serif text-4xl italic mb-2" style={{ color: GOLD }}>
-                {s.num}
-              </p>
-              <p className="text-[10px] tracking-widest" style={{ color: MUTED }}>{s.label}</p>
+            { icon: '📍', title: '台北八德路', desc: '捷運步行可達，交通便利' },
+            { icon: '🪑', title: '多元配置', desc: '教室型 · 講座型 · 分組型，彈性佈置' },
+            { icon: '🕐', title: '三時段彈性', desc: '早午晚時段分開計費，依需租借' },
+          ].map(f => (
+            <div key={f.title} className="px-10 py-12 text-center" style={{ background: 'var(--cream)' }}>
+              <div className="text-2xl mb-4" style={{ color: 'var(--gold)' }}>{f.icon}</div>
+              <h3 className="font-serif text-base mb-2" style={{ color: 'var(--charcoal)' }}>{f.title}</h3>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>{f.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ─── Events ─── */}
-      <section style={{ background: DB3, paddingTop: '100px', paddingBottom: '100px' }}>
+      {/* ─── Venues — Design C masonry ─── */}
+      <section className="py-24" style={{ background: 'var(--cream)' }}>
         <div className="container-wide">
-          <div className="mb-12">
-            <p className="text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: GOLD }}>Events</p>
-            <h2 className="font-serif text-4xl mb-4" style={{ color: TEXT }}>近期活動課程</h2>
-            <div className="w-16 h-px" style={{ background: GOLD, opacity: 0.5 }} />
+          {/* Section header with see-all link */}
+          <div className="flex items-end justify-between mb-14">
+            <div>
+              <p className="text-[10px] tracking-[0.5em] uppercase mb-2" style={{ color: 'var(--gold)' }}>Venue</p>
+              <h2 className="font-serif text-4xl" style={{ color: 'var(--charcoal)' }}>精品場地空間</h2>
+            </div>
+            <Link
+              href="/venues"
+              className="flex items-center gap-2 text-xs tracking-widest pb-1 border-b transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
+              style={{ color: 'var(--gray)', borderColor: 'var(--border-color)' }}
+            >
+              查看全部 <ArrowRight size={12} />
+            </Link>
+          </div>
+
+          {venues && venues.length > 0 ? (
+            <div className="grid gap-4" style={{ gridTemplateColumns: '2fr 1fr' }}>
+              {/* Left col: large card */}
+              <div>
+                {venues[0] && (() => {
+                  const photos = venues[0].venue_photos as { image_url: string; sort_order: number }[] | null
+                  const cover = photos?.sort((a, b) => a.sort_order - b.sort_order)[0]?.image_url
+                  return (
+                    <Link
+                      href={`/venues/${venues[0].slug}`}
+                      className="group block overflow-hidden border border-[var(--border-color)] hover:border-[var(--gold)] transition-colors"
+                      style={{ background: 'var(--card-bg)' }}
+                    >
+                      <div className="relative overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                        {cover ? (
+                          <Image src={cover} alt={venues[0].name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="66vw" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-xs tracking-widest" style={{ color: 'var(--gray)' }}>PHOTO</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="px-7 py-6">
+                        <h3 className="font-serif text-xl mb-2" style={{ color: 'var(--charcoal)' }}>{venues[0].name}</h3>
+                        <div className="flex gap-2 flex-wrap mt-3">
+                          {venues[0].capacity && <span className="text-[10px] tracking-widest px-3 py-1 border" style={{ borderColor: 'var(--border-color)', color: 'var(--gray)' }}>最多 {venues[0].capacity} 人</span>}
+                          {venues[0].area_ping && <span className="text-[10px] tracking-widest px-3 py-1 border" style={{ borderColor: 'var(--border-color)', color: 'var(--gray)' }}>{venues[0].area_ping} 坪</span>}
+                        </div>
+                      </div>
+                    </Link>
+                  )
+                })()}
+              </div>
+
+              {/* Right col: stacked cards */}
+              <div className="flex flex-col gap-4">
+                {venues.slice(1).map(v => {
+                  const photos = v.venue_photos as { image_url: string; sort_order: number }[] | null
+                  const cover = photos?.sort((a, b) => a.sort_order - b.sort_order)[0]?.image_url
+                  return (
+                    <Link
+                      key={v.id}
+                      href={`/venues/${v.slug}`}
+                      className="group block overflow-hidden border border-[var(--border-color)] hover:border-[var(--gold)] transition-colors flex-1"
+                      style={{ background: 'var(--card-bg)' }}
+                    >
+                      <div className="relative overflow-hidden" style={{ aspectRatio: '4/3' }}>
+                        {cover ? (
+                          <Image src={cover} alt={v.name} fill className="object-cover group-hover:scale-105 transition-transform duration-700" sizes="33vw" />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center" style={{ background: 'var(--surface)' }}>
+                            <span className="text-xs tracking-widest" style={{ color: 'var(--gray)' }}>PHOTO</span>
+                          </div>
+                        )}
+                      </div>
+                      <div className="px-5 py-4">
+                        <h3 className="font-serif text-base" style={{ color: 'var(--charcoal)' }}>{v.name}</h3>
+                      </div>
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+          ) : (
+            <div className="py-16 text-center text-sm" style={{ color: 'var(--gray)' }}>場地資訊整理中，敬請期待</div>
+          )}
+        </div>
+      </section>
+
+      {/* ─── Events — Design C row layout ─── */}
+      <section className="py-20" style={{ background: 'var(--card-bg)' }}>
+        <div className="container-wide">
+          <div className="flex items-end justify-between mb-12">
+            <div>
+              <p className="text-[10px] tracking-[0.5em] uppercase mb-2" style={{ color: 'var(--gold)' }}>Events</p>
+              <h2 className="font-serif text-4xl" style={{ color: 'var(--charcoal)' }}>近期活動課程</h2>
+            </div>
+            <Link
+              href="/events"
+              className="flex items-center gap-2 text-xs tracking-widest pb-1 border-b transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
+              style={{ color: 'var(--gray)', borderColor: 'var(--border-color)' }}
+            >
+              查看全部 <ArrowRight size={12} />
+            </Link>
           </div>
 
           {events && events.length > 0 ? (
-            <div className="flex flex-col mb-10" style={{ borderTop: `1px solid ${BORDER}` }}>
+            <div style={{ borderTop: '1px solid var(--border-color)' }}>
               {events.map(ev => (
                 <Link
                   key={ev.id}
                   href={`/events/${ev.slug}`}
-                  className="event-row grid items-center gap-6 py-5 border-b"
+                  className="event-row grid items-center gap-8 py-8 border-b"
                   style={{
-                    gridTemplateColumns: '80px 1fr auto',
-                    borderColor: BORDER,
+                    gridTemplateColumns: '100px 1fr 160px',
+                    borderColor: 'var(--border-color)',
                   }}
                 >
-                  <div className="text-center pl-4">
-                    <p className="font-serif text-2xl italic leading-none" style={{ color: GOLD }}>
-                      {new Date(ev.start_time).getDate()}
-                    </p>
-                    <p className="text-[9px] tracking-widest mt-1" style={{ color: MUTED }}>
+                  {/* Date block */}
+                  <div className="text-center">
+                    <p className="text-[10px] tracking-[0.3em] mb-1" style={{ color: 'var(--gold)' }}>
                       {new Date(ev.start_time).toLocaleDateString('zh-TW', { month: 'long' })}
                     </p>
-                  </div>
-                  <div>
-                    <p className="font-serif text-base mb-1 leading-snug" style={{ color: TEXT }}>{ev.title}</p>
-                    <p className="text-[10px] tracking-widest flex items-center gap-1" style={{ color: MUTED }}>
-                      <CalendarDays size={10} /> {formatDate(ev.start_time)}
+                    <p className="font-serif text-5xl font-semibold leading-none" style={{ color: 'var(--charcoal)' }}>
+                      {new Date(ev.start_time).getDate()}
                     </p>
                   </div>
-                  <div className="pr-4 text-right">
-                    <p className="text-sm mb-1" style={{ color: TEXT }}>
+
+                  {/* Title + meta */}
+                  <div>
+                    <h3 className="font-serif text-xl mb-2" style={{ color: 'var(--charcoal)' }}>{ev.title}</h3>
+                    <p className="text-xs leading-relaxed flex items-center gap-1" style={{ color: 'var(--gray)' }}>
+                      <CalendarDays size={11} /> {formatDate(ev.start_time)}
+                      &nbsp;·&nbsp;
                       {ev.is_paid ? `NT$ ${ev.price.toLocaleString()}` : '免費'}
                     </p>
-                    <span className="text-[10px] tracking-widest flex items-center gap-1 justify-end" style={{ color: GOLD }}>
-                      報名 <ArrowRight size={10} />
+                  </div>
+
+                  {/* Action */}
+                  <div className="text-right">
+                    <span
+                      className="inline-block px-6 py-2 text-xs tracking-widest border transition-colors"
+                      style={{ borderColor: 'var(--border-color)', color: 'var(--gray)' }}
+                    >
+                      {ev.is_paid ? '立即報名' : '免費報名'}
                     </span>
                   </div>
                 </Link>
               ))}
             </div>
           ) : (
-            <div className="mb-10 py-16 text-center text-sm" style={{ color: MUTED }}>近期暫無活動，請持續關注</div>
+            <div className="py-16 text-center text-sm" style={{ color: 'var(--gray)' }}>近期暫無活動，請持續關注</div>
           )}
-
-          <Link href="/events" className="inline-flex items-center gap-2 text-xs tracking-widest hover:gap-4 transition-all" style={{ color: GOLD }}>
-            查看所有活動 <ArrowRight size={13} />
-          </Link>
         </div>
       </section>
 
-      {/* ─── Location ─── */}
-      <section style={{ background: DB2, paddingTop: '100px', paddingBottom: '100px' }}>
-        <div className="container-wide grid grid-cols-1 md:grid-cols-2 gap-16 items-start">
-          <div>
-            <p className="text-[10px] tracking-[0.5em] uppercase mb-4" style={{ color: GOLD }}>Location</p>
-            <h2 className="font-serif text-3xl mb-4" style={{ color: TEXT }}>交通資訊</h2>
-            <div className="w-16 h-px mb-8" style={{ background: GOLD, opacity: 0.5 }} />
-            <div className="flex flex-col gap-6 text-sm" style={{ color: MUTED }}>
-              <div className="flex items-start gap-3">
-                <MapPin size={15} className="mt-0.5 shrink-0" style={{ color: GOLD }} />
-                <div>
-                  <p className="mb-1" style={{ color: TEXT }}>台北市八德路</p>
-                  <p className="leading-relaxed">捷運板南線「忠孝復興站」或「忠孝敦化站」步行可達</p>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <Clock size={15} className="mt-0.5 shrink-0" style={{ color: GOLD }} />
-                <div>
-                  <p className="mb-3" style={{ color: TEXT }}>使用時段</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { label: '早場', time: '09:00–12:00' },
-                      { label: '午場', time: '14:00–17:00' },
-                      { label: '晚場', time: '18:30–21:30' },
-                    ].map(t => (
-                      <div key={t.label} className="border p-3 text-center" style={{ borderColor: BORDER }}>
-                        <p className="text-xs mb-1" style={{ color: TEXT }}>{t.label}</p>
-                        <p className="text-[9px] tracking-tight">{t.time}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <Link href="/rent" className="btn-dark-gold mt-8 px-8 py-3 text-xs tracking-widest">
-              立即申請租借 <ArrowRight size={13} />
-            </Link>
-          </div>
-          <div className="overflow-hidden border" style={{ borderColor: BORDER }}>
-            <iframe
-              src="https://maps.google.com/maps?q=台北市八德路&output=embed&z=15"
-              width="100%"
-              height="360"
-              style={{ border: 0, filter: 'invert(0.9) hue-rotate(180deg)' }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="心宇宙商務中心地圖"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* ─── CTA ─── */}
+      {/* ─── CTA — Design C concentric circle ─── */}
       <section
         className="text-center"
-        style={{
-          padding: '120px 80px',
-          background: `linear-gradient(135deg, ${DB3}, ${DB})`,
-          borderTop: `1px solid ${BORDER}`,
-        }}
+        style={{ padding: '120px 80px', background: 'var(--charcoal)' }}
       >
         <div className="container-narrow">
-          <p className="text-[10px] tracking-[0.5em] uppercase mb-6" style={{ color: GOLD }}>Reservation</p>
-          <h2 className="font-serif text-4xl md:text-5xl mb-6" style={{ color: TEXT }}>預約您的專屬場地</h2>
-          <div className="w-20 h-px mx-auto mb-8" style={{ background: GOLD, opacity: 0.5 }} />
-          <p className="text-sm tracking-wide leading-loose mb-12 max-w-xs mx-auto" style={{ color: MUTED }}>
+          {/* Concentric circles — Design C signature */}
+          <div
+            className="flex items-center justify-center mx-auto mb-12"
+            style={{
+              width: 160, height: 160, borderRadius: '50%',
+              border: '1px solid rgba(184,152,64,0.3)',
+              position: 'relative',
+            }}
+          >
+            <div
+              style={{
+                position: 'absolute', inset: 12, borderRadius: '50%',
+                border: '1px solid rgba(184,152,64,0.5)',
+              }}
+            />
+            <p className="text-[10px] tracking-[0.22em]" style={{ color: 'var(--gold)' }}>預　約</p>
+          </div>
+
+          <h2 className="font-serif text-4xl md:text-5xl mb-5" style={{ color: 'var(--cream)', letterSpacing: '0.08em' }}>
+            預約您的專屬場地
+          </h2>
+          <p className="text-sm tracking-widest mb-12" style={{ color: 'rgba(244,239,230,0.45)', letterSpacing: '0.15em' }}>
             填寫租借申請，我們將於一個工作日內與您確認
           </p>
-          <Link href="/rent" className="btn-cta-ghost px-12 py-3 text-xs tracking-widest">
+          <Link
+            href="/rent"
+            className="btn-cta-ghost inline-flex items-center gap-2 px-16 py-3 text-xs tracking-widest"
+          >
             立即申請 <ArrowRight size={13} />
           </Link>
         </div>
