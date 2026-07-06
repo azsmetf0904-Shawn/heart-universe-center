@@ -37,145 +37,134 @@ export default async function HomePage() {
 
   return (
     <>
-      {/* ─── Hero — 全幅場地照片 ─── */}
-      <section
-        className="relative flex items-end overflow-hidden"
-        style={{ minHeight: 'calc(100vh - 4rem)' }}
-      >
-        {/* Background: venue photo or fallback gradient */}
-        {heroCover ? (
-          <Image
-            src={heroCover}
-            alt="心宇宙商務中心場地"
-            fill
-            priority
-            className="object-cover"
-            sizes="100vw"
-            style={{ zIndex: 0 }}
-          />
-        ) : (
-          <div
-            className="absolute inset-0"
-            style={{
-              background: 'linear-gradient(135deg, var(--charcoal) 0%, #5a3a20 40%, #3d2a14 70%, var(--charcoal) 100%)',
-              zIndex: 0,
-            }}
-          />
-        )}
+      {/* ─── Hero — 方案 B：左文字 + 右照片格 ─── */}
+      <section className="grid md:grid-cols-2" style={{ minHeight: 'calc(100vh - 64px)' }}>
 
-        {/* Dark overlay for text legibility */}
+        {/* Left: dark text panel */}
         <div
-          className="absolute inset-0"
-          style={{
-            background: 'linear-gradient(to top, rgba(26,16,8,0.92) 0%, rgba(26,16,8,0.55) 45%, rgba(26,16,8,0.25) 100%)',
-            zIndex: 1,
-          }}
-        />
-
-        {/* Activity tags — top strip */}
-        <div
-          className="absolute w-full flex justify-center gap-3 flex-wrap px-8 hidden md:flex"
-          style={{ top: 88, zIndex: 2 }}
+          className="relative flex flex-col justify-center px-10 md:px-16 py-20"
+          style={{ background: 'var(--charcoal)', overflow: 'hidden' }}
         >
-          {['品牌講座', '女性成長課程', '企業培訓', '工作坊', '社群聚會', '身心靈課程'].map(tag => (
-            <span
-              key={tag}
-              className="text-[9px] tracking-[0.25em] px-4 py-1.5"
-              style={{ border: '1px solid rgba(255,255,255,0.18)', color: 'rgba(255,255,255,0.5)' }}
-            >
-              {tag}
-            </span>
-          ))}
+          {/* Decorative rings */}
+          <div className="absolute pointer-events-none" style={{ bottom: -80, right: -80, width: 240, height: 240, borderRadius: '50%', border: '1px solid rgba(176,120,80,0.15)' }} />
+          <div className="absolute pointer-events-none" style={{ bottom: -40, right: -40, width: 140, height: 140, borderRadius: '50%', border: '1px solid rgba(176,120,80,0.12)' }} />
+
+          {/* Eyebrow */}
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-6 h-px" style={{ background: 'var(--gold)' }} />
+            <p className="text-[9px] tracking-[0.5em]" style={{ color: 'var(--gold)' }}>
+              心宇宙商務中心 · TAIPEI
+            </p>
+          </div>
+
+          {/* H1 */}
+          <h1
+            className="font-serif leading-tight mb-6"
+            style={{ fontSize: 'clamp(36px, 4.5vw, 64px)', fontWeight: 600, color: '#fff', letterSpacing: '0.04em', lineHeight: 1.15 }}
+          >
+            台北最適合<br />
+            <span style={{ color: 'var(--gold)' }}>質感活動</span><br />
+            的場地
+          </h1>
+
+          <p className="text-sm leading-loose mb-8" style={{ color: 'rgba(244,239,230,0.55)', letterSpacing: '0.08em' }}>
+            台北八德路 · 100–150 人<br />
+            捷運步行可達 · 設備齊全
+          </p>
+
+          {/* Activity tags */}
+          <div className="flex flex-wrap gap-2 mb-10">
+            {['品牌講座', '女性成長課程', '企業培訓', '工作坊', '身心靈課程', '直播活動'].map(tag => (
+              <span key={tag} className="text-[10px] px-3 py-1.5 tracking-wide"
+                style={{ border: '1px solid rgba(176,120,80,0.4)', color: 'rgba(176,120,80,0.9)' }}>
+                {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* CTA */}
+          <div className="flex gap-3 mb-12">
+            <Link href="/rent" className="btn-gold-fill text-xs tracking-widest px-10 py-3">
+              立即申請租借
+            </Link>
+            <Link href="/venues"
+              className="text-xs tracking-widest px-8 py-3 transition-colors"
+              style={{ border: '1px solid rgba(244,239,230,0.2)', color: 'rgba(244,239,230,0.6)', display: 'inline-flex', alignItems: 'center' }}>
+              查看場地照片
+            </Link>
+          </div>
+
+          {/* Stats row */}
+          <div className="flex gap-0" style={{ borderTop: '1px solid rgba(255,255,255,0.08)', paddingTop: 28 }}>
+            {[
+              { n: '150', u: '人', l: '最大容納' },
+              { n: '15K', u: '起', l: '平日場租' },
+              { n: '3H', u: '', l: '每時段' },
+            ].map((s, i) => (
+              <div key={s.l} className="flex-1 text-center"
+                style={{ borderRight: i < 2 ? '1px solid rgba(255,255,255,0.08)' : 'none' }}>
+                <div className="font-serif" style={{ fontSize: 22, fontWeight: 600, color: 'var(--gold)', lineHeight: 1 }}>
+                  {s.n}<span style={{ fontSize: 12, marginLeft: 1 }}>{s.u}</span>
+                </div>
+                <div className="text-[9px] mt-1.5 tracking-[0.2em]" style={{ color: 'rgba(244,239,230,0.35)' }}>{s.l}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Content */}
-        <div
-          className="relative w-full container-wide"
-          style={{ zIndex: 2, paddingTop: '60px', paddingBottom: '72px' }}
-        >
-          <div className="grid items-end gap-12" style={{ gridTemplateColumns: '1fr auto' }}>
-            {/* Left: main text */}
-            <div>
-              <div className="flex items-center gap-3 mb-5">
-                <div className="w-8 h-px" style={{ background: 'var(--gold)', opacity: 0.6 }} />
-                <p className="text-[11px] tracking-[0.4em]" style={{ color: 'rgba(244,239,230,0.55)' }}>
-                  心宇宙商務中心 · TAIPEI
-                </p>
+        {/* Right: photo grid */}
+        <div className="hidden md:grid" style={{ gridTemplateRows: '2fr 1fr', gridTemplateColumns: '1fr 1fr' }}>
+          {/* Main photo — top, full width */}
+          <div className="relative col-span-2 overflow-hidden" style={{ background: 'var(--surface)' }}>
+            {heroCover ? (
+              <Image src={heroCover} alt="心宇宙商務中心" fill className="object-cover" sizes="50vw" priority />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center" style={{ background: '#d0ccc8' }}>
+                <span className="text-xs tracking-widest" style={{ color: 'rgba(44,30,18,0.3)' }}>場地照片</span>
               </div>
-
-              <h1
-                className="font-serif leading-tight mb-6"
-                style={{
-                  fontSize: 'clamp(44px, 7vw, 88px)',
-                  fontWeight: 600,
-                  color: '#fff',
-                  letterSpacing: '0.05em',
-                  lineHeight: 1.1,
-                }}
-              >
-                台北<span style={{ color: 'var(--gold)' }}>精品</span><br />場地出租
-              </h1>
-
-              <p
-                className="text-sm leading-loose mb-10"
-                style={{ color: 'rgba(244,239,230,0.62)', letterSpacing: '0.08em', maxWidth: '420px' }}
-              >
-                台北八德路 · 捷運步行可達 · 100–150 人<br />
-                高規格設備 · 劇院型 / 島嶼式彈性配置
+            )}
+            {/* Bottom label */}
+            <div className="absolute bottom-0 left-0 right-0 px-5 py-3"
+              style={{ background: 'linear-gradient(to top, rgba(26,16,8,0.7), transparent)' }}>
+              <p className="text-[10px] tracking-[0.25em]" style={{ color: 'rgba(255,255,255,0.7)', borderLeft: '2px solid var(--gold)', paddingLeft: 10 }}>
+                多功能大廳 · 100–150 人
               </p>
-
-              <div className="flex gap-3">
-                <Link href="/venues" className="btn-gold-fill text-xs tracking-widest px-12 py-3">
-                  瀏覽場地空間
-                </Link>
-                <Link
-                  href="/rent"
-                  className="text-xs tracking-widest px-8 py-3 transition-colors hover:border-[var(--gold)] hover:text-white"
-                  style={{
-                    border: '1px solid rgba(244,239,230,0.28)',
-                    color: 'rgba(244,239,230,0.65)',
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  租借申請
-                </Link>
-              </div>
-            </div>
-
-            {/* Right: frosted glass stats card */}
-            <div
-              className="hidden lg:block shrink-0"
-              style={{
-                background: 'rgba(255,255,255,0.08)',
-                backdropFilter: 'blur(12px)',
-                border: '1px solid rgba(255,255,255,0.15)',
-                padding: '32px 28px',
-                minWidth: '180px',
-              }}
-            >
-              {[
-                { n: '150', u: '人', l: '最大容納人數' },
-                { n: '15K', u: '起', l: '平日場租 / 3小時' },
-                { n: '1', u: '工作日', l: '確認回覆時間' },
-              ].map((s, i) => (
-                <div key={s.l}>
-                  {i > 0 && (
-                    <div style={{ borderTop: '1px solid rgba(255,255,255,0.1)', margin: '20px 0' }} />
-                  )}
-                  <div
-                    className="font-serif"
-                    style={{ fontSize: '32px', fontWeight: 600, color: 'white', lineHeight: 1 }}
-                  >
-                    {s.n}<span style={{ fontSize: '14px', color: 'var(--gold)', marginLeft: '3px' }}>{s.u}</span>
-                  </div>
-                  <div className="text-[9px] mt-1.5 tracking-[0.2em]" style={{ color: 'rgba(244,239,230,0.45)' }}>
-                    {s.l}
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
+
+          {/* Sub photo 1 */}
+          {(() => {
+            const photos = venues?.flatMap(v => (v.venue_photos as VenuePhoto[] | null)?.sort((a,b) => a.sort_order - b.sort_order) ?? [])
+            const p1 = photos?.[1]?.image_url
+            return (
+              <div className="relative overflow-hidden" style={{ background: '#b8b4b0' }}>
+                {p1 ? (
+                  <Image src={p1} alt="劇院型配置" fill className="object-cover" sizes="25vw" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-[10px] tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>劇院型</span>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+
+          {/* Sub photo 2 */}
+          {(() => {
+            const photos = venues?.flatMap(v => (v.venue_photos as VenuePhoto[] | null)?.sort((a,b) => a.sort_order - b.sort_order) ?? [])
+            const p2 = photos?.[2]?.image_url
+            return (
+              <div className="relative overflow-hidden" style={{ background: '#888480' }}>
+                {p2 ? (
+                  <Image src={p2} alt="島嶼式配置" fill className="object-cover" sizes="25vw" />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <span className="text-[10px] tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>島嶼式</span>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
         </div>
       </section>
 
