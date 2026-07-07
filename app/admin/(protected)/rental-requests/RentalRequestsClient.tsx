@@ -61,27 +61,34 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
     const slotLabel = r.time_slot ? TIME_SLOT_LABEL[r.time_slot as keyof typeof TIME_SLOT_LABEL] : ''
     const base = { to: r.email, name: r.name, eventTitle: r.event_title, bookingDate: r.booking_date ?? '', timeSlot: slotLabel, venueName: venue?.name ?? '' }
 
+    const lineId = (prev as unknown as { line_user_id?: string }).line_user_id
+
     if (status === 'confirmed') {
       fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'rental_confirmed', ...base }) }).catch(() => {})
+      if (lineId) fetch('/api/line/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'confirmed', lineUserId: lineId, ...base }) }).catch(() => {})
     }
 
     if (status === 'cancelled') {
       // 通知申請人取消
       fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'rental_cancelled', ...base }) }).catch(() => {})
+      if (lineId) fetch('/api/line/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'cancelled', lineUserId: lineId, ...base }) }).catch(() => {})
 
       // 若有候補，通知候補者
       if (r.booking_date && r.time_slot) {
         const { data: waitlist } = await supabase
-          .from('rental_requests').select('id, name, email, event_title, booking_date, time_slot')
+          .from('rental_requests').select('id, name, email, event_title, booking_date, time_slot, line_user_id')
           .eq('booking_date', r.booking_date).eq('time_slot', r.time_slot)
           .eq('status', 'waitlist').order('created_at').limit(1).single()
         if (waitlist?.email) {
+          const wlBase = { to: waitlist.email, name: waitlist.name, eventTitle: waitlist.event_title, bookingDate: waitlist.booking_date ?? '', timeSlot: slotLabel, venueName: venue?.name ?? '' }
           fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'waitlist_promoted', to: waitlist.email, name: waitlist.name,
-              eventTitle: waitlist.event_title, bookingDate: waitlist.booking_date ?? '', timeSlot: slotLabel, venueName: venue?.name ?? '' })
-          }).catch(() => {})
+            body: JSON.stringify({ type: 'waitlist_promoted', ...wlBase }) }).catch(() => {})
+          if (waitlist.line_user_id) fetch('/api/line/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'waitlist', lineUserId: waitlist.line_user_id, ...wlBase }) }).catch(() => {})
         }
       }
     }

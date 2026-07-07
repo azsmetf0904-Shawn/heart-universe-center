@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, Suspense } from 'react'
+import { useEffect, useState, useCallback, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Venue, VenueAddon, VenuePricing } from '@/lib/types'
@@ -27,9 +27,13 @@ const TIME_SLOTS: TimeSlot[] = ['morning', 'afternoon', 'evening']
 
 const EVENT_TYPES = ['課程講座', '企業培訓', '讀書會', '工作坊', '展覽展示', '社群聚會', '其他']
 
+type LineProfile = { userId: string; displayName: string; pictureUrl?: string }
+
 function RentForm() {
   const searchParams = useSearchParams()
   const router = useRouter()
+  const [lineProfile, setLineProfile] = useState<LineProfile | null>(null)
+  const [liffLoading, setLiffLoading] = useState(true)
   const [step, setStep] = useState(1)
   const [venues, setVenues] = useState<Venue[]>([])
   const [addons, setAddons] = useState<VenueAddon[]>([])
@@ -37,6 +41,7 @@ function RentForm() {
   const [done, setDone] = useState(false)
   const [bookingId, setBookingId] = useState<string | null>(null)
   const [isWaitlistDone, setIsWaitlistDone] = useState(false)
+  const [lineCode, setLineCode] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
@@ -58,6 +63,29 @@ function RentForm() {
     layout_config: '講座型' as LayoutType | '',
     note: '',
   })
+
+  // LIFF 初始化
+  useEffect(() => {
+    const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID
+    if (!liffId) { setLiffLoading(false); return }
+    import('@line/liff').then(({ default: liff }) => {
+      liff.init({ liffId }).then(() => {
+        if (liff.isLoggedIn()) {
+          liff.getProfile().then(p => {
+            setLineProfile({ userId: p.userId, displayName: p.displayName, pictureUrl: p.pictureUrl })
+            setLiffLoading(false)
+          })
+        } else {
+          // 不自動跳轉，讓用戶主動點按鈕
+          setLiffLoading(false)
+        }
+      }).catch(() => setLiffLoading(false))
+    })
+  }, [])
+
+  const handleLineLogin = useCallback(() => {
+    import('@line/liff').then(({ default: liff }) => liff.login())
+  }, [])
 
   useEffect(() => {
     const supabase = createClient()
@@ -151,7 +179,9 @@ function RentForm() {
       if (conflicts && conflicts.length > 0) isWaitlist = true
     }
 
+    const generatedCode = Math.random().toString(36).substring(2, 8).toUpperCase()
     const { data: req, error } = await supabase.from('rental_requests').insert({
+      line_user_id: lineProfile?.userId ?? null,
       venue_id: form.venue_id || null,
       name: form.name,
       phone: form.phone,
@@ -169,6 +199,7 @@ function RentForm() {
       end_time: form.booking_date ? `${form.booking_date}T21:30:00` : new Date().toISOString(),
       note: form.note || null,
       status: isWaitlist ? 'waitlist' : 'pending',
+      line_code: generatedCode,
     }).select('id').single()
 
     if (!error && req && Object.keys(selected).length > 0) {
@@ -182,7 +213,7 @@ function RentForm() {
         }))
       )
     }
-    if (!error && req) setBookingId(req.id)
+    if (!error && req) { setBookingId(req.id); setLineCode(generatedCode) }
     if (!error) {
       const emailPayload = {
         name: form.name,
@@ -219,6 +250,35 @@ function RentForm() {
     setSubmitting(false)
   }
 
+  // LIFF 載入中
+  if (liffLoading) return (
+    <div className="py-40 flex flex-col items-center gap-4">
+      <div className="w-8 h-8 border-2 border-[var(--gold)] border-t-transparent rounded-full animate-spin" />
+      <p className="text-sm" style={{ color: 'var(--gray)' }}>連線 LINE 中…</p>
+    </div>
+  )
+
+  // LINE 未登入（LIFF ID 沒設或 fallback）
+  if (!lineProfile && process.env.NEXT_PUBLIC_LINE_LIFF_ID) return (
+    <div className="py-40 flex flex-col items-center text-center container-narrow gap-6">
+      <div style={{ width: 64, height: 64, background: '#06C755', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <svg viewBox="0 0 24 24" width="36" height="36" fill="white"><path d="M12 2C6.477 2 2 6.036 2 11.04c0 4.502 3.656 8.267 8.593 8.936.334.072.789.22.904.505.103.26.068.668.033.931l-.146.892c-.044.261-.203 1.02.893.556 1.095-.465 5.908-3.48 8.066-5.96C21.608 15.12 22 13.134 22 11.04 22 6.036 17.523 2 12 2"/></svg>
+      </div>
+      <div>
+        <h2 className="text-xl mb-2" style={{ color: 'var(--charcoal)' }}>請先登入 LINE</h2>
+        <p className="text-sm leading-relaxed" style={{ color: 'var(--gray)' }}>
+          預約系統使用 LINE 帳號驗證身份，<br />登入後即可接收審核通知。
+        </p>
+      </div>
+      <button onClick={handleLineLogin}
+        className="flex items-center gap-3 px-8 py-3 text-white text-sm font-medium"
+        style={{ background: '#06C755' }}>
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M12 2C6.477 2 2 6.036 2 11.04c0 4.502 3.656 8.267 8.593 8.936.334.072.789.22.904.505.103.26.068.668.033.931l-.146.892c-.044.261-.203 1.02.893.556 1.095-.465 5.908-3.48 8.066-5.96C21.608 15.12 22 13.134 22 11.04 22 6.036 17.523 2 12 2"/></svg>
+        使用 LINE 登入
+      </button>
+    </div>
+  )
+
   if (done) return (
     <div className="py-40 flex flex-col items-center text-center container-narrow">
       <CheckCircle2 size={48} className={isWaitlistDone ? 'text-orange-400 mb-6' : 'text-[var(--gold)] mb-6'} />
@@ -239,14 +299,38 @@ function RentForm() {
       <p className="text-[var(--gray)] text-sm mt-6 mb-4 leading-relaxed">
         {isWaitlistDone
           ? '敬請留意電話或 Email，有消息我們會第一時間通知您。'
-          : <>我們將於一個工作日內與您確認時段，<br />敬請留意 Email 通知。</>}
+          : <>我們將於一個工作日內與您確認時段，<br />敬請留意 Email 或 LINE 通知。</>}
       </p>
       {!isWaitlistDone && (
-        <p className="text-xs mb-8 leading-relaxed" style={{ color: 'var(--gray)' }}>
+        <p className="text-xs mb-4 leading-relaxed" style={{ color: 'var(--gray)' }}>
           申請確認後，系統將自動寄送<strong>匯款帳號資訊</strong>至您的 Email，<br />
           請於收到通知後 3 天內完成匯款以保留時段。
         </p>
       )}
+
+      {/* LINE 通知狀態 */}
+      {lineProfile ? (
+        <div className="w-full max-w-sm mb-8 border border-[#06C755] p-4 flex items-center gap-3" style={{ background: 'rgba(6,199,85,0.05)' }}>
+          {lineProfile.pictureUrl && <img src={lineProfile.pictureUrl} alt="" className="w-9 h-9 rounded-full flex-shrink-0" />}
+          <div>
+            <p className="text-xs font-medium" style={{ color: '#06C755' }}>LINE 通知已啟用</p>
+            <p className="text-xs" style={{ color: 'var(--gray)' }}>{lineProfile.displayName}，審核結果將直接推播給您</p>
+          </div>
+        </div>
+      ) : lineCode ? (
+        <div className="w-full max-w-sm mb-8 border border-[var(--gold)] p-5" style={{ background: 'rgba(196,160,56,0.04)' }}>
+          <p className="text-xs tracking-widest mb-3" style={{ color: 'var(--gold)' }}>LINE 通知啟用（選填）</p>
+          <div className="flex items-center justify-between mb-4 px-4 py-3 bg-white border border-[var(--border-color)]">
+            <span className="text-xs" style={{ color: 'var(--gray)' }}>您的驗證碼</span>
+            <span className="font-mono text-lg tracking-widest font-bold" style={{ color: 'var(--charcoal)' }}>{lineCode}</span>
+          </div>
+          <ol className="text-xs leading-relaxed space-y-1.5" style={{ color: 'var(--gray)' }}>
+            <li>1. <a href="https://lin.ee/RlmKDmn" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--gold)' }}>點此加入心宇宙官方帳號</a></li>
+            <li>2. 傳送驗證碼 <strong style={{ color: 'var(--charcoal)' }}>{lineCode}</strong> 給官方帳號</li>
+            <li>3. 收到確認訊息後即完成綁定 ✅</li>
+          </ol>
+        </div>
+      ) : null}
       <div className="flex gap-4">
         <button onClick={() => router.push('/my-booking')} className="text-sm text-[var(--gold)] tracking-widest hover:underline">
           查詢申請狀態
@@ -483,6 +567,12 @@ function RentForm() {
                 <span className="font-medium">NT$ {addonTotal.toLocaleString()}</span>
               </div>
             )}
+            {estimatedPrice !== null && (estimatedPrice > 0 || addonTotal > 0) && (
+              <div className="border-t-2 border-[var(--gold)] pt-4 text-sm flex justify-between">
+                <span className="font-medium" style={{ color: 'var(--charcoal)' }}>預估合計（未稅）</span>
+                <span className="font-bold text-base" style={{ color: 'var(--gold)' }}>NT$ {(estimatedPrice + addonTotal).toLocaleString()}</span>
+              </div>
+            )}
 
             <div className="flex gap-4">
               <button onClick={() => setStep(1)} className="flex-1 py-3 border border-[var(--border-color)] text-sm tracking-widest hover:border-[var(--charcoal)] transition-colors">上一步</button>
@@ -545,6 +635,13 @@ function RentForm() {
                     <span>NT$ {addonTotal.toLocaleString()}</span>
                   </div>
                 )}
+              </div>
+            )}
+
+            {estimatedPrice !== null && (
+              <div className="border border-[var(--gold)] p-4 flex justify-between items-center">
+                <span className="text-sm font-medium" style={{ color: 'var(--charcoal)' }}>預估總金額（未稅）</span>
+                <span className="text-xl font-bold" style={{ color: 'var(--gold)' }}>NT$ {(estimatedPrice + addonTotal).toLocaleString()}</span>
               </div>
             )}
 

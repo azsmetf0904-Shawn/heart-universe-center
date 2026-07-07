@@ -45,28 +45,28 @@ export function AdminCalendar() {
     const r = prev
     if (!r?.email) return
     const slotLabel = r.time_slot ? TIME_SLOT_LABEL[r.time_slot as keyof typeof TIME_SLOT_LABEL] : ''
+    const lineId = (r as unknown as { line_user_id?: string }).line_user_id
+    const lineBase = { lineUserId: lineId, name: r.name, eventTitle: r.event_title, bookingDate: r.booking_date ?? '', timeSlot: slotLabel }
 
     if (status === 'confirmed') {
       fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'rental_confirmed',
-          to: r.email, name: r.name, eventTitle: r.event_title,
-          bookingDate: r.booking_date ?? '', timeSlot: slotLabel,
-        }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'rental_confirmed', to: r.email, ...lineBase }),
+      }).catch(() => {})
+      if (lineId) fetch('/api/line/notify', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'confirmed', ...lineBase }),
       }).catch(() => {})
     }
 
     if (status === 'cancelled') {
       fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'rental_cancelled',
-          to: r.email, name: r.name, eventTitle: r.event_title,
-          bookingDate: r.booking_date ?? '', timeSlot: slotLabel,
-        }),
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'rental_cancelled', to: r.email, ...lineBase }),
+      }).catch(() => {})
+      if (lineId) fetch('/api/line/notify', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'cancelled', ...lineBase }),
       }).catch(() => {})
       if (r.booking_date && r.time_slot) {
         const { data: wl } = await supabase
