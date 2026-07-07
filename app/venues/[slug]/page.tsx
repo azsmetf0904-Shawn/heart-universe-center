@@ -201,12 +201,12 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
           {/* Equipment */}
           {venue.equipment?.length > 0 && (
             <div className="mb-10">
-              <p className="label-tag mb-3">設備規格</p>
+              <p className="label-tag mb-3">場地配備（全數包含）</p>
               <table className="w-full text-sm border border-[var(--border-color)]">
                 <thead>
                   <tr className="bg-[var(--surface)]">
                     <th className="text-left px-4 py-2.5 text-xs text-[var(--gray)] font-normal tracking-widest border-b border-[var(--border-color)] w-8">序</th>
-                    <th className="text-left px-4 py-2.5 text-xs text-[var(--gray)] font-normal tracking-widest border-b border-[var(--border-color)]">設備說明</th>
+                    <th className="text-left px-4 py-2.5 text-xs text-[var(--gray)] font-normal tracking-widest border-b border-[var(--border-color)]">配備項目</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -226,7 +226,7 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
             <ul className="text-sm text-[var(--gray)] leading-loose list-disc list-inside space-y-1">
               <li>採自助型場地，申請確認後提供門禁方式</li>
               <li>申請後由工作人員確認時段可用性，一個工作日內回覆</li>
-              <li>如需加購設備或人力服務，可於申請表選填</li>
+              <li>場地設備全數包含於租借費用中，無需另外加購</li>
               <li>超時使用依每30分鐘計費，請事先告知</li>
               <li>取消請提前 3 天告知，否則視情況酌收費用</li>
             </ul>

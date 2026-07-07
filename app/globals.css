@@ -50,52 +50,75 @@
 }
 
 :root {
-  /* 品牌色 — 對齊標誌色調（橄欖棕金）*/
-  --gold: #B89840;          /* 標誌金星（橄欖金）*/
-  --gold-light: #D0B468;
-  --gold-dark: #967C28;
-  --cream: #F4EFE6;         /* 標誌底色暖白 */
-  --card-bg: #ECE7DE;       /* 卡片底色 */
-  --surface: #D6D0C6;       /* 表面灰棕 */
-  --charcoal: #3A2718;      /* 樹幹深棕（標誌文字色）*/
-  --gray: #78705E;          /* 暖灰棕輔助色 */
-  --border-color: #D8D2C6;  /* 邊框 */
-  --wood: #6E4A28;          /* 枝幹棕褐 */
-  --leaf: #4A5430;          /* 橄欖葉綠（標誌葉色）*/
+  /* ── 裝修三元素色系 ──────────────────────────────
+     石材牆  #EDE4D4 → #D8CCB8   warm limestone
+     木格柵  #6A3E1C → #8C5A2A   warm teak/oak
+     大理石  #1C1008 → #2E1C0C   deep dark marble
+     金      #C4A038 → #D8B84E   logo gold
+  ─────────────────────────────────────────────── */
 
-  /* shadcn tokens → 品牌色 */
-  --background: #F4EFE6;
-  --foreground: #3A2718;
-  --card: #ECE7DE;
-  --card-foreground: #3A2718;
-  --popover: #F4EFE6;
-  --popover-foreground: #3A2718;
-  --primary: #B89840;
-  --primary-foreground: #ffffff;
-  --secondary: #D6D0C6;
-  --secondary-foreground: #3A2718;
-  --muted: #ECE7DE;
-  --muted-foreground: #78705E;
-  --accent: #D0B468;
-  --accent-foreground: #3A2718;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: #D8D2C6;
-  --input: #D8D2C6;
-  --ring: #B89840;
-  --chart-1: #B89840;
-  --chart-2: #78705E;
-  --chart-3: #D6D0C6;
-  --chart-4: #D0B468;
-  --chart-5: #4A5430;
-  --radius: 2px;
-  --sidebar: #ECE7DE;
-  --sidebar-foreground: #3A2718;
-  --sidebar-primary: #B89840;
+  /* Gold */
+  --gold:        #C4A038;
+  --gold-light:  #D8B84E;
+  --gold-dark:   #A08028;
+  --gold-subtle: rgba(196,160,56,0.15);
+
+  /* Stone wall — 主背景 */
+  --cream:        #EDE4D4;   /* 石材牆亮面 */
+  --cream-deep:   #E2D6C2;   /* 石材牆陰面 */
+  --card-bg:      #E8DECE;   /* 卡片底色 */
+  --surface:      #D4C8B2;   /* 表面/分隔 */
+
+  /* Wood slat */
+  --wood:         #6A3E1C;   /* 木格柵深 */
+  --wood-light:   #8C5A2A;   /* 木格柵亮 */
+
+  /* Dark marble */
+  --charcoal:     #1C1008;   /* 大理石最深 */
+  --marble-mid:   #2E1C0C;   /* 大理石中 */
+  --marble-light: #422A14;   /* 大理石淺 */
+
+  /* Text */
+  --text-primary: #2C1E12;   /* 石材上主文字 */
+  --gray:         #7A6A50;   /* 輔助文字 */
+  --leaf:         #3A5020;   /* 葉綠 */
+
+  /* Border */
+  --border-color: #C8BAA0;
+
+  /* shadcn tokens */
+  --background:            #EDE4D4;
+  --foreground:            #2C1E12;
+  --card:                  #E8DECE;
+  --card-foreground:       #2C1E12;
+  --popover:               #EDE4D4;
+  --popover-foreground:    #2C1E12;
+  --primary:               #C4A038;
+  --primary-foreground:    #ffffff;
+  --secondary:             #D4C8B2;
+  --secondary-foreground:  #2C1E12;
+  --muted:                 #E8DECE;
+  --muted-foreground:      #7A6A50;
+  --accent:                #D8B84E;
+  --accent-foreground:     #2C1E12;
+  --destructive:           oklch(0.577 0.245 27.325);
+  --border:                #C8BAA0;
+  --input:                 #C8BAA0;
+  --ring:                  #C4A038;
+  --chart-1:               #C4A038;
+  --chart-2:               #7A6A50;
+  --chart-3:               #D4C8B2;
+  --chart-4:               #D8B84E;
+  --chart-5:               #3A5020;
+  --radius:                2px;
+  --sidebar:               #E8DECE;
+  --sidebar-foreground:    #2C1E12;
+  --sidebar-primary:       #C4A038;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #D6D0C6;
-  --sidebar-accent-foreground: #3A2718;
-  --sidebar-border: #D8D2C6;
-  --sidebar-ring: #B89840;
+  --sidebar-accent:        #D4C8B2;
+  --sidebar-accent-foreground: #2C1E12;
+  --sidebar-border:        #C8BAA0;
+  --sidebar-ring:          #C4A038;
 }
 
 .dark {
@@ -138,10 +161,17 @@
     box-sizing: border-box;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground;
     font-family: 'Noto Sans TC', sans-serif;
     font-weight: 300;
     -webkit-font-smoothing: antialiased;
+    /* 石材牆底色：多層 radial-gradient 模擬打光 */
+    background-color: #EDE4D4;
+    background-image:
+      radial-gradient(ellipse 70% 55% at 15% 10%, rgba(245,236,218,0.7) 0%, transparent 55%),
+      radial-gradient(ellipse 50% 40% at 85% 80%, rgba(210,196,172,0.3) 0%, transparent 55%),
+      radial-gradient(ellipse 35% 25% at 45% 95%, rgba(195,180,155,0.18) 0%, transparent 50%),
+      linear-gradient(158deg, #EDE4D4 0%, #E6DCCA 30%, #DDD3C0 58%, #E4DACC 82%, #EAE1D2 100%);
   }
   h1, h2, h3, h4 {
     font-family: 'Noto Serif TC', serif;
@@ -159,14 +189,14 @@
 .event-row { transition: background 0.2s; }
 .event-row:hover { background: var(--card-bg); }
 
-/* Dark brand theme variables */
+/* Dark marble theme variables */
 :root {
-  --dark-bg:     #1A1008;
-  --dark-bg2:    #231508;
-  --dark-bg3:    #2C1C0E;
-  --dark-border: #3D2A14;
-  --dark-text:   #F4EFE6;
-  --dark-muted:  #8A7A5A;
+  --dark-bg:     #1C1008;   /* 大理石最深 */
+  --dark-bg2:    #261608;   /* 大理石中深 */
+  --dark-bg3:    #321E0E;   /* 大理石淺 */
+  --dark-border: #3E2A14;   /* 大理石邊框 */
+  --dark-text:   #EDE4D4;   /* 石材文字（在深色上） */
+  --dark-muted:  #8A7252;   /* 輔助文字 */
 }
 
 /* Utility classes */

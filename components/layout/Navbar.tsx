@@ -6,6 +6,7 @@ import { Menu, X } from 'lucide-react'
 
 const links = [
   { href: '/venues', label: '場地' },
+  { href: '/availability', label: '可用時段' },
   { href: '/events', label: '活動課程' },
   { href: '/showcase', label: '活動回顧' },
   { href: '/rent', label: '租借申請' },
@@ -18,19 +19,20 @@ export default function Navbar() {
   return (
     <header
       className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b"
-      style={{ background: 'rgba(244,239,230,0.96)', borderColor: 'var(--border-color)' }}
+      style={{ background: 'rgba(237,228,212,0.97)', borderColor: 'var(--border-color)', backdropFilter: 'blur(12px)' }}
     >
       <div className="container-wide flex items-center justify-between h-16">
 
         <Link href="/" className="flex items-center gap-3 shrink-0">
           <Image
-            src="/logo.svg"
+            src="/logo.svg?v=2"
             alt="心宇宙商務中心"
-            width={40}
-            height={40}
+            width={52}
+            height={52}
             priority
+            style={{ objectFit: 'contain', flexShrink: 0, filter: 'drop-shadow(0 0 1px rgba(196,160,56,0.40))' }}
           />
-          <div className="hidden sm:block">
+          <div>
             <p className="font-serif text-sm leading-tight" style={{ color: 'var(--charcoal)', letterSpacing: '0.08em' }}>
               心宇宙商務中心
             </p>

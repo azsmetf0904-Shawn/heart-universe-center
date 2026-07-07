@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
             <div className="mb-4">
-              <Image src="/logo.svg" alt="心宇宙商務中心" width={56} height={56} />
+              <Image src="/logo.svg?v=2" alt="心宇宙商務中心" width={56} height={56} style={{ objectFit: 'contain' }} />
             </div>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--dark-muted)' }}>
               台北市八德路<br />
@@ -46,6 +46,7 @@ export default function Footer() {
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-white transition-colors">隱私政策</Link>
             <Link href="/terms" className="hover:text-white transition-colors">服務條款</Link>
+            <Link href="/admin" className="hover:text-white transition-colors opacity-40 hover:opacity-100">後台</Link>
           </div>
         </div>
       </div>

@@ -53,7 +53,7 @@ function RentForm() {
     time_slot: '' as TimeSlot | '',
     time_slots: [] as TimeSlot[],
     session_count: '1',
-    layout_config: '' as LayoutType | '',
+    layout_config: '講座型' as LayoutType | '',
     note: '',
   })
 
@@ -329,15 +329,10 @@ function RentForm() {
               </div>
               <div>
                 <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>座位配置</label>
-                <select value={form.layout_config} onChange={e => setForm(p => ({ ...p, layout_config: e.target.value as LayoutType }))}
-                  className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)]">
-                  <option value="">不指定</option>
-                  {availableLayouts.map(l => (
-                    <option key={l} value={l}>
-                      {l}{selectedVenue?.layout_capacities?.[l] ? ` (${selectedVenue.layout_capacities[l]}人)` : ''}
-                    </option>
-                  ))}
-                </select>
+                <div className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm"
+                  style={{ color: 'var(--charcoal)' }}>
+                  講座型（100 人）
+                </div>
               </div>
               <div>
                 <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>預計人數</label>
@@ -419,7 +414,7 @@ function RentForm() {
                             </div>
                             <div className="text-right shrink-0">
                               <p className="text-sm text-[var(--charcoal)]">
-                                {a.price === 0 ? '另議' : `NT$ ${a.price.toLocaleString()}`}
+                                {a.price === 0 ? '免費' : `NT$ ${a.price.toLocaleString()}`}
                               </p>
                               <p className="text-xs text-[var(--gray)]">
                                 {{ per_session: '/場', per_hour: '/小時', per_person: '/人', per_unit: '/個' }[a.unit]}
@@ -501,7 +496,7 @@ function RentForm() {
                 {Object.values(selected).map(s => (
                   <div key={s.addon.id} className="flex justify-between text-sm mb-2">
                     <span>{s.addon.name} × {s.qty}</span>
-                    <span>{s.addon.price === 0 ? '另議' : `NT$ ${(s.addon.price * s.qty).toLocaleString()}`}</span>
+                    <span>{s.addon.price === 0 ? '免費' : `NT$ ${(s.addon.price * s.qty).toLocaleString()}`}</span>
                   </div>
                 ))}
                 {addonTotal > 0 && (
