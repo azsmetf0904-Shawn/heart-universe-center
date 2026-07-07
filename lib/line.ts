@@ -107,15 +107,15 @@ export function buildAdminPaymentFlex(
       contents: [
         {
           type: 'button', style: 'primary', color: '#4ade80', height: 'sm',
-          action: { type: 'postback', label: '✅ 核可', data: postback('confirm') },
+          action: { type: 'postback', label: '核可', data: postback('confirm') },
         },
         {
           type: 'button', style: 'primary', color: '#c084fc', height: 'sm',
-          action: { type: 'postback', label: '🕐 候補', data: postback('waitlist') },
+          action: { type: 'postback', label: '候補', data: postback('waitlist') },
         },
         {
           type: 'button', style: 'primary', color: '#f87171', height: 'sm',
-          action: { type: 'postback', label: '❌ 取消', data: postback('cancel') },
+          action: { type: 'postback', label: '取消', data: postback('cancel') },
         },
       ],
     },
