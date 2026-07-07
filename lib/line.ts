@@ -15,18 +15,13 @@ export async function linePush(to: string, text: string) {
 export function lineConfirmedMsg(name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
   return `✅ 場地租借確認！
 
-親愛的 ${name}，您的場地租借已通過審核。
+親愛的 ${name}，您的匯款已確認入帳，場地租借正式核可。
 
 📋 活動：${eventTitle}
 📅 日期：${bookingDate}
 🕐 時段：${timeSlot}
 
-請於 3 天內完成匯款：
-🏦 中國信託 822 北投分行
-帳號：680541314031
-戶名：財富女神股份有限公司
-
-完成匯款後請回覆此訊息通知，謝謝。`
+期待您的到來！如有任何問題請直接聯繫心宇宙商務中心。`
 }
 
 export function lineCancelledMsg(name: string, eventTitle: string) {
