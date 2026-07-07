@@ -44,6 +44,7 @@ function RentForm() {
   const [lineCode, setLineCode] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
+  const [submittedTotal, setSubmittedTotal] = useState<number | null>(null)
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [calSel, setCalSel] = useState<CalendarSelection | null>(null) // slots = multi-select
   const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({})
@@ -227,11 +228,13 @@ function RentForm() {
         eventType: form.event_type,
         note: form.note,
       }
+      const totalAmount = (estimatedPrice ?? 0) + addonTotal
+      setSubmittedTotal(totalAmount > 0 ? totalAmount : null)
       // 通知申請者
       fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'rental_request', to: form.email, ...emailPayload }),
+        body: JSON.stringify({ type: 'rental_request', to: form.email, amount: totalAmount || null, ...emailPayload }),
       }).catch(() => {})
       // 通知管理員
       fetch('/api/send-email', {
@@ -299,14 +302,8 @@ function RentForm() {
       <p className="text-[var(--gray)] text-sm mt-6 mb-4 leading-relaxed">
         {isWaitlistDone
           ? '敬請留意電話或 Email，有消息我們會第一時間通知您。'
-          : <>我們將於一個工作日內與您確認時段，<br />敬請留意 Email 或 LINE 通知。</>}
+          : <>請依下方匯款資訊完成付款，<br />我們確認入帳後將正式核可您的預約。</>}
       </p>
-      {!isWaitlistDone && (
-        <p className="text-xs mb-4 leading-relaxed" style={{ color: 'var(--gray)' }}>
-          申請確認後，系統將自動寄送<strong>匯款帳號資訊</strong>至您的 Email，<br />
-          請於收到通知後 3 天內完成匯款以保留時段。
-        </p>
-      )}
 
       {/* LINE 通知狀態 */}
       {lineProfile ? (
@@ -331,6 +328,60 @@ function RentForm() {
           </ol>
         </div>
       ) : null}
+      {/* 匯款資訊 */}
+      {!isWaitlistDone && (
+        <div className="w-full max-w-sm mb-8 border border-[var(--border-color)]" style={{ background: 'var(--card-bg)' }}>
+          <div className="px-5 py-3 border-b border-[var(--border-color)]" style={{ background: 'var(--bg-surface)' }}>
+            <p className="text-xs tracking-widest" style={{ color: 'var(--gold)' }}>匯款帳號</p>
+          </div>
+          <div className="px-5 py-4 flex flex-col gap-2">
+            <div className="flex justify-between text-xs">
+              <span style={{ color: 'var(--gray)' }}>銀行</span>
+              <span style={{ color: 'var(--charcoal)' }}>中國信託銀行（822）北投分行</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span style={{ color: 'var(--gray)' }}>帳號</span>
+              <span className="font-mono font-semibold" style={{ color: 'var(--charcoal)' }}>680541314031</span>
+            </div>
+            <div className="flex justify-between text-xs">
+              <span style={{ color: 'var(--gray)' }}>戶名</span>
+              <span style={{ color: 'var(--charcoal)' }}>財富女神股份有限公司</span>
+            </div>
+            {submittedTotal && submittedTotal > 0 && (
+              <div className="flex justify-between text-sm font-semibold mt-1 pt-2 border-t border-[var(--border-color)]">
+                <span style={{ color: 'var(--gray)' }}>應匯金額</span>
+                <span style={{ color: 'var(--gold)' }}>NT$ {submittedTotal.toLocaleString()}</span>
+              </div>
+            )}
+          </div>
+          <div className="px-5 py-3 border-t border-[var(--border-color)]">
+            <p className="text-[11px] leading-relaxed" style={{ color: 'var(--gray)' }}>
+              完成匯款後，請來電或 Email 告知，我們確認入帳後將正式核可您的預約。
+            </p>
+          </div>
+        </div>
+      )}
+
+      {/* LINE OA 加入提示（已登入 LINE 者不顯示） */}
+      {!isWaitlistDone && !lineProfile && (
+        <div className="w-full max-w-sm mb-8 flex items-start gap-3 px-4 py-3 border border-[#06C755]" style={{ background: 'rgba(6,199,85,0.04)' }}>
+          <div style={{ width: 32, height: 32, background: '#06C755', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M12 2C6.477 2 2 6.036 2 11.04c0 4.502 3.656 8.267 8.593 8.936.334.072.789.22.904.505.103.26.068.668.033.931l-.146.892c-.044.261-.203 1.02.893.556 1.095-.465 5.908-3.48 8.066-5.96C21.608 15.12 22 13.134 22 11.04 22 6.036 17.523 2 12 2"/></svg>
+          </div>
+          <div>
+            <p className="text-xs font-medium mb-1" style={{ color: '#06C755' }}>加入官方 LINE，接收審核通知</p>
+            <p className="text-[11px] leading-relaxed" style={{ color: 'var(--gray)' }}>
+              加入心宇宙官方帳號，匯款確認後我們將第一時間推播通知給您。
+            </p>
+            <a href="https://lin.ee/RlmKDmn" target="_blank" rel="noopener noreferrer"
+              className="inline-block mt-2 text-[11px] px-3 py-1 text-white"
+              style={{ background: '#06C755' }}>
+              + 加入官方 LINE
+            </a>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-4">
         <button onClick={() => router.push('/my-booking')} className="text-sm text-[var(--gold)] tracking-widest hover:underline">
           查詢申請狀態

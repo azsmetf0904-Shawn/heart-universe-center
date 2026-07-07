@@ -43,23 +43,32 @@ export async function POST(req: NextRequest) {
     }
 
     if (type === 'rental_request') {
-      const { to, name, eventTitle, bookingDate, timeSlot, venueName } = body
+      const { to, name, eventTitle, bookingDate, timeSlot, venueName, amount } = body
       await resend.emails.send({
         from: `${BRAND} <${FROM}>`,
         to,
-        subject: `【租借申請已收到】${eventTitle}`,
+        subject: `【租借申請已收到】${eventTitle} — 請完成匯款`,
         html: emailHtml({
-          title: '租借申請確認',
+          title: '租借申請確認 — 請完成匯款',
           content: `
             <p>親愛的 <strong>${name}</strong>，</p>
-            <p>我們已收到您的場地租借申請：</p>
-            <table style="margin-top:16px;border-collapse:collapse;width:100%">
-              <tr><td style="padding:8px 0;color:#8A8A8A;width:100px">活動名稱</td><td>${eventTitle}</td></tr>
-              ${venueName ? `<tr><td style="padding:8px 0;color:#8A8A8A">場地</td><td>${venueName}</td></tr>` : ''}
-              ${bookingDate ? `<tr><td style="padding:8px 0;color:#8A8A8A">日期</td><td>${bookingDate}</td></tr>` : ''}
-              ${timeSlot ? `<tr><td style="padding:8px 0;color:#8A8A8A">時段</td><td>${timeSlot}</td></tr>` : ''}
+            <p>我們已收到您的場地租借申請，請依下方帳號完成匯款，我們確認入帳後將正式核可您的預約。</p>
+            <table style="margin-top:16px;border-collapse:collapse;width:100%;font-size:14px">
+              <tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE;width:120px">活動名稱</td><td style="padding:8px 12px"><strong>${eventTitle}</strong></td></tr>
+              ${venueName ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">場地</td><td style="padding:8px 12px">${venueName}</td></tr>` : ''}
+              ${bookingDate ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">日期</td><td style="padding:8px 12px">${bookingDate}</td></tr>` : ''}
+              ${timeSlot ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">時段</td><td style="padding:8px 12px">${timeSlot}</td></tr>` : ''}
+              ${amount ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">應匯金額</td><td style="padding:8px 12px"><strong style="color:#C9A96E">NT$ ${Number(amount).toLocaleString()}</strong></td></tr>` : ''}
             </table>
-            <p style="margin-top:20px">我們將於一個工作日內與您確認時段可用性及費用，敬請留意 Email 或電話通知。</p>
+            <div style="margin-top:28px;padding:20px 24px;background:#FAFAF0;border:1px solid #E8E4DC;border-left:3px solid #C9A96E">
+              <p style="margin:0 0 6px;font-size:13px;color:#8A8A8A;letter-spacing:0.1em">✨ 匯款帳號</p>
+              <p style="margin:4px 0;font-size:15px;color:#2C2C2C"><strong>中國信託銀行（822）北投分行</strong></p>
+              <p style="margin:4px 0;font-size:15px;color:#2C2C2C">帳號：<strong>680541314031</strong></p>
+              <p style="margin:4px 0;font-size:15px;color:#2C2C2C">戶名：<strong>財富女神股份有限公司</strong></p>
+            </div>
+            <p style="margin-top:20px;font-size:13px;color:#8A8A8A">
+              完成匯款後，請回覆此封 Email 或來電告知，我們將於確認入帳後寄發收據並正式核可預約。
+            </p>
           `,
         }),
       })
