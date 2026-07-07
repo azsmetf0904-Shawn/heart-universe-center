@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { linePush, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg, lineAdminPaymentMsg } from '@/lib/line'
+import { linePush, linePushFlex, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg, buildAdminPaymentFlex } from '@/lib/line'
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
     const { type, lineUserId, name, eventTitle, bookingDate, timeSlot } = body
 
-    // 管理員通知：客戶匯款回報
+    // 管理員通知：客戶匯款回報（Flex Message + 審核按鈕）
     if (type === 'payment_reported') {
       const adminId = process.env.ADMIN_LINE_USER_ID
       if (!adminId) return NextResponse.json({ ok: false, error: 'ADMIN_LINE_USER_ID not set' })
-      const { last5, paymentDate, amount } = body
-      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
-      const text = lineAdminPaymentMsg(name, eventTitle, bookingDate, timeSlot, last5, paymentDate, amount, `${siteUrl}/admin/rental-requests`)
-      await linePush(adminId, text)
+      const { bookingId, last5, paymentDate, amount } = body
+      const flex = buildAdminPaymentFlex(bookingId, name, eventTitle, bookingDate, timeSlot, last5, paymentDate, amount)
+      await linePushFlex(adminId, `💰 ${name} 已回報匯款`, flex)
       return NextResponse.json({ ok: true })
     }
 

@@ -1,15 +1,24 @@
 const ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN
 
-export async function linePush(to: string, text: string) {
+async function lineApiPost(endpoint: string, body: unknown) {
   if (!ACCESS_TOKEN) return
-  await fetch('https://api.line.me/v2/bot/message/push', {
+  await fetch(`https://api.line.me/v2/bot/${endpoint}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${ACCESS_TOKEN}`,
-    },
-    body: JSON.stringify({ to, messages: [{ type: 'text', text }] }),
+    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ACCESS_TOKEN}` },
+    body: JSON.stringify(body),
   }).catch(() => {})
+}
+
+export async function linePush(to: string, text: string) {
+  await lineApiPost('message/push', { to, messages: [{ type: 'text', text }] })
+}
+
+export async function linePushFlex(to: string, altText: string, contents: unknown) {
+  await lineApiPost('message/push', { to, messages: [{ type: 'flex', altText, contents }] })
+}
+
+export async function lineReply(replyToken: string, text: string) {
+  await lineApiPost('message/reply', { replyToken, messages: [{ type: 'text', text }] })
 }
 
 export function lineConfirmedMsg(name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
@@ -44,21 +53,71 @@ export function lineWaitlistMsg(name: string, eventTitle: string, bookingDate: s
 請於 24 小時內回覆確認是否仍有意租借，逾時將保留給下一位候補者。`
 }
 
-export function lineAdminPaymentMsg(
+export function buildAdminPaymentFlex(
+  bookingId: string,
   name: string, eventTitle: string, bookingDate: string, timeSlot: string,
-  last5: string, paymentDate: string, amount: number, adminUrl: string,
+  last5: string, paymentDate: string, amount: number,
 ) {
-  return `💰 客戶已回報匯款
+  const postback = (action: string) =>
+    `action=${action}&bookingId=${bookingId}`
 
-申請人：${name}
-活動：${eventTitle}
-日期：${bookingDate}
-時段：${timeSlot}
-
-匯款末5碼：${last5}
-匯款日期：${paymentDate}
-匯款金額：NT$ ${amount.toLocaleString()}
-
-請至後台確認入帳後核可預約：
-${adminUrl}`
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical',
+      backgroundColor: '#C4A038', paddingAll: '16px',
+      contents: [{ type: 'text', text: '💰 客戶已回報匯款', color: '#FFFFFF', weight: 'bold', size: 'md' }],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [
+        { type: 'box', layout: 'horizontal', contents: [
+          { type: 'text', text: '申請人', color: '#888888', size: 'sm', flex: 2 },
+          { type: 'text', text: name, size: 'sm', flex: 3, wrap: true },
+        ]},
+        { type: 'box', layout: 'horizontal', contents: [
+          { type: 'text', text: '活動', color: '#888888', size: 'sm', flex: 2 },
+          { type: 'text', text: eventTitle, size: 'sm', flex: 3, wrap: true },
+        ]},
+        { type: 'box', layout: 'horizontal', contents: [
+          { type: 'text', text: '日期', color: '#888888', size: 'sm', flex: 2 },
+          { type: 'text', text: bookingDate, size: 'sm', flex: 3 },
+        ]},
+        { type: 'box', layout: 'horizontal', contents: [
+          { type: 'text', text: '時段', color: '#888888', size: 'sm', flex: 2 },
+          { type: 'text', text: timeSlot, size: 'sm', flex: 3 },
+        ]},
+        { type: 'separator', margin: 'md' },
+        { type: 'box', layout: 'horizontal', contents: [
+          { type: 'text', text: '末5碼', color: '#888888', size: 'sm', flex: 2 },
+          { type: 'text', text: last5, size: 'sm', flex: 3, weight: 'bold' },
+        ]},
+        { type: 'box', layout: 'horizontal', contents: [
+          { type: 'text', text: '匯款日', color: '#888888', size: 'sm', flex: 2 },
+          { type: 'text', text: paymentDate, size: 'sm', flex: 3 },
+        ]},
+        { type: 'box', layout: 'horizontal', contents: [
+          { type: 'text', text: '金額', color: '#888888', size: 'sm', flex: 2 },
+          { type: 'text', text: `NT$ ${amount.toLocaleString()}`, size: 'sm', flex: 3, weight: 'bold', color: '#C4A038' },
+        ]},
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'horizontal', spacing: 'sm', paddingAll: '12px',
+      contents: [
+        {
+          type: 'button', style: 'primary', color: '#4ade80', height: 'sm',
+          action: { type: 'postback', label: '✅ 核可', data: postback('confirm') },
+        },
+        {
+          type: 'button', style: 'primary', color: '#c084fc', height: 'sm',
+          action: { type: 'postback', label: '🕐 候補', data: postback('waitlist') },
+        },
+        {
+          type: 'button', style: 'primary', color: '#f87171', height: 'sm',
+          action: { type: 'postback', label: '❌ 取消', data: postback('cancel') },
+        },
+      ],
+    },
+  }
 }

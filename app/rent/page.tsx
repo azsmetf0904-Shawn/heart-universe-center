@@ -287,6 +287,7 @@ function RentForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           type: 'payment_reported',
+          bookingId,
           name: form.name,
           eventTitle: form.event_title,
           bookingDate: form.booking_date,
