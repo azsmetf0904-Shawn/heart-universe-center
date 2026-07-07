@@ -1,11 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { linePush, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg } from '@/lib/line'
+import { linePush, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg, lineAdminPaymentMsg } from '@/lib/line'
 
 export async function POST(req: NextRequest) {
   try {
-    const { type, lineUserId, name, eventTitle, bookingDate, timeSlot } = await req.json()
-    if (!lineUserId) return NextResponse.json({ ok: false })
+    const body = await req.json()
+    const { type, lineUserId, name, eventTitle, bookingDate, timeSlot } = body
 
+    // 管理員通知：客戶匯款回報
+    if (type === 'payment_reported') {
+      const adminId = process.env.ADMIN_LINE_USER_ID
+      if (!adminId) return NextResponse.json({ ok: false, error: 'ADMIN_LINE_USER_ID not set' })
+      const { last5, paymentDate, amount } = body
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
+      const text = lineAdminPaymentMsg(name, eventTitle, bookingDate, timeSlot, last5, paymentDate, amount, `${siteUrl}/admin/rental-requests`)
+      await linePush(adminId, text)
+      return NextResponse.json({ ok: true })
+    }
+
+    if (!lineUserId) return NextResponse.json({ ok: false })
     let text = ''
     if (type === 'confirmed') text = lineConfirmedMsg(name, eventTitle, bookingDate, timeSlot)
     else if (type === 'cancelled') text = lineCancelledMsg(name, eventTitle)

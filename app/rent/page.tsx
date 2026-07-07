@@ -45,6 +45,11 @@ function RentForm() {
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submittedTotal, setSubmittedTotal] = useState<number | null>(null)
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [paymentForm, setPaymentForm] = useState({ last5: '', date: '', amount: '' })
+  const [paymentSubmitting, setPaymentSubmitting] = useState(false)
+  const [paymentDone, setPaymentDone] = useState(false)
+  const [paymentError, setPaymentError] = useState('')
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [calSel, setCalSel] = useState<CalendarSelection | null>(null) // slots = multi-select
   const [errors, setErrors] = useState<Partial<Record<keyof typeof form, string>>>({})
@@ -253,6 +258,48 @@ function RentForm() {
     setSubmitting(false)
   }
 
+  async function handlePaymentReport() {
+    if (!bookingId || !paymentForm.last5 || !paymentForm.date || !paymentForm.amount) {
+      setPaymentError('請填寫所有欄位')
+      return
+    }
+    setPaymentSubmitting(true)
+    setPaymentError('')
+    const supabase = createClient()
+    const { error } = await supabase.from('rental_requests').update({
+      payment_last5: paymentForm.last5,
+      payment_date: paymentForm.date,
+      payment_amount: parseInt(paymentForm.amount),
+      payment_reported_at: new Date().toISOString(),
+      status: 'payment_pending',
+    }).eq('id', bookingId)
+    if (error) {
+      setPaymentError('送出失敗，請稍後再試。')
+    } else {
+      setPaymentDone(true)
+      setShowPaymentModal(false)
+      // 推播通知管理員
+      const slotLabel = form.time_slots.length > 0
+        ? form.time_slots.map(s => TIME_SLOT_LABEL[s]).join('、')
+        : (form.time_slot ? TIME_SLOT_LABEL[form.time_slot as TimeSlot] : '')
+      fetch('/api/line/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'payment_reported',
+          name: form.name,
+          eventTitle: form.event_title,
+          bookingDate: form.booking_date,
+          timeSlot: slotLabel,
+          last5: paymentForm.last5,
+          paymentDate: paymentForm.date,
+          amount: parseInt(paymentForm.amount),
+        }),
+      }).catch(() => {})
+    }
+    setPaymentSubmitting(false)
+  }
+
   // LIFF 載入中
   if (liffLoading) return (
     <div className="py-40 flex flex-col items-center gap-4">
@@ -362,6 +409,26 @@ function RentForm() {
         </div>
       )}
 
+      {/* 匯款回報按鈕 */}
+      {!isWaitlistDone && (
+        <div className="w-full max-w-sm mb-4">
+          {paymentDone ? (
+            <div className="flex items-center gap-2 px-4 py-3 border border-[var(--gold)]" style={{ background: 'rgba(196,160,56,0.06)' }}>
+              <CheckCircle2 size={16} style={{ color: 'var(--gold)' }} />
+              <p className="text-xs" style={{ color: 'var(--charcoal)' }}>匯款資訊已回報，我們確認入帳後將通知您</p>
+            </div>
+          ) : (
+            <button
+              onClick={() => setShowPaymentModal(true)}
+              className="w-full py-3 text-sm border border-[var(--gold)] tracking-widest transition-colors hover:bg-[var(--gold)] hover:text-white"
+              style={{ color: 'var(--gold)' }}
+            >
+              我已完成匯款 → 點此回報
+            </button>
+          )}
+        </div>
+      )}
+
       {/* LINE OA 加入提示（已登入 LINE 者不顯示） */}
       {!isWaitlistDone && !lineProfile && (
         <div className="w-full max-w-sm mb-8 flex items-start gap-3 px-4 py-3 border border-[#06C755]" style={{ background: 'rgba(6,199,85,0.04)' }}>
@@ -391,6 +458,56 @@ function RentForm() {
           返回首頁
         </button>
       </div>
+
+      {/* 匯款回報 Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: 'rgba(0,0,0,0.5)' }}>
+          <div className="w-full max-w-sm border" style={{ background: 'var(--card-bg)', borderColor: 'var(--border-color)' }}>
+            <div className="flex items-center justify-between px-6 py-4 border-b" style={{ borderColor: 'var(--border-color)' }}>
+              <p className="text-sm tracking-widest" style={{ color: 'var(--charcoal)' }}>匯款資訊回報</p>
+              <button onClick={() => setShowPaymentModal(false)} className="text-xs" style={{ color: 'var(--gray)' }}>✕</button>
+            </div>
+            <div className="px-6 py-5 flex flex-col gap-4">
+              <div>
+                <label className="label-tag mb-2 block">轉帳帳號末 5 碼</label>
+                <input
+                  type="text" maxLength={5} placeholder="例：12345"
+                  value={paymentForm.last5}
+                  onChange={e => setPaymentForm(p => ({ ...p, last5: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
+                  className="w-full border border-[var(--border-color)] bg-transparent px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--gold)] font-mono tracking-widest"
+                />
+              </div>
+              <div>
+                <label className="label-tag mb-2 block">匯款日期</label>
+                <input
+                  type="date"
+                  value={paymentForm.date}
+                  onChange={e => setPaymentForm(p => ({ ...p, date: e.target.value }))}
+                  className="w-full border border-[var(--border-color)] bg-transparent px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--gold)]"
+                />
+              </div>
+              <div>
+                <label className="label-tag mb-2 block">匯款金額（NT$）</label>
+                <input
+                  type="number" placeholder={submittedTotal ? String(submittedTotal) : '請輸入'}
+                  value={paymentForm.amount}
+                  onChange={e => setPaymentForm(p => ({ ...p, amount: e.target.value }))}
+                  className="w-full border border-[var(--border-color)] bg-transparent px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--gold)]"
+                />
+              </div>
+              {paymentError && <p className="text-xs text-red-500">{paymentError}</p>}
+              <button
+                onClick={handlePaymentReport}
+                disabled={paymentSubmitting}
+                className="w-full py-3 text-sm text-white tracking-widest transition-opacity disabled:opacity-50"
+                style={{ background: 'var(--gold)' }}
+              >
+                {paymentSubmitting ? '送出中…' : '確認送出'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 

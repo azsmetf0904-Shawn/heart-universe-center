@@ -143,7 +143,12 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
             <div className="flex items-center gap-4">
               <span className={`text-xs px-2 py-0.5 ${STATUS_COLORS[r.status]}`}>{RENTAL_STATUS_LABEL[r.status]}</span>
               <div>
-                <p className="text-sm font-medium">{r.event_title}</p>
+                <p className="text-sm font-medium flex items-center gap-2">
+                  {r.event_title}
+                  {(r as unknown as { payment_reported_at?: string }).payment_reported_at && (
+                    <span className="text-[9px] px-1.5 py-0.5 font-normal" style={{ background: 'rgba(196,160,56,0.12)', color: 'var(--gold)', border: '1px solid rgba(196,160,56,0.3)' }}>已回報匯款</span>
+                  )}
+                </p>
                 <p className="text-xs text-[var(--gray)]">{r.name} · {fmt(r.start_time)} – {fmt(r.end_time)}</p>
               </div>
             </div>
@@ -168,6 +173,26 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
                     <p className="text-xs">{r.note}</p>
                   </div>
                 )}
+                {/* 匯款回報 */}
+                {(r as unknown as { payment_reported_at?: string }).payment_reported_at && (
+                  <div className="mt-3 pt-3 border-t border-[var(--border-color)]">
+                    <p className="text-xs text-[var(--gray)] mb-2">💰 客戶匯款回報</p>
+                    <div className="grid grid-cols-2 gap-y-1.5 text-xs px-3 py-2.5" style={{ background: 'rgba(196,160,56,0.06)', border: '1px solid rgba(196,160,56,0.2)' }}>
+                      {[
+                        ['帳號末5碼', (r as unknown as { payment_last5?: string }).payment_last5 ?? '—'],
+                        ['匯款日期', (r as unknown as { payment_date?: string }).payment_date ?? '—'],
+                        ['匯款金額', (r as unknown as { payment_amount?: number }).payment_amount ? `NT$ ${((r as unknown as { payment_amount?: number }).payment_amount ?? 0).toLocaleString()}` : '—'],
+                        ['回報時間', new Date((r as unknown as { payment_reported_at?: string }).payment_reported_at ?? '').toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })],
+                      ].map(([k, v]) => (
+                        <>
+                          <span key={`pk-${k}`} style={{ color: 'var(--gray)' }}>{k}</span>
+                          <span key={`pv-${k}`} style={{ color: 'var(--charcoal)', fontWeight: k === '匯款金額' ? 600 : 400 }}>{v}</span>
+                        </>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 {/* Addons */}
                 {r.rental_addons && r.rental_addons.length > 0 && (
                   <div className="mt-3 pt-3 border-t border-[var(--border-color)]">

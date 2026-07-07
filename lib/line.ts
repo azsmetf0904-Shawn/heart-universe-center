@@ -48,3 +48,22 @@ export function lineWaitlistMsg(name: string, eventTitle: string, bookingDate: s
 
 請於 24 小時內回覆確認是否仍有意租借，逾時將保留給下一位候補者。`
 }
+
+export function lineAdminPaymentMsg(
+  name: string, eventTitle: string, bookingDate: string, timeSlot: string,
+  last5: string, paymentDate: string, amount: number, adminUrl: string,
+) {
+  return `💰 客戶已回報匯款
+
+申請人：${name}
+活動：${eventTitle}
+日期：${bookingDate}
+時段：${timeSlot}
+
+匯款末5碼：${last5}
+匯款日期：${paymentDate}
+匯款金額：NT$ ${amount.toLocaleString()}
+
+請至後台確認入帳後核可預約：
+${adminUrl}`
+}
