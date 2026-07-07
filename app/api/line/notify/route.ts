@@ -8,8 +8,8 @@ export async function POST(req: NextRequest) {
 
     // 管理員通知：客戶匯款回報（Flex Message + 審核按鈕）
     if (type === 'payment_reported') {
-      const adminId = process.env.ADMIN_LINE_USER_ID
-      if (!adminId) return NextResponse.json({ ok: false, error: 'ADMIN_LINE_USER_ID not set' })
+      const adminId = process.env.ADMIN_LINE_GROUP_ID ?? process.env.ADMIN_LINE_USER_ID
+      if (!adminId) return NextResponse.json({ ok: false, error: 'ADMIN_LINE_GROUP_ID / ADMIN_LINE_USER_ID not set' })
       const { bookingId, last5, paymentDate, amount } = body
       const flex = buildAdminPaymentFlex(bookingId, name, eventTitle, bookingDate, timeSlot, last5, paymentDate, amount)
       await linePushFlex(adminId, `💰 ${name} 已回報匯款`, flex)

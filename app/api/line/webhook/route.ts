@@ -19,6 +19,19 @@ export async function POST(req: NextRequest) {
   const supabase = await createClient()
 
   for (const event of events ?? []) {
+    // ── Join：OA 被加入群組，自動回報 group ID ──
+    if (event.type === 'join' && event.source?.groupId) {
+      const groupId = event.source.groupId
+      const adminId = process.env.ADMIN_LINE_USER_ID
+      if (adminId) {
+        await linePush(adminId, `✅ OA 已加入群組\n\nGroup ID：${groupId}\n\n請到 Vercel 設定環境變數：\nADMIN_LINE_GROUP_ID = ${groupId}`)
+      }
+      if (event.replyToken) {
+        await lineReply(event.replyToken, '心宇宙商務中心預約審核系統已就緒 🎉')
+      }
+      continue
+    }
+
     // ── Postback：管理員點按鈕審核 ──
     if (event.type === 'postback' && event.postback?.data) {
       const params = new URLSearchParams(event.postback.data)
@@ -88,7 +101,7 @@ export async function POST(req: NextRequest) {
 type LineEvent = {
   type: string
   replyToken?: string
-  source?: { userId?: string }
+  source?: { userId?: string; groupId?: string }
   message?: { type: string; text: string }
   postback?: { data: string }
 }
