@@ -1,6 +1,6 @@
 export type AddonCategory = 'equipment' | 'setup' | 'fb' | 'staff' | 'time'
 export type AddonUnit = 'per_session' | 'per_hour' | 'per_person' | 'per_unit'
-export type RentalStatus = 'pending' | 'confirmed' | 'payment_pending' | 'completed' | 'cancelled'
+export type RentalStatus = 'pending' | 'confirmed' | 'payment_pending' | 'completed' | 'cancelled' | 'waitlist'
 export type EventStatus = 'draft' | 'published' | 'ended'
 export type RegistrationStatus = 'registered' | 'cancelled'
 export type DayType = 'weekday' | 'holiday'
@@ -158,6 +158,7 @@ export const RENTAL_STATUS_LABEL: Record<RentalStatus, string> = {
   payment_pending: '待付款',
   completed: '已完成',
   cancelled: '已取消',
+  waitlist: '候補',
 }
 
 export const EVENT_STATUS_LABEL: Record<EventStatus, string> = {

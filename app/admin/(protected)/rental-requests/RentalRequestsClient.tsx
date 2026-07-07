@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { RentalRequest, RentalStatus } from '@/lib/types'
 import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
+import { RENTAL_STATUS_TAILWIND } from '@/lib/status-colors'
 import { ChevronDown, ChevronUp, Download } from 'lucide-react'
 
 function exportCsv(requests: RentalRequest[]) {
@@ -30,23 +31,60 @@ function exportCsv(requests: RentalRequest[]) {
   URL.revokeObjectURL(url)
 }
 
-const STATUS_COLORS: Record<RentalStatus, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  payment_pending: 'bg-orange-100 text-orange-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-gray-100 text-gray-500',
-}
+const STATUS_COLORS = RENTAL_STATUS_TAILWIND
 
 export default function RentalRequestsClient({ initialData }: { initialData: RentalRequest[] }) {
   const [requests, setRequests] = useState(initialData)
   const [expanded, setExpanded] = useState<string | null>(null)
   const [adminNotes, setAdminNotes] = useState<Record<string, string>>({})
+  const [filterStatus, setFilterStatus] = useState<RentalStatus | 'all'>('all')
+
+  const filtered = filterStatus === 'all' ? requests : requests.filter(r => r.status === filterStatus)
 
   async function updateStatus(id: string, status: RentalStatus) {
     const supabase = createClient()
+    const prev = requests.find(r => r.id === id)
     await supabase.from('rental_requests').update({ status }).eq('id', id)
     setRequests(r => r.map(req => req.id === id ? { ...req, status } : req))
+
+    supabase.from('admin_action_logs').insert({
+      action: 'status_change',
+      resource_type: 'rental_request',
+      resource_id: id,
+      old_value: prev?.status ?? null,
+      new_value: status,
+    }).then(() => {})
+
+    const r = prev
+    if (!r?.email) return
+    const venue = (r as unknown as { venues?: { name: string } }).venues
+    const slotLabel = r.time_slot ? TIME_SLOT_LABEL[r.time_slot as keyof typeof TIME_SLOT_LABEL] : ''
+    const base = { to: r.email, name: r.name, eventTitle: r.event_title, bookingDate: r.booking_date ?? '', timeSlot: slotLabel, venueName: venue?.name ?? '' }
+
+    if (status === 'confirmed') {
+      fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'rental_confirmed', ...base }) }).catch(() => {})
+    }
+
+    if (status === 'cancelled') {
+      // 通知申請人取消
+      fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'rental_cancelled', ...base }) }).catch(() => {})
+
+      // 若有候補，通知候補者
+      if (r.booking_date && r.time_slot) {
+        const { data: waitlist } = await supabase
+          .from('rental_requests').select('id, name, email, event_title, booking_date, time_slot')
+          .eq('booking_date', r.booking_date).eq('time_slot', r.time_slot)
+          .eq('status', 'waitlist').order('created_at').limit(1).single()
+        if (waitlist?.email) {
+          fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ type: 'waitlist_promoted', to: waitlist.email, name: waitlist.name,
+              eventTitle: waitlist.event_title, bookingDate: waitlist.booking_date ?? '', timeSlot: slotLabel, venueName: venue?.name ?? '' })
+          }).catch(() => {})
+        }
+      }
+    }
   }
 
   async function saveNote(id: string) {
@@ -62,20 +100,34 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
 
   return (
     <div className="flex flex-col gap-3">
-      {requests.length > 0 && (
-        <div className="flex justify-end mb-2">
-          <button
-            onClick={() => exportCsv(requests)}
-            className="flex items-center gap-2 text-xs px-4 py-2 border border-[var(--border-color)] text-[var(--gray)] hover:border-[var(--charcoal)] hover:text-[var(--charcoal)] transition-colors"
-          >
+      {/* 篩選列 */}
+      <div className="flex items-center justify-between flex-wrap gap-3 mb-1">
+        <div className="flex flex-wrap gap-1.5">
+          {(['all', ...Object.keys(RENTAL_STATUS_LABEL)] as (RentalStatus | 'all')[]).map(s => (
+            <button key={s} onClick={() => setFilterStatus(s)}
+              className="text-[10px] px-3 py-1 border transition-colors"
+              style={{
+                borderColor: filterStatus === s ? 'var(--gold)' : 'var(--border-color)',
+                color: filterStatus === s ? 'var(--gold)' : 'var(--gray)',
+                background: filterStatus === s ? 'rgba(196,160,56,0.06)' : 'transparent',
+              }}>
+              {s === 'all' ? `全部（${requests.length}）` : `${RENTAL_STATUS_LABEL[s]}（${requests.filter(r => r.status === s).length}）`}
+            </button>
+          ))}
+        </div>
+        {requests.length > 0 && (
+          <button onClick={() => exportCsv(requests)}
+            className="flex items-center gap-2 text-xs px-4 py-2 border border-[var(--border-color)] text-[var(--gray)] hover:border-[var(--charcoal)] hover:text-[var(--charcoal)] transition-colors">
             <Download size={13} /> 匯出 CSV
           </button>
-        </div>
+        )}
+      </div>
+      {filtered.length === 0 && (
+        <p className="text-sm text-[var(--gray)] py-10 text-center">
+          {requests.length === 0 ? '尚無申請' : '此狀態下無申請'}
+        </p>
       )}
-      {requests.length === 0 && (
-        <p className="text-sm text-[var(--gray)] py-10 text-center">尚無申請</p>
-      )}
-      {requests.map(r => (
+      {filtered.map(r => (
         <div key={r.id} className="bg-[var(--cream)] border border-[var(--border-color)]">
           <div
             className="flex items-center justify-between px-6 py-4 cursor-pointer"

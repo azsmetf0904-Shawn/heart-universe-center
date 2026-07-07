@@ -3,23 +3,9 @@ import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import type { RentalRequest, RentalStatus } from '@/lib/types'
 import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
+import { RENTAL_STATUS_DOT as STATUS_DOT, RENTAL_STATUS_BG as STATUS_BG } from '@/lib/status-colors'
 
 const DOW = ['日', '一', '二', '三', '四', '五', '六']
-
-const STATUS_DOT: Record<RentalStatus, string> = {
-  pending:         '#fcd34d',
-  confirmed:       '#60a5fa',
-  payment_pending: '#fb923c',
-  completed:       '#4ade80',
-  cancelled:       '#d1d5db',
-}
-const STATUS_BG: Record<RentalStatus, string> = {
-  pending:         'rgba(252,211,77,0.15)',
-  confirmed:       'rgba(96,165,250,0.15)',
-  payment_pending: 'rgba(251,146,60,0.15)',
-  completed:       'rgba(74,222,128,0.15)',
-  cancelled:       'rgba(209,213,219,0.15)',
-}
 
 function toLocalDateStr(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
@@ -41,6 +27,66 @@ export function AdminCalendar() {
   const [requests, setRequests] = useState<RentalRequest[]>([])
   const [loading, setLoading] = useState(false)
   const [activeDate, setActiveDate] = useState<string | null>(null)
+
+  async function updateStatus(id: string, status: RentalStatus) {
+    const supabase = createClient()
+    const prev = requests.find(req => req.id === id)
+    await supabase.from('rental_requests').update({ status }).eq('id', id)
+    setRequests(r => r.map(req => req.id === id ? { ...req, status } : req))
+
+    supabase.from('admin_action_logs').insert({
+      action: 'status_change',
+      resource_type: 'rental_request',
+      resource_id: id,
+      old_value: prev?.status ?? null,
+      new_value: status,
+    }).then(() => {})
+
+    const r = prev
+    if (!r?.email) return
+    const slotLabel = r.time_slot ? TIME_SLOT_LABEL[r.time_slot as keyof typeof TIME_SLOT_LABEL] : ''
+
+    if (status === 'confirmed') {
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'rental_confirmed',
+          to: r.email, name: r.name, eventTitle: r.event_title,
+          bookingDate: r.booking_date ?? '', timeSlot: slotLabel,
+        }),
+      }).catch(() => {})
+    }
+
+    if (status === 'cancelled') {
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'rental_cancelled',
+          to: r.email, name: r.name, eventTitle: r.event_title,
+          bookingDate: r.booking_date ?? '', timeSlot: slotLabel,
+        }),
+      }).catch(() => {})
+      if (r.booking_date && r.time_slot) {
+        const { data: wl } = await supabase
+          .from('rental_requests').select('id, name, email, event_title, booking_date, time_slot')
+          .eq('booking_date', r.booking_date).eq('time_slot', r.time_slot)
+          .eq('status', 'waitlist').order('created_at').limit(1).single()
+        if (wl?.email) {
+          fetch('/api/send-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              type: 'waitlist_promoted',
+              to: wl.email, name: wl.name, eventTitle: wl.event_title,
+              bookingDate: wl.booking_date ?? '', timeSlot: slotLabel,
+            }),
+          }).catch(() => {})
+        }
+      }
+    }
+  }
 
   const loadMonth = useCallback(async (y: number, m: number) => {
     setLoading(true)
@@ -115,7 +161,7 @@ export function AdminCalendar() {
           return (
             <div
               key={i}
-              className="min-h-[90px] p-1.5 cursor-pointer transition-colors"
+              className="min-h-[44px] md:min-h-[90px] p-1 md:p-1.5 cursor-pointer transition-colors"
               style={{
                 background: isActive ? 'rgba(196,160,56,0.08)' : 'var(--cream)',
                 outline: isActive ? '2px solid var(--gold)' : 'none',
@@ -126,7 +172,7 @@ export function AdminCalendar() {
               {/* Date number */}
               <div className="flex items-center justify-between mb-1">
                 <span
-                  className="text-xs font-medium w-5 h-5 flex items-center justify-center"
+                  className="text-[10px] md:text-xs font-medium w-5 h-5 flex items-center justify-center"
                   style={{
                     background: isToday ? 'var(--gold)' : 'transparent',
                     color: isToday ? 'white' : isHol ? '#f87171' : 'var(--charcoal)',
@@ -136,12 +182,25 @@ export function AdminCalendar() {
                   {date.getDate()}
                 </span>
                 {dayReqs.length > 0 && (
-                  <span className="text-[9px]" style={{ color: 'var(--gold)' }}>{dayReqs.length}</span>
+                  <span className="text-[9px] md:hidden" style={{ color: 'var(--gold)' }}>{dayReqs.length}</span>
                 )}
               </div>
 
-              {/* Booking badges */}
-              <div className="flex flex-col gap-0.5">
+              {/* 手機版：色點 */}
+              {dayReqs.length > 0 && (
+                <div className="flex md:hidden flex-wrap gap-[3px] px-0.5">
+                  {dayReqs.slice(0, 4).map(r => (
+                    <span
+                      key={r.id}
+                      className="block w-[6px] h-[6px] rounded-full flex-shrink-0"
+                      style={{ background: STATUS_DOT[r.status] }}
+                    />
+                  ))}
+                </div>
+              )}
+
+              {/* 桌機版：文字標籤 */}
+              <div className="hidden md:flex flex-col gap-0.5">
                 {dayReqs.slice(0, 3).map(r => (
                   <div
                     key={r.id}
@@ -199,7 +258,7 @@ export function AdminCalendar() {
                       {RENTAL_STATUS_LABEL[r.status]}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-x-4 text-[11px]" style={{ color: 'var(--gray)' }}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-0.5 text-[11px]" style={{ color: 'var(--gray)' }}>
                     <span>申請人：{r.name}</span>
                     <span>時段：{r.time_slot ? TIME_SLOT_LABEL[r.time_slot as keyof typeof TIME_SLOT_LABEL] : '—'}</span>
                     <span>手機：{r.phone}</span>
@@ -208,6 +267,23 @@ export function AdminCalendar() {
                   {r.note && (
                     <p className="mt-2 text-[11px]" style={{ color: 'var(--gray)' }}>備註：{r.note}</p>
                   )}
+                  <div className="flex flex-wrap gap-1.5 mt-3 pt-3" style={{ borderTop: '1px solid var(--border-color)' }}>
+                    {(Object.keys(RENTAL_STATUS_LABEL) as RentalStatus[]).filter(s => s !== 'cancelled').map(s => (
+                      <button
+                        key={s}
+                        type="button"
+                        onClick={() => updateStatus(r.id, s)}
+                        className="text-[10px] px-2.5 py-1 border transition-colors"
+                        style={{
+                          borderColor: r.status === s ? 'var(--gold)' : 'var(--border-color)',
+                          color: r.status === s ? 'var(--gold)' : 'var(--gray)',
+                          background: r.status === s ? 'rgba(196,160,56,0.06)' : 'transparent',
+                        }}
+                      >
+                        {RENTAL_STATUS_LABEL[s]}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>

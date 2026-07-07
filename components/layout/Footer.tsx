@@ -8,7 +8,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
             <div className="mb-4">
-              <Image src="/logo.svg?v=2" alt="心宇宙商務中心" width={56} height={56} style={{ objectFit: 'contain' }} />
+              <Image src="/logo.svg?v=2" alt="心宇宙商務中心" width={56} height={56} style={{ objectFit: 'contain', filter: 'drop-shadow(0 0 1px rgba(196,160,56,0.40))' }} />
             </div>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--dark-muted)' }}>
               台北市八德路<br />

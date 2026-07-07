@@ -80,7 +80,7 @@ export default async function HomePage() {
             width={330} height={330}
             priority
             className="w-[180px] md:w-[330px] h-auto"
-            style={{ objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 0 2px rgba(196,160,56,0.40))' }}
+            style={{ objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 0 2px rgba(196,160,56,0.40))', opacity: 0.82 }}
           />
 
           {/* 品牌名 — 手機桌機都顯示 */}
@@ -133,7 +133,7 @@ export default async function HomePage() {
           {/* Stats row — pinned to bottom */}
           <div className="flex gap-0 w-full mt-8" style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 20 }}>
             {[
-              { n: '150', u: '人', l: '最大容納' },
+              { n: '100–150', u: '人', l: '最大容納' },
               { n: '15K', u: '起', l: '平日場租' },
               { n: '3H', u: '', l: '每時段' },
             ].map((s, i) => (
@@ -255,7 +255,7 @@ export default async function HomePage() {
         <div className="container-wide grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[var(--border-color)]">
           {[
             { icon: '🚇', title: '捷運步行可達', desc: '小巨蛋站 3 號出口 · 國父紀念館站 1 號出口，步行約 10 分鐘' },
-            { icon: '🪑', title: '彈性座位配置', desc: '劇院型 150 人 · 島嶼式 120 人，桌椅自由調整' },
+            { icon: '🪑', title: '彈性座位配置', desc: '劇院型 · 島嶼式 100–150 人，桌椅自由調整' },
             { icon: '🎤', title: '高規格視聽設備', desc: '雷射投影機 · Sure 無線麥克風 × 4 · 專業音響，全包含於場租' },
           ].map(f => (
             <div key={f.title} className="px-10 py-12 text-center">
@@ -272,7 +272,7 @@ export default async function HomePage() {
       <section className="md:hidden" style={{ background: '#1C1008' }}>
         <div className="grid grid-cols-3 divide-x divide-[rgba(255,255,255,0.08)]">
           {[
-            { n: '150', unit: '人', label: '最大容納' },
+            { n: '100–150', unit: '人', label: '最大容納' },
             { n: '15K', unit: '起', label: '平日場租' },
             { n: '1', unit: '日', label: '確認回覆' },
           ].map(s => (
@@ -289,7 +289,7 @@ export default async function HomePage() {
       <section className="hidden md:block" style={{ background: 'var(--cream)', borderBottom: '1px solid var(--border-color)' }}>
         <div className="container-wide grid grid-cols-4 divide-x divide-[var(--border-color)]">
           {[
-            { n: '150', unit: '人', label: '最大容納人數' },
+            { n: '100–150', unit: '人', label: '最大容納人數' },
             { n: '15K', unit: '起', label: '平日場租 / 3 小時' },
             { n: '10', unit: '分', label: '捷運步行可達' },
             { n: '1', unit: '日', label: '工作日確認回覆' },

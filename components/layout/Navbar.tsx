@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Settings } from 'lucide-react'
 
 const links = [
   { href: '/venues', label: '場地' },
@@ -63,14 +63,18 @@ export default function Navbar() {
           </Link>
         </nav>
 
-        <button
-          className="md:hidden"
-          style={{ color: 'var(--gray)' }}
-          onClick={() => setOpen(!open)}
-          aria-label="選單"
-        >
-          {open ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="md:hidden flex items-center gap-3">
+          <Link href="/admin" aria-label="後台" style={{ color: 'var(--gray)', opacity: 0.35 }}>
+            <Settings size={15} />
+          </Link>
+          <button
+            style={{ color: 'var(--gray)' }}
+            onClick={() => setOpen(!open)}
+            aria-label="選單"
+          >
+            {open ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {open && (

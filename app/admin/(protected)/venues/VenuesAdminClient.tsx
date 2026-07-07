@@ -143,6 +143,8 @@ export default function VenuesAdminClient({ initialData }: { initialData: Venue[
   }
 
   async function toggleActive(id: string, val: boolean) {
+    const label = val ? '上架' : '下架'
+    if (!window.confirm(`確定要${label}此場地嗎？`)) return
     const supabase = createClient()
     await supabase.from('venues').update({ is_active: val }).eq('id', id)
     setVenues(v => v.map(x => x.id === id ? { ...x, is_active: val } : x))

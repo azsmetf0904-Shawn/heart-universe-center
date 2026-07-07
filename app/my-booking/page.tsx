@@ -4,15 +4,8 @@ import { createClient } from '@/lib/supabase/client'
 import type { RentalRequest } from '@/lib/types'
 import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
 import type { TimeSlot } from '@/lib/types'
+import { RENTAL_STATUS_TAILWIND as STATUS_COLORS } from '@/lib/status-colors'
 import { Search } from 'lucide-react'
-
-const STATUS_COLORS: Record<string, string> = {
-  pending: 'bg-yellow-100 text-yellow-800',
-  confirmed: 'bg-blue-100 text-blue-800',
-  payment_pending: 'bg-orange-100 text-orange-800',
-  completed: 'bg-green-100 text-green-800',
-  cancelled: 'bg-gray-100 text-gray-500',
-}
 
 export default function MyBookingPage() {
   const [query, setQuery] = useState('')

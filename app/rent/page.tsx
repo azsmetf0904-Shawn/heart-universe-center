@@ -36,6 +36,8 @@ function RentForm() {
   const [selected, setSelected] = useState<Record<string, SelectedAddon>>({})
   const [done, setDone] = useState(false)
   const [bookingId, setBookingId] = useState<string | null>(null)
+  const [isWaitlistDone, setIsWaitlistDone] = useState(false)
+  const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [calSel, setCalSel] = useState<CalendarSelection | null>(null) // slots = multi-select
@@ -131,7 +133,24 @@ function RentForm() {
 
   async function handleSubmit() {
     setSubmitting(true)
+    setSubmitError('')
     const supabase = createClient()
+    try {
+
+    // 檢查同日所有選取時段是否已有有效預約
+    let isWaitlist = false
+    const slotsToCheck = form.time_slots.length > 0 ? form.time_slots : (form.time_slot ? [form.time_slot] : [])
+    if (form.booking_date && slotsToCheck.length > 0) {
+      const { data: conflicts } = await supabase
+        .from('rental_requests')
+        .select('id')
+        .eq('booking_date', form.booking_date)
+        .in('time_slot', slotsToCheck)
+        .in('status', ['pending', 'confirmed', 'payment_pending', 'waitlist'])
+        .limit(1)
+      if (conflicts && conflicts.length > 0) isWaitlist = true
+    }
+
     const { data: req, error } = await supabase.from('rental_requests').insert({
       venue_id: form.venue_id || null,
       name: form.name,
@@ -149,6 +168,7 @@ function RentForm() {
       start_time: form.booking_date ? `${form.booking_date}T09:00:00` : new Date().toISOString(),
       end_time: form.booking_date ? `${form.booking_date}T21:30:00` : new Date().toISOString(),
       note: form.note || null,
+      status: isWaitlist ? 'waitlist' : 'pending',
     }).select('id').single()
 
     if (!error && req && Object.keys(selected).length > 0) {
@@ -188,25 +208,45 @@ function RentForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'admin_rental_notification', ...emailPayload }),
       }).catch(() => {})
+      setIsWaitlistDone(isWaitlist)
       setDone(true)
+    } else if (error) {
+      setSubmitError('送出失敗，請稍後再試或直接來電洽詢。')
+    }
+    } catch {
+      setSubmitError('網路異常，請確認連線後再試。')
     }
     setSubmitting(false)
   }
 
   if (done) return (
     <div className="py-40 flex flex-col items-center text-center container-narrow">
-      <CheckCircle2 size={48} className="text-[var(--gold)] mb-6" />
-      <h2 className="text-2xl mb-4">申請已送出</h2>
+      <CheckCircle2 size={48} className={isWaitlistDone ? 'text-orange-400 mb-6' : 'text-[var(--gold)] mb-6'} />
+      <h2 className="text-2xl mb-4">{isWaitlistDone ? '申請已列入候補' : '申請已送出'}</h2>
       <div className="gold-divider mx-auto" />
+      {isWaitlistDone && (
+        <div className="mt-6 mb-2 bg-orange-50 border border-orange-200 px-6 py-4 text-sm text-orange-800 leading-relaxed max-w-sm">
+          此時段目前已有其他預約申請，您的申請已自動列為<strong>候補</strong>。<br />
+          若原預約取消，我們將優先聯繫您確認。
+        </div>
+      )}
       {bookingId && (
-        <div className="mt-6 bg-[var(--card-bg)] border border-[var(--border-color)] px-6 py-3">
+        <div className="mt-4 bg-[var(--card-bg)] border border-[var(--border-color)] px-6 py-3">
           <p className="text-xs text-[var(--gray)] mb-1">申請編號</p>
           <p className="text-xs font-mono text-[var(--charcoal)] select-all">{bookingId}</p>
         </div>
       )}
-      <p className="text-[var(--gray)] text-sm mt-6 mb-8 leading-relaxed">
-        我們將於一個工作日內與您確認時段，<br />敬請留意電話或 Email 通知。
+      <p className="text-[var(--gray)] text-sm mt-6 mb-4 leading-relaxed">
+        {isWaitlistDone
+          ? '敬請留意電話或 Email，有消息我們會第一時間通知您。'
+          : <>我們將於一個工作日內與您確認時段，<br />敬請留意 Email 通知。</>}
       </p>
+      {!isWaitlistDone && (
+        <p className="text-xs mb-8 leading-relaxed" style={{ color: 'var(--gray)' }}>
+          申請確認後，系統將自動寄送<strong>匯款帳號資訊</strong>至您的 Email，<br />
+          請於收到通知後 3 天內完成匯款以保留時段。
+        </p>
+      )}
       <div className="flex gap-4">
         <button onClick={() => router.push('/my-booking')} className="text-sm text-[var(--gold)] tracking-widest hover:underline">
           查詢申請狀態
@@ -331,7 +371,7 @@ function RentForm() {
                 <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>座位配置</label>
                 <div className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm"
                   style={{ color: 'var(--charcoal)' }}>
-                  講座型（100 人）
+                  講座型（100–150 人）
                 </div>
               </div>
               <div>
@@ -512,6 +552,9 @@ function RentForm() {
               費用僅供參考，正式費用由工作人員確認後通知。目前不提供線上付款。
             </div>
 
+            {submitError && (
+              <p className="text-sm text-red-500 text-center mb-2">{submitError}</p>
+            )}
             <div className="flex gap-4">
               <button onClick={() => setStep(2)} className="flex-1 py-3 border border-[var(--border-color)] text-sm tracking-widest hover:border-[var(--charcoal)] transition-colors">上一步</button>
               <button onClick={handleSubmit} disabled={submitting}

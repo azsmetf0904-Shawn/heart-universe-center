@@ -59,6 +59,8 @@ export default function AddonsClient({ initialData }: { initialData: VenueAddon[
   }
 
   async function toggleAvailable(id: string, val: boolean) {
+    const label = val ? '啟用' : '停用'
+    if (!window.confirm(`確定要${label}此加購品項嗎？`)) return
     await supabase.from('venue_addons').update({ is_available: val }).eq('id', id)
     setAddons(a => a.map(x => x.id === id ? { ...x, is_available: val } : x))
   }
