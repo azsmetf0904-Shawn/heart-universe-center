@@ -5,12 +5,48 @@ import type { RentalRequest } from '@/lib/types'
 import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
 import type { TimeSlot } from '@/lib/types'
 import { RENTAL_STATUS_TAILWIND as STATUS_COLORS } from '@/lib/status-colors'
-import { Search } from 'lucide-react'
+import { Search, CheckCircle2 } from 'lucide-react'
+
+type PaymentForm = { last5: string; date: string; amount: string }
 
 export default function MyBookingPage() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<RentalRequest[] | null>(null)
   const [searching, setSearching] = useState(false)
+  const [reportingId, setReportingId] = useState<string | null>(null)
+  const [paymentForm, setPaymentForm] = useState<PaymentForm>({ last5: '', date: '', amount: '' })
+  const [paymentSubmitting, setPaymentSubmitting] = useState(false)
+  const [paymentDoneIds, setPaymentDoneIds] = useState<Set<string>>(new Set())
+  const [paymentError, setPaymentError] = useState('')
+
+  async function handlePaymentReport(bookingId: string, name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
+    if (!paymentForm.last5 || !paymentForm.date || !paymentForm.amount) {
+      setPaymentError('請填寫所有欄位')
+      return
+    }
+    setPaymentSubmitting(true)
+    setPaymentError('')
+    const supabase = createClient()
+    const { error } = await supabase.from('rental_requests').update({
+      payment_last5: paymentForm.last5,
+      payment_date: paymentForm.date,
+      payment_amount: parseInt(paymentForm.amount),
+      payment_reported_at: new Date().toISOString(),
+      status: 'payment_pending',
+    }).eq('id', bookingId)
+    if (error) {
+      setPaymentError('送出失敗，請稍後再試。')
+    } else {
+      setPaymentDoneIds(s => new Set([...s, bookingId]))
+      setReportingId(null)
+      setPaymentForm({ last5: '', date: '', amount: '' })
+      fetch('/api/line/notify', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type: 'payment_reported', bookingId, name, eventTitle, bookingDate, timeSlot, last5: paymentForm.last5, paymentDate: paymentForm.date, amount: parseInt(paymentForm.amount) }),
+      }).catch(() => {})
+    }
+    setPaymentSubmitting(false)
+  }
 
   async function handleSearch(e: React.FormEvent) {
     e.preventDefault()
@@ -100,12 +136,65 @@ export default function MyBookingPage() {
                 </div>
 
                 {/* Status hint */}
-                <div className={`mt-4 pt-4 border-t border-[var(--border-color)] text-xs leading-relaxed`}>
-                  {r.status === 'pending' && <p className="text-[var(--gray)]">申請已收到，工作人員將於一個工作日內與您確認</p>}
-                  {r.status === 'confirmed' && <p className="text-blue-600">時段已確認，請等候付款通知</p>}
-                  {r.status === 'payment_pending' && <p className="text-orange-600">請依通知完成付款以確保時段</p>}
+                <div className="mt-4 pt-4 border-t border-[var(--border-color)] text-xs leading-relaxed">
+                  {r.status === 'pending' && (
+                    <div>
+                      <p className="text-[var(--gray)] mb-3">申請已收到，請先完成匯款，我們確認入帳後將正式核可。</p>
+                      {paymentDoneIds.has(r.id) ? (
+                        <div className="flex items-center gap-2 text-[var(--gold)]">
+                          <CheckCircle2 size={13} /><span>匯款資訊已回報，等待確認中</span>
+                        </div>
+                      ) : reportingId === r.id ? (
+                        <div className="border border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3">
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <p className="text-[10px] text-[var(--gray)] mb-1">帳號末5碼</p>
+                              <input type="text" maxLength={5} placeholder="12345" value={paymentForm.last5}
+                                onChange={e => setPaymentForm(p => ({ ...p, last5: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
+                                className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2 text-xs focus:outline-none focus:border-[var(--gold)] font-mono" />
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-[var(--gray)] mb-1">匯款日期</p>
+                              <input type="date" value={paymentForm.date}
+                                onChange={e => setPaymentForm(p => ({ ...p, date: e.target.value }))}
+                                className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2 text-xs focus:outline-none focus:border-[var(--gold)]" />
+                            </div>
+                          </div>
+                          <div>
+                            <p className="text-[10px] text-[var(--gray)] mb-1">匯款金額（NT$）</p>
+                            <input type="number" placeholder="請輸入" value={paymentForm.amount}
+                              onChange={e => setPaymentForm(p => ({ ...p, amount: e.target.value }))}
+                              className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2 text-xs focus:outline-none focus:border-[var(--gold)]" />
+                          </div>
+                          {paymentError && <p className="text-[11px] text-red-500">{paymentError}</p>}
+                          <div className="flex gap-2">
+                            <button onClick={() => { setReportingId(null); setPaymentError('') }}
+                              className="flex-1 py-2 text-xs border border-[var(--border-color)] text-[var(--gray)]">取消</button>
+                            <button onClick={() => handlePaymentReport(r.id, r.name, r.event_title, r.booking_date ?? '', r.time_slot ? TIME_SLOT_LABEL[r.time_slot as TimeSlot] : '')}
+                              disabled={paymentSubmitting}
+                              className="flex-1 py-2 text-xs text-white disabled:opacity-50" style={{ background: 'var(--gold)' }}>
+                              {paymentSubmitting ? '送出中…' : '確認送出'}
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <button onClick={() => { setReportingId(r.id); setPaymentError('') }}
+                          className="px-3 py-1.5 text-[11px] border border-[var(--gold)] tracking-widest hover:bg-[var(--gold)] hover:text-white transition-colors"
+                          style={{ color: 'var(--gold)' }}>
+                          我已完成匯款 → 點此回報
+                        </button>
+                      )}
+                    </div>
+                  )}
+                  {r.status === 'payment_pending' && (
+                    <div className="flex items-center gap-2" style={{ color: 'var(--gold)' }}>
+                      <CheckCircle2 size={13} /><span>匯款資訊已回報，我們確認入帳後將通知您</span>
+                    </div>
+                  )}
+                  {r.status === 'confirmed' && <p className="text-green-600">匯款已確認入帳，預約正式核可 ✅</p>}
                   {r.status === 'completed' && <p className="text-green-600">租借已完成，感謝您使用心宇宙商務中心</p>}
-                  {r.status === 'cancelled' && <p className="text-[var(--gray)]">此申請已取消</p>}
+                  {r.status === 'cancelled' && <p className="text-[var(--gray)]">此申請已取消，如有疑問請來電洽詢</p>}
+                  {r.status === 'waitlist' && <p className="text-purple-600">此時段目前為候補，若有空缺我們將優先通知您</p>}
                 </div>
               </div>
             ))}

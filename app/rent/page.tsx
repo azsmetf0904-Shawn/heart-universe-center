@@ -301,34 +301,8 @@ function RentForm() {
     setPaymentSubmitting(false)
   }
 
-  // LIFF 載入中
-  if (liffLoading) return (
-    <div className="py-40 flex flex-col items-center gap-4">
-      <div className="w-8 h-8 border-2 border-[var(--gold)] border-t-transparent rounded-full animate-spin" />
-      <p className="text-sm" style={{ color: 'var(--gray)' }}>連線 LINE 中…</p>
-    </div>
-  )
-
-  // LINE 未登入（LIFF ID 沒設或 fallback）
-  if (!lineProfile && process.env.NEXT_PUBLIC_LINE_LIFF_ID) return (
-    <div className="py-40 flex flex-col items-center text-center container-narrow gap-6">
-      <div style={{ width: 64, height: 64, background: '#06C755', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <svg viewBox="0 0 24 24" width="36" height="36" fill="white"><path d="M12 2C6.477 2 2 6.036 2 11.04c0 4.502 3.656 8.267 8.593 8.936.334.072.789.22.904.505.103.26.068.668.033.931l-.146.892c-.044.261-.203 1.02.893.556 1.095-.465 5.908-3.48 8.066-5.96C21.608 15.12 22 13.134 22 11.04 22 6.036 17.523 2 12 2"/></svg>
-      </div>
-      <div>
-        <h2 className="text-xl mb-2" style={{ color: 'var(--charcoal)' }}>請先登入 LINE</h2>
-        <p className="text-sm leading-relaxed" style={{ color: 'var(--gray)' }}>
-          預約系統使用 LINE 帳號驗證身份，<br />登入後即可接收審核通知。
-        </p>
-      </div>
-      <button onClick={handleLineLogin}
-        className="flex items-center gap-3 px-8 py-3 text-white text-sm font-medium"
-        style={{ background: '#06C755' }}>
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M12 2C6.477 2 2 6.036 2 11.04c0 4.502 3.656 8.267 8.593 8.936.334.072.789.22.904.505.103.26.068.668.033.931l-.146.892c-.044.261-.203 1.02.893.556 1.095-.465 5.908-3.48 8.066-5.96C21.608 15.12 22 13.134 22 11.04 22 6.036 17.523 2 12 2"/></svg>
-        使用 LINE 登入
-      </button>
-    </div>
-  )
+  // LIFF 載入中（短暫 spinner，不擋主頁面）
+  // liffLoading 只影響 lineProfile 是否有值，表單可直接顯示
 
   if (done) return (
     <div className="py-40 flex flex-col items-center text-center container-narrow">
@@ -347,11 +321,16 @@ function RentForm() {
           <p className="text-xs font-mono text-[var(--charcoal)] select-all">{bookingId}</p>
         </div>
       )}
-      <p className="text-[var(--gray)] text-sm mt-6 mb-4 leading-relaxed">
+      <p className="text-[var(--gray)] text-sm mt-6 mb-2 leading-relaxed">
         {isWaitlistDone
           ? '敬請留意電話或 Email，有消息我們會第一時間通知您。'
           : <>請依下方匯款資訊完成付款，<br />我們確認入帳後將正式核可您的預約。</>}
       </p>
+      {!isWaitlistDone && (
+        <p className="text-xs mb-4 font-medium" style={{ color: '#f87171' }}>
+          ⚠️ 請於 <strong>3 天內</strong>完成匯款，逾期時段保留自動取消
+        </p>
+      )}
 
       {/* LINE 通知狀態 */}
       {lineProfile ? (
@@ -817,6 +796,32 @@ function RentForm() {
             <div className="bg-[var(--surface)] p-4 text-xs text-[var(--gray)] leading-relaxed">
               費用僅供參考，正式費用由工作人員確認後通知。目前不提供線上付款。
             </div>
+
+            {/* LINE 登入提示（Step 3） */}
+            {!liffLoading && process.env.NEXT_PUBLIC_LINE_LIFF_ID && (
+              lineProfile ? (
+                <div className="flex items-center gap-3 px-4 py-3 border border-[#06C755]" style={{ background: 'rgba(6,199,85,0.04)' }}>
+                  {lineProfile.pictureUrl && <img src={lineProfile.pictureUrl} alt="" className="w-8 h-8 rounded-full flex-shrink-0" />}
+                  <div>
+                    <p className="text-xs font-medium" style={{ color: '#06C755' }}>LINE 已連結 — 審核結果將推播給你</p>
+                    <p className="text-[11px]" style={{ color: 'var(--gray)' }}>{lineProfile.displayName}</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="border border-[var(--border-color)] p-4 flex items-center justify-between gap-4">
+                  <div>
+                    <p className="text-xs font-medium mb-0.5" style={{ color: 'var(--charcoal)' }}>建議先登入 LINE</p>
+                    <p className="text-[11px]" style={{ color: 'var(--gray)' }}>審核結果直接推播到 LINE，不怕錯過通知</p>
+                  </div>
+                  <button onClick={handleLineLogin}
+                    className="flex items-center gap-2 px-4 py-2 text-xs text-white flex-shrink-0"
+                    style={{ background: '#06C755' }}>
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="white"><path d="M12 2C6.477 2 2 6.036 2 11.04c0 4.502 3.656 8.267 8.593 8.936.334.072.789.22.904.505.103.26.068.668.033.931l-.146.892c-.044.261-.203 1.02.893.556 1.095-.465 5.908-3.48 8.066-5.96C21.608 15.12 22 13.134 22 11.04 22 6.036 17.523 2 12 2"/></svg>
+                    LINE 登入
+                  </button>
+                </div>
+              )
+            )}
 
             {submitError && (
               <p className="text-sm text-red-500 text-center mb-2">{submitError}</p>
