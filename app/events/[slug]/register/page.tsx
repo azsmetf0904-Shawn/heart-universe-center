@@ -4,6 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import type { Event } from '@/lib/types'
 import QRCode from 'qrcode'
+import { CTA } from '@/lib/cta'
 
 type State = 'form' | 'success'
 
@@ -153,7 +154,7 @@ export default function RegisterPage() {
             disabled={submitting}
             className="w-full py-3 bg-[var(--gold)] text-white text-sm tracking-widest hover:bg-[var(--gold-dark)] transition-colors disabled:opacity-50"
           >
-            {submitting ? '送出中…' : '確認報名'}
+            {submitting ? '送出中…' : CTA.events.confirmRegister}
           </button>
         </form>
       </div>

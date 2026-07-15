@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { CTA } from '@/lib/cta'
 import type { RentalRequest } from '@/lib/types'
 import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
 import type { TimeSlot } from '@/lib/types'
@@ -8,6 +9,51 @@ import { RENTAL_STATUS_TAILWIND as STATUS_COLORS } from '@/lib/status-colors'
 import { Search, CheckCircle2 } from 'lucide-react'
 
 type PaymentForm = { last5: string; date: string; amount: string }
+
+function buildQueryFilters(input: string) {
+  const trimmed = input.trim()
+  const filters: string[] = []
+  const phoneCandidates = new Set<string>()
+
+  const stripped = trimmed.replace(/[\s-]/g, '')
+  const digitsOnly = stripped.replace(/\D/g, '')
+
+  if (digitsOnly) {
+    phoneCandidates.add(digitsOnly)
+
+    if (digitsOnly.startsWith('886') && digitsOnly.length >= 11) {
+      const local = `0${digitsOnly.slice(3)}`
+      phoneCandidates.add(local)
+      if (local.startsWith('09') && local.length === 10) {
+        phoneCandidates.add(local.slice(1))
+      }
+    }
+
+    if (digitsOnly.startsWith('09') && digitsOnly.length === 10) {
+      phoneCandidates.add(digitsOnly.slice(1))
+    }
+
+    if (digitsOnly.startsWith('9') && digitsOnly.length === 9) {
+      phoneCandidates.add(`0${digitsOnly}`)
+    }
+  }
+
+  phoneCandidates.forEach(candidate => {
+    if (candidate) filters.push(`phone.eq.${candidate}`)
+  })
+
+  if (trimmed.includes('@')) {
+    filters.push(`email.eq.${trimmed}`)
+    const lowered = trimmed.toLowerCase()
+    if (lowered !== trimmed) filters.push(`email.eq.${lowered}`)
+  }
+
+  if (filters.length === 0 && trimmed) {
+    filters.push(`phone.eq.${trimmed}`, `email.eq.${trimmed}`)
+  }
+
+  return filters
+}
 
 export default function MyBookingPage() {
   const [query, setQuery] = useState('')
@@ -53,10 +99,11 @@ export default function MyBookingPage() {
     if (!query.trim()) return
     setSearching(true)
     const supabase = createClient()
+    const filters = buildQueryFilters(query)
     const { data } = await supabase
       .from('rental_requests')
       .select('*, venue:venues(name)')
-      .or(`phone.eq.${query},email.eq.${query}`)
+      .or(filters.join(','))
       .order('created_at', { ascending: false })
     setResults(data ?? [])
     setSearching(false)
@@ -76,20 +123,28 @@ export default function MyBookingPage() {
           <input
             type="text"
             required
-            placeholder="手機號碼 或 Email"
+            placeholder="0912345678 或 your@email.com"
             value={query}
             onChange={e => setQuery(e.target.value)}
             className="flex-1 border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)] transition-colors"
           />
           <button type="submit" disabled={searching}
             className="px-5 py-3 bg-[var(--gold)] text-white text-sm hover:bg-[var(--gold-dark)] transition-colors disabled:opacity-50 flex items-center gap-2">
-            <Search size={14} /> {searching ? '查詢中…' : '查詢'}
+            <Search size={14} /> {searching ? CTA.booking.searching : CTA.booking.query}
           </button>
         </form>
+        <p className="-mt-7 mb-8 text-xs text-[var(--gray)]">
+          請輸入申請時填寫的手機號碼或 Email
+        </p>
 
         {results !== null && results.length === 0 && (
-          <div className="text-center py-10 text-[var(--gray)]">
-            <p className="text-sm">查無申請紀錄</p>
+          <div className="py-10 text-[var(--gray)]">
+            <p className="text-sm leading-relaxed">
+              查詢不到結果，請確認：
+              <br />• 手機號碼格式（例：0912345678）
+              <br />• Email 與申請時填寫的完全一致
+              <br />• 如仍無法查詢，請聯絡我們
+            </p>
           </div>
         )}
 

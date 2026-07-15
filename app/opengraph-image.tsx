@@ -31,7 +31,8 @@ export default function OGImage() {
 
         {/* Logo */}
         <img
-          src={`${SITE}/logo.svg?v=2`}
+          src={`${SITE}/logo-new.png`}
+          alt=""
           width={280}
           height={280}
           style={{ objectFit: 'contain', marginBottom: 32 }}

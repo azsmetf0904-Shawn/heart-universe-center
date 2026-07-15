@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
 import { Menu, X, Settings } from 'lucide-react'
+import { CTA } from '@/lib/cta'
 
 const links = [
   { href: '/venues', label: '場地' },
@@ -10,7 +11,7 @@ const links = [
   { href: '/events', label: '活動課程' },
   { href: '/showcase', label: '活動回顧' },
   { href: '/rent', label: '租借申請' },
-  { href: '/my-booking', label: '查詢申請' },
+  { href: '/my-booking', label: '查詢申請狀態' },
 ]
 
 export default function Navbar() {
@@ -25,7 +26,7 @@ export default function Navbar() {
 
         <Link href="/" className="flex items-center gap-3 shrink-0">
           <Image
-            src="/logo.svg?v=2"
+            src="/logo-new.png"
             alt="心宇宙商務中心"
             width={52}
             height={52}
@@ -59,7 +60,7 @@ export default function Navbar() {
             className="text-xs tracking-widest uppercase px-5 py-2 border transition-all hover:bg-[var(--gold)] hover:text-white"
             style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}
           >
-            立即預約
+            {CTA.home.startRental}
           </Link>
         </nav>
 
@@ -99,7 +100,7 @@ export default function Navbar() {
             className="text-xs tracking-widest uppercase px-5 py-2 border text-center"
             style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}
           >
-            立即預約
+            {CTA.home.startRental}
           </Link>
         </div>
       )}

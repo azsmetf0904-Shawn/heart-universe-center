@@ -1,8 +1,9 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import Image from 'next/image'
-import { ArrowRight, CalendarDays, Users } from 'lucide-react'
+import { ArrowRight, CalendarDays, ExternalLink, Users } from 'lucide-react'
 import type { Metadata } from 'next'
+import { CTA } from '@/lib/cta'
 
 export const metadata: Metadata = { title: '活動課程' }
 
@@ -93,9 +94,23 @@ export default async function EventsPage({
                   <span className="text-sm font-medium text-[var(--charcoal)]">
                     {ev.is_paid ? `NT$ ${ev.price.toLocaleString()}` : '免費'}
                   </span>
-                  <span className="text-xs text-[var(--gold)] group-hover:gap-2 flex items-center gap-1 transition-all">
-                    {isEnded ? '查看回顧' : '報名'} <ArrowRight size={11} />
-                  </span>
+                  <div className="flex items-center gap-2">
+                    {ev.external_url && (
+                      <a
+                        href={ev.external_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={e => e.stopPropagation()}
+                        className="text-xs text-[var(--gray)] hover:text-[var(--gold)] flex items-center gap-0.5 transition-colors"
+                        title="外部連結"
+                      >
+                        <ExternalLink size={11} />
+                      </a>
+                    )}
+                    <span className="text-xs text-[var(--gold)] group-hover:gap-2 flex items-center gap-1 transition-all">
+                      {isEnded ? CTA.events.review : CTA.events.register} <ArrowRight size={11} />
+                    </span>
+                  </div>
                 </div>
               </div>
             </Link>

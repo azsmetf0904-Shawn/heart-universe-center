@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import { CTA } from '@/lib/cta'
 
 export default function Footer() {
   return (
@@ -8,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
             <div className="mb-4">
-              <Image src="/logo.svg?v=2" alt="心宇宙商務中心" width={56} height={56} style={{ objectFit: 'contain', filter: 'drop-shadow(0 0 1px rgba(196,160,56,0.40))' }} />
+              <Image src="/logo-new.png" alt="心宇宙商務中心" width={56} height={56} style={{ objectFit: 'contain', filter: 'drop-shadow(0 0 1px rgba(196,160,56,0.40))' }} />
             </div>
             <p className="text-sm leading-relaxed" style={{ color: 'var(--dark-muted)' }}>
               台北市八德路<br />
@@ -21,8 +22,9 @@ export default function Footer() {
               {[
                 { href: '/venues', label: '場地介紹' },
                 { href: '/events', label: '活動課程' },
-                { href: '/rent', label: '租借申請' },
-                { href: '/my-booking', label: '查詢申請狀態' },
+                { href: '/charity', label: '二手公益' },
+                { href: '/rent', label: CTA.booking.applyRental },
+                { href: '/my-booking', label: CTA.rental.queryStatus },
               ].map(l => (
                 <Link key={l.href} href={l.href} className="text-sm hover:text-white transition-colors" style={{ color: 'var(--dark-muted)' }}>
                   {l.label}

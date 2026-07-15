@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import { AvailabilityCalendar } from '@/components/AvailabilityCalendar'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
+import { CTA } from '@/lib/cta'
 
 export const metadata = {
   title: '場地可用時段查詢 | 心宇宙商務中心',
@@ -33,6 +34,9 @@ export default async function AvailabilityPage() {
           <h1 className="font-serif text-4xl mb-4" style={{ color: 'var(--charcoal)' }}>
             場地可用時段查詢
           </h1>
+          <p className="text-sm mb-2" style={{ color: 'var(--gold)', letterSpacing: '0.05em' }}>
+            選擇一個可用日期，可直接進入申請表單
+          </p>
           <p className="text-sm leading-loose" style={{ color: 'var(--gray)', letterSpacing: '0.06em' }}>
             點選日期可查看早場、午場、晚場的預約狀況
           </p>
@@ -65,7 +69,7 @@ export default async function AvailabilityPage() {
             href="/rent"
             className="btn-gold-fill inline-flex items-center gap-2 text-xs tracking-widest px-10 py-3"
           >
-            前往申請租借 <ArrowRight size={13} />
+            {CTA.venue.applyFromAvailability} <ArrowRight size={13} />
           </Link>
         </div>
       </section>

@@ -9,6 +9,7 @@ interface Props {
     id: string; title: string; slug: string; description: string; venue_id: string
     organizer_name: string; start_time: string; end_time: string
     price: number; is_paid: boolean; capacity: number | null; status: string
+    external_url: string | null
   }
 }
 
@@ -26,6 +27,7 @@ export default function EventForm({ venues, initial }: Props) {
     is_paid: initial?.is_paid ?? false,
     capacity: String(initial?.capacity ?? ''),
     status: initial?.status ?? 'draft',
+    external_url: initial?.external_url ?? '',
   })
   const [saving, setSaving] = useState(false)
 
@@ -48,6 +50,7 @@ export default function EventForm({ venues, initial }: Props) {
       is_paid: form.is_paid,
       capacity: form.capacity ? parseInt(form.capacity) : null,
       status: form.status,
+      external_url: form.external_url || null,
     }
     if (initial) {
       await supabase.from('events').update(payload).eq('id', initial.id)
@@ -98,6 +101,17 @@ export default function EventForm({ venues, initial }: Props) {
             <input type="number" placeholder="費用" value={form.price} onChange={e => setForm(p => ({ ...p, price: e.target.value }))} className="border border-[var(--border-color)] px-3 py-1 text-sm w-28 focus:outline-none focus:border-[var(--gold)]" />
           </div>
         )}
+      </div>
+
+      <div>
+        <label className="text-xs text-[var(--gray)] mb-1 block">外部連結（IG、報名頁、媒體報導等）</label>
+        <input
+          type="url"
+          placeholder="https://"
+          value={form.external_url}
+          onChange={e => setForm(p => ({ ...p, external_url: e.target.value }))}
+          className="w-full border border-[var(--border-color)] bg-transparent px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--gold)] transition-colors"
+        />
       </div>
 
       <div>

@@ -4,6 +4,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, CalendarDays, MapPin, Users, DollarSign } from 'lucide-react'
 import type { Metadata } from 'next'
+import ReviewForm from './ReviewForm'
+import { CTA } from '@/lib/cta'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
 
@@ -44,8 +46,16 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
   if (!event) notFound()
 
   const isEnded = event.status === 'ended' || new Date(event.end_time) < new Date()
+  const showReviews = event.status === 'ended'
   const registered = event.event_registrations?.filter((r: { status: string }) => r.status === 'registered').length ?? 0
   const isFull = event.capacity ? registered >= event.capacity : false
+  const { data: reviews } = showReviews
+    ? await supabase
+        .from('event_reviews')
+        .select('id, reviewer_name, content, created_at')
+        .eq('event_id', event.id)
+        .order('created_at', { ascending: false })
+    : { data: [] }
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -154,12 +164,40 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
                 href={`/events/${slug}/register`}
                 className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[var(--gold)] text-white text-sm tracking-widest hover:bg-[var(--gold-dark)] transition-colors"
               >
-                立即報名 <ArrowRight size={14} />
+                {CTA.events.register} <ArrowRight size={14} />
               </Link>
             )}
           </div>
         </div>
       </div>
+
+      {showReviews && (
+        <div className="container-narrow mt-16 md:mt-20">
+          <div className="mb-8">
+            <p className="label-tag mb-3">Reviews</p>
+            <h2 className="text-2xl md:text-3xl">活動回饋</h2>
+            <div className="gold-divider mt-4" />
+          </div>
+
+          {reviews && reviews.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {reviews.map(review => (
+                <div key={review.id} className="border border-[var(--border-color)] bg-[var(--card-bg)] p-5">
+                  <div className="flex items-center justify-between gap-4 mb-3">
+                    <p className="font-medium text-[var(--charcoal)]">{review.reviewer_name}</p>
+                    <p className="text-[10px] tracking-widest text-[var(--gray)]">
+                      {new Date(review.created_at).toLocaleDateString('zh-TW', { year: 'numeric', month: 'numeric', day: 'numeric' })}
+                    </p>
+                  </div>
+                  <p className="text-sm text-[var(--gray)] leading-loose whitespace-pre-line">{review.content}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <ReviewForm eventId={event.id} />
+        </div>
+      )}
     </div>
   )
 }

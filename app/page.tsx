@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, CalendarDays } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
+import { CTA } from '@/lib/cta'
 import { MobileBottomCTA } from '@/components/MobileBottomCTA'
 import { MobileAvailabilityStrip } from '@/components/MobileAvailabilityStrip'
 
@@ -11,8 +12,9 @@ function formatDate(s: string) {
 
 export default async function HomePage() {
   const supabase = await createClient()
+  const nowIso = new Date().toISOString()
 
-  const [{ data: venues }, { data: events }, { data: showcaseEvents }] = await Promise.all([
+  const [{ data: venues }, { data: events }, { data: showcaseEvents }, { data: endedPastEvents }, { data: publishedPastEvents }] = await Promise.all([
     supabase
       .from('venues')
       .select('id, name, slug, capacity, area_ping, venue_photos(image_url, sort_order)')
@@ -33,16 +35,30 @@ export default async function HomePage() {
       .lt('start_time', new Date().toISOString())
       .order('start_time', { ascending: false })
       .limit(6),
+    supabase
+      .from('events')
+      .select('id, title, slug, start_time, organizer_name, cover_image_url')
+      .eq('status', 'ended')
+      .not('cover_image_url', 'is', null)
+      .order('start_time', { ascending: false })
+      .limit(3),
+    supabase
+      .from('events')
+      .select('id, title, slug, start_time, organizer_name, cover_image_url')
+      .eq('status', 'published')
+      .lt('start_time', nowIso)
+      .not('cover_image_url', 'is', null)
+      .order('start_time', { ascending: false })
+      .limit(3),
   ])
 
-  // Pick first available venue photo as hero background
+  const endedIds = new Set((endedPastEvents ?? []).map(ev => ev.id))
+  const pastEvents = [
+    ...(endedPastEvents ?? []),
+    ...((publishedPastEvents ?? []).filter(ev => !endedIds.has(ev.id))),
+  ].slice(0, 3)
+
   type VenuePhoto = { image_url: string; sort_order: number }
-  const heroCover = venues
-    ?.flatMap(v => {
-      const photos = v.venue_photos as VenuePhoto[] | null
-      return photos?.sort((a, b) => a.sort_order - b.sort_order) ?? []
-    })
-    .find(p => p.image_url)?.image_url ?? null
 
   return (
     <>
@@ -51,13 +67,33 @@ export default async function HomePage() {
 
         {/* Left: dark text panel — Logo 居中，文字下方 */}
         <div
-          className="relative flex flex-col items-center text-center px-8 md:px-14 pt-16 pb-10 md:py-14"
+          className="relative flex flex-col items-center text-center px-8 md:px-14 pt-16 pb-10 md:pt-40 md:pb-4"
           style={{
-            background: 'linear-gradient(160deg, #1C1008 0%, #261608 40%, #2E1C0C 70%, #1A0E06 100%)',
+            background: '#1C1008',
             overflow: 'hidden',
             minHeight: 'calc(100vh - 64px)',
           }}
         >
+          {/* 桌機版：實景照片搭配半透明品牌色遮罩 */}
+          <div className="absolute inset-0 hidden md:block pointer-events-none">
+            <Image
+              src="/home-hero/venue-background.jpg"
+              alt=""
+              fill
+              priority
+              className="object-cover"
+              sizes="50vw"
+              style={{ objectPosition: 'center center' }}
+            />
+            <div
+              className="absolute inset-0"
+              style={{
+                background: 'linear-gradient(155deg, rgba(24, 12, 5, 0.80) 0%, rgba(38, 21, 9, 0.73) 48%, rgba(25, 13, 6, 0.84) 100%)',
+                boxShadow: 'inset -1px 0 rgba(196, 160, 56, 0.14)',
+              }}
+            />
+          </div>
+
           {/* 手機版：固定背景圖（venue-real-6.jpg — 劇院式白椅全景） */}
           <div
             className="absolute inset-0 md:hidden pointer-events-none"
@@ -75,41 +111,41 @@ export default async function HomePage() {
 
           {/* Logo — 手機 180px，桌機 330px */}
           <Image
-            src="/logo.svg?v=2"
+            src="/logo-new.png"
             alt="心宇宙商務中心"
             width={330} height={330}
             priority
-            className="w-[180px] md:w-[330px] h-auto"
+            className="relative z-10 w-[180px] md:w-[330px] h-auto"
             style={{ objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 0 2px rgba(196,160,56,0.40))', opacity: 0.82 }}
           />
 
           {/* 品牌名 — 手機桌機都顯示 */}
-          <p className="font-serif mb-1" style={{ fontSize: 'clamp(18px, 2.2vw, 28px)', color: 'rgba(244,239,230,0.92)', letterSpacing: '0.18em' }}>
+          <p className="relative z-10 font-serif mb-1" style={{ fontSize: 'clamp(18px, 2.2vw, 28px)', color: 'rgba(244,239,230,0.92)', letterSpacing: '0.18em' }}>
             心宇宙商務中心
           </p>
           {/* HEART UNIVERSE */}
-          <p className="text-[10px] tracking-[0.35em] mb-4" style={{ color: 'rgba(196,160,56,0.95)' }}>
+          <p className="relative z-10 text-[10px] tracking-[0.35em] mb-4" style={{ color: 'rgba(196,160,56,0.95)' }}>
             HEART UNIVERSE · TAIPEI
           </p>
 
           {/* Gold divider — 手機桌機都顯示 */}
-          <div style={{ width: 36, height: 1, background: 'var(--gold)', opacity: 0.5, marginBottom: 20 }} />
+          <div className="relative z-10" style={{ width: 36, height: 1, background: 'var(--gold)', opacity: 0.5, marginBottom: 20 }} />
 
           {/* Tagline */}
           <h1
-            className="font-serif leading-snug mb-4"
+            className="relative z-10 font-serif leading-snug mb-4"
             style={{ fontSize: 'clamp(24px, 2.8vw, 38px)', fontWeight: 600, color: '#fff', letterSpacing: '0.06em' }}
           >
             台北最適合<span style={{ color: 'var(--gold)' }}>質感活動</span>的場地
           </h1>
 
-          <p className="text-[11px] leading-loose mb-5" style={{ color: 'rgba(244,239,230,0.75)', letterSpacing: '0.1em' }}>
+          <p className="relative z-10 text-[11px] leading-loose mb-5" style={{ color: 'rgba(244,239,230,0.75)', letterSpacing: '0.1em' }}>
             台北八德路 · 100–150 人<br />
             捷運步行可達 · 高規格設備齊全
           </p>
 
           {/* Activity tags — 全部顯示 */}
-          <div className="flex flex-wrap justify-center gap-2 mb-6 md:mb-8">
+          <div className="relative z-10 flex flex-wrap justify-center gap-2 mb-6 md:mb-8">
             {['品牌講座', '女性成長課程', '企業培訓', '工作坊', '身心靈課程', '直播活動'].map(tag => (
               <span key={tag} className="text-[10px] px-3 py-1.5 tracking-wide"
                 style={{ border: '1px solid rgba(196,160,56,0.75)', color: 'rgba(230,200,120,1)' }}>
@@ -119,19 +155,19 @@ export default async function HomePage() {
           </div>
 
           {/* CTA */}
-          <div className="flex gap-3 mb-auto">
+          <div className="relative z-10 hidden md:flex gap-3 mb-auto">
             <Link href="/rent" className="btn-gold-fill text-xs tracking-widest px-8 py-3">
-              立即申請租借
+              {CTA.home.startRental}
             </Link>
             <Link href="/venues"
               className="text-xs tracking-widest px-6 py-3 transition-colors"
               style={{ border: '1px solid rgba(244,239,230,0.18)', color: 'rgba(244,239,230,0.55)', display: 'inline-flex', alignItems: 'center' }}>
-              查看場地照片
+              {CTA.home.viewVenuePhotos}
             </Link>
           </div>
 
           {/* Stats row — pinned to bottom */}
-          <div className="flex gap-0 w-full mt-8" style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 20 }}>
+          <div className="relative z-10 flex gap-0 w-full mt-8" style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: 20 }}>
             {[
               { n: '100–150', u: '人', l: '最大容納' },
               { n: '15K', u: '起', l: '平日場租' },
@@ -149,58 +185,49 @@ export default async function HomePage() {
         </div>
 
         {/* Right: photo grid */}
-        <div className="hidden md:grid" style={{ gridTemplateRows: '2fr 1fr', gridTemplateColumns: '1fr 1fr' }}>
-          {/* Main photo — top, full width */}
-          <div className="relative col-span-2 overflow-hidden" style={{ background: 'var(--surface)' }}>
-            {heroCover ? (
-              <Image src={heroCover} alt="心宇宙商務中心" fill className="object-cover" sizes="50vw" priority />
-            ) : (
-              <div className="w-full h-full flex items-center justify-center" style={{ background: '#d0ccc8' }}>
-                <span className="text-xs tracking-widest" style={{ color: 'rgba(44,30,18,0.3)' }}>場地照片</span>
-              </div>
-            )}
-            {/* Bottom label */}
-            <div className="absolute bottom-0 left-0 right-0 px-5 py-3"
-              style={{ background: 'linear-gradient(to top, rgba(26,16,8,0.7), transparent)' }}>
-              <p className="text-[10px] tracking-[0.25em]" style={{ color: 'rgba(255,255,255,0.7)', borderLeft: '2px solid var(--gold)', paddingLeft: 10 }}>
-                多功能大廳 · 100–150 人
+        <div
+          className="hidden md:grid"
+          style={{
+            gridTemplateRows: '2fr 1fr',
+            gridTemplateColumns: 'repeat(3, 1fr)',
+          }}
+        >
+          <div className="relative col-span-3 overflow-hidden" style={{ background: 'var(--surface)' }}>
+            <Image
+              src="/home-hero/event-family-day-1.jpg"
+              alt="心宇宙商務中心親子日活動現場"
+              fill
+              className="object-cover"
+              sizes="50vw"
+              priority
+              style={{ objectPosition: 'center center' }}
+            />
+            <div
+              className="absolute bottom-0 left-0 right-0 px-5 py-3"
+              style={{ background: 'linear-gradient(to top, rgba(26,16,8,0.72), transparent)' }}
+            >
+              <p className="text-[10px] tracking-[0.25em]" style={{ color: 'rgba(255,255,255,0.78)', borderLeft: '2px solid var(--gold)', paddingLeft: 10 }}>
+                親子日活動實景 · 多功能大廳
               </p>
             </div>
           </div>
 
-          {/* Sub photo 1 */}
-          {(() => {
-            const photos = venues?.flatMap(v => (v.venue_photos as VenuePhoto[] | null)?.sort((a,b) => a.sort_order - b.sort_order) ?? [])
-            const p1 = photos?.[1]?.image_url
-            return (
-              <div className="relative overflow-hidden" style={{ background: '#b8b4b0' }}>
-                {p1 ? (
-                  <Image src={p1} alt="劇院型配置" fill className="object-cover" sizes="25vw" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-[10px] tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>劇院型</span>
-                  </div>
-                )}
-              </div>
-            )
-          })()}
-
-          {/* Sub photo 2 */}
-          {(() => {
-            const photos = venues?.flatMap(v => (v.venue_photos as VenuePhoto[] | null)?.sort((a,b) => a.sort_order - b.sort_order) ?? [])
-            const p2 = photos?.[2]?.image_url
-            return (
-              <div className="relative overflow-hidden" style={{ background: '#888480' }}>
-                {p2 ? (
-                  <Image src={p2} alt="島嶼式配置" fill className="object-cover" sizes="25vw" />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <span className="text-[10px] tracking-widest" style={{ color: 'rgba(255,255,255,0.4)' }}>島嶼式</span>
-                  </div>
-                )}
-              </div>
-            )
-          })()}
+          {[
+            { src: '/home-hero/event-family-day-2.jpg', alt: '親子日活動舞台與觀眾' },
+            { src: '/home-hero/event-family-day-3.jpg', alt: '親子日活動互動現場' },
+            { src: '/home-hero/event-family-day-4.jpg', alt: '心宇宙活動講者分享現場' },
+          ].map(photo => (
+            <div key={photo.src} className="relative overflow-hidden" style={{ background: '#b8b4b0' }}>
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                fill
+                className="object-cover"
+                sizes="17vw"
+                style={{ objectPosition: 'center center' }}
+              />
+            </div>
+          ))}
         </div>
       </section>
 
@@ -252,49 +279,59 @@ export default async function HomePage() {
 
       {/* ─── Features 3-col ─── */}
       <section style={{ borderBottom: '1px solid var(--border-color)', background: 'var(--card-bg)' }}>
-        <div className="container-wide grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-[var(--border-color)]">
-          {[
-            { icon: '🚇', title: '捷運步行可達', desc: '小巨蛋站 3 號出口 · 國父紀念館站 1 號出口，步行約 10 分鐘' },
-            { icon: '🪑', title: '彈性座位配置', desc: '劇院型 · 島嶼式 100–150 人，桌椅自由調整' },
-            { icon: '🎤', title: '高規格視聽設備', desc: '雷射投影機 · Sure 無線麥克風 × 4 · 專業音響，全包含於場租' },
-          ].map(f => (
-            <div key={f.title} className="px-10 py-12 text-center">
-              <div className="text-2xl mb-4">{f.icon}</div>
-              <h3 className="font-serif text-base mb-2" style={{ color: 'var(--charcoal)' }}>{f.title}</h3>
-              <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>{f.desc}</p>
-            </div>
-          ))}
+        <div className="container-wide py-10 md:py-14">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+            {[
+              { icon: '🚇', title: '捷運步行可達', desc: '小巨蛋站 3 號出口 · 國父紀念館站 1 號出口，步行約 10 分鐘' },
+              { icon: '🪑', title: '彈性座位配置', desc: '劇院型 · 島嶼式 100–150 人，桌椅自由調整' },
+              { icon: '🎤', title: '高規格視聽設備', desc: '雷射投影機 · Sure 無線麥克風 × 4 · 專業音響，全包含於場租' },
+            ].map(f => (
+              <div
+                key={f.title}
+                className="rounded-3xl border border-[var(--border-color)] bg-[var(--cream)] px-8 py-10 md:px-10 md:py-12 text-center shadow-[0_10px_28px_rgba(26,16,8,0.04)]"
+              >
+                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'rgba(196,160,56,0.12)', color: 'var(--gold)' }}>
+                  <span className="text-2xl">{f.icon}</span>
+                </div>
+                <h3 className="font-serif text-lg mb-3" style={{ color: 'var(--charcoal)' }}>{f.title}</h3>
+                <div className="mx-auto mb-4 h-px w-10" style={{ background: 'var(--gold)', opacity: 0.45 }} />
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>{f.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
       {/* ─── Stats — 手機深色三欄、桌機奶油四欄 ─── */}
       {/* 手機版 */}
       <section className="md:hidden" style={{ background: '#1C1008' }}>
-        <div className="grid grid-cols-3 divide-x divide-[rgba(255,255,255,0.08)]">
+        <div className="container-wide py-4">
+          <div className="grid grid-cols-3 gap-3">
           {[
             { n: '100–150', unit: '人', label: '最大容納' },
             { n: '15K', unit: '起', label: '平日場租' },
             { n: '1', unit: '日', label: '確認回覆' },
           ].map(s => (
-            <div key={s.label} className="text-center py-4 px-2">
+            <div key={s.label} className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-center py-4 px-2">
               <div className="font-serif text-xl font-bold leading-none mb-1" style={{ color: '#C4A038', fontStyle: 'italic' }}>
                 {s.n}<span className="text-xs ml-0.5">{s.unit}</span>
               </div>
               <div className="text-[8px] tracking-widest" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.label}</div>
             </div>
           ))}
+          </div>
         </div>
       </section>
       {/* 桌機版 */}
       <section className="hidden md:block" style={{ background: 'var(--cream)', borderBottom: '1px solid var(--border-color)' }}>
-        <div className="container-wide grid grid-cols-4 divide-x divide-[var(--border-color)]">
+        <div className="container-wide py-8 grid grid-cols-4 gap-4">
           {[
             { n: '100–150', unit: '人', label: '最大容納人數' },
             { n: '15K', unit: '起', label: '平日場租 / 3 小時' },
             { n: '10', unit: '分', label: '捷運步行可達' },
             { n: '1', unit: '日', label: '工作日確認回覆' },
           ].map(s => (
-            <div key={s.label} className="text-center py-14 px-6">
+            <div key={s.label} className="rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] text-center py-14 px-6 shadow-[0_8px_24px_rgba(26,16,8,0.04)]">
               <div className="font-serif text-5xl font-semibold leading-none mb-3" style={{ color: 'var(--gold)', fontStyle: 'italic' }}>
                 {s.n}<span className="text-2xl">{s.unit}</span>
               </div>
@@ -304,15 +341,123 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ─── Past Events ─── */}
+      {pastEvents && pastEvents.length > 0 && (
+        <section className="py-16 md:py-24" style={{ background: 'var(--card-bg)' }}>
+          <div className="container-wide">
+            <div className="flex items-end justify-between gap-6 mb-8 md:mb-12">
+              <div>
+                <p className="label-tag mb-3">Past Events</p>
+                <h2 className="font-serif text-2xl md:text-4xl" style={{ color: 'var(--charcoal)' }}>過往精選</h2>
+                <div className="gold-divider mt-4" />
+                <p className="mt-4 text-sm leading-relaxed max-w-xl" style={{ color: 'var(--gray)' }}>
+                  從近期結束的活動中，挑選最值得回看的片段，讓場地的使用情境更直接。
+                </p>
+              </div>
+              <Link
+                href="/events"
+                className="hidden md:inline-flex items-center gap-2 text-xs tracking-widest pb-1 border-b transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                style={{ color: 'var(--gray)', borderColor: 'var(--border-color)' }}
+              >
+                {CTA.home.viewAllEvents} <ArrowRight size={12} />
+              </Link>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              <div className="md:hidden">
+                {pastEvents.slice(0, 1).map(ev => (
+                  <Link
+                    key={ev.id}
+                    href={`/events/${ev.slug}`}
+                    className="group block border border-[var(--border-color)] hover:border-[var(--gold)] transition-colors overflow-hidden rounded-3xl shadow-[0_12px_28px_rgba(26,16,8,0.08)]"
+                    style={{ background: 'var(--card-bg)' }}
+                  >
+                    <div className="relative aspect-[3/4] overflow-hidden bg-[var(--surface)]">
+                      <Image
+                        src={ev.cover_image_url!}
+                        alt={ev.title}
+                        fill
+                        className="object-cover group-hover:scale-105 transition-transform duration-700"
+                        sizes="100vw"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(26,16,8,0.78)] via-[rgba(26,16,8,0.18)] to-transparent" />
+                      <div className="absolute left-5 top-5 inline-flex items-center rounded-full px-3 py-1 text-[10px] tracking-[0.3em]" style={{ background: 'rgba(244,239,230,0.88)', color: 'var(--charcoal)' }}>
+                        回顧精選
+                      </div>
+                      <div className="absolute inset-x-0 bottom-0 p-4">
+                        <p className="text-[8px] tracking-[0.35em] mb-2" style={{ color: 'rgba(255,255,255,0.72)' }}>
+                          Past Events
+                        </p>
+                        <h3 className="font-serif text-[1.12rem] leading-tight mb-2" style={{ color: '#fff' }}>
+                          {ev.title}
+                        </h3>
+                        <div className="flex items-center gap-2 text-[9px] flex-wrap" style={{ color: 'rgba(255,255,255,0.72)' }}>
+                          <span>{new Date(ev.start_time).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric' })}</span>
+                          <span>·</span>
+                          <span>{ev.organizer_name || '心宇宙商務中心'}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+
+              <div className="hidden md:contents">
+                {pastEvents.map(ev => (
+                  <Link
+                    key={ev.id}
+                    href={`/events/${ev.slug}`}
+                    className="group block border border-[var(--border-color)] hover:border-[var(--gold)] transition-colors overflow-hidden rounded-2xl"
+                    style={{ background: 'var(--card-bg)' }}
+                >
+                  <div className="relative aspect-video overflow-hidden bg-[var(--surface)]">
+                    <Image
+                      src={ev.cover_image_url!}
+                      alt={ev.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[rgba(26,16,8,0.25)] via-transparent to-transparent" />
+                  </div>
+                  <div className="p-5 md:p-6">
+                    <p className="text-[10px] tracking-[0.3em] mb-2" style={{ color: 'var(--gold)' }}>
+                      {new Date(ev.start_time).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
+                    <h3 className="font-serif text-lg md:text-xl mb-3 leading-snug" style={{ color: 'var(--charcoal)' }}>
+                      {ev.title}
+                    </h3>
+                      <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
+                        主辦：{ev.organizer_name || '心宇宙商務中心'}
+                      </p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-6 md:hidden">
+              <Link
+                href="/events"
+                className="inline-flex items-center gap-2 text-xs tracking-widest pb-1 border-b transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                style={{ color: 'var(--gray)', borderColor: 'var(--border-color)' }}
+              >
+                {CTA.home.viewAllEvents} <ArrowRight size={12} />
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* ─── 手機版：7天可用時段快速條 ─── */}
       {venues && venues.length > 0 && <MobileAvailabilityStrip venueId={venues[0].id} />}
 
       {/* ─── Venue + Showcase（左右分欄）─── */}
       <section style={{ background: 'var(--cream)', borderBottom: '1px solid var(--border-color)' }}>
-        <div className="grid md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-[var(--border-color)]">
+        <div className="container-wide grid md:grid-cols-2 gap-6 md:gap-8 py-6 md:py-10">
 
           {/* ── 左：精品場地空間 ── */}
-          <div className="px-5 md:px-14 py-10 md:py-16">
+          <div className="rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] px-5 md:px-10 py-10 md:py-12 shadow-[0_10px_28px_rgba(26,16,8,0.04)]">
             <div className="flex items-end justify-between mb-6 md:mb-10">
               <div>
                 <p className="text-[10px] tracking-[0.5em] uppercase mb-2" style={{ color: 'var(--gold)' }}>Venue</p>
@@ -323,7 +468,7 @@ export default async function HomePage() {
                 className="flex items-center gap-2 text-xs tracking-widest pb-1 border-b shrink-0 transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
                 style={{ color: 'var(--gray)', borderColor: 'var(--border-color)' }}
               >
-                查看全部 <ArrowRight size={12} />
+                {CTA.home.viewAll} <ArrowRight size={12} />
               </Link>
             </div>
 
@@ -377,7 +522,7 @@ export default async function HomePage() {
           </div>
 
           {/* ── 右：過去的活動回顧 ── */}
-          <div className="px-5 md:px-14 py-10 md:py-16">
+          <div className="rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] px-5 md:px-10 py-10 md:py-12 shadow-[0_10px_28px_rgba(26,16,8,0.04)]">
             <div className="flex items-end justify-between mb-6 md:mb-10">
               <div>
                 <p className="text-[10px] tracking-[0.5em] uppercase mb-2" style={{ color: 'var(--gold)' }}>Showcase</p>
@@ -388,7 +533,7 @@ export default async function HomePage() {
                 className="flex items-center gap-2 text-xs tracking-widest pb-1 border-b shrink-0 transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
                 style={{ color: 'var(--gray)', borderColor: 'var(--border-color)' }}
               >
-                查看相簿 <ArrowRight size={12} />
+                {CTA.home.viewAlbum} <ArrowRight size={12} />
               </Link>
             </div>
 
@@ -446,7 +591,7 @@ export default async function HomePage() {
 
       {/* ─── Events ─── */}
       <section className="py-10 md:py-20" style={{ background: 'var(--card-bg)' }}>
-        <div className="px-5 md:container-wide">
+        <div className="container-wide">
           <div className="flex items-end justify-between mb-8 md:mb-12">
             <div>
               <p className="text-[10px] tracking-[0.5em] uppercase mb-2" style={{ color: 'var(--gold)' }}>Events</p>
@@ -457,35 +602,31 @@ export default async function HomePage() {
               className="flex items-center gap-2 text-xs tracking-widest pb-1 border-b transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
               style={{ color: 'var(--gray)', borderColor: 'var(--border-color)' }}
             >
-              查看全部 <ArrowRight size={12} />
+              {CTA.home.viewAll} <ArrowRight size={12} />
             </Link>
           </div>
 
           {events && events.length > 0 ? (
-            <div style={{ borderTop: '1px solid var(--border-color)' }}>
+            <div className="grid gap-4 md:gap-5">
               {events.map(ev => (
                 <Link
                   key={ev.id}
                   href={`/events/${ev.slug}`}
-                  className="event-row flex md:grid items-center gap-4 md:gap-8 py-5 md:py-8 border-b"
-                  style={{
-                    gridTemplateColumns: '90px 1fr 160px',
-                    borderColor: 'var(--border-color)',
-                  }}
+                  className="group grid grid-cols-[76px_1fr_auto] md:grid-cols-[120px_1fr_auto] items-center gap-4 md:gap-8 rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-4 md:px-6 md:py-5 shadow-[0_8px_24px_rgba(26,16,8,0.04)] transition-colors hover:border-[var(--gold)]"
                 >
                   {/* Date box */}
-                  <div className="text-center shrink-0" style={{ minWidth: 52 }}>
+                  <div className="text-center shrink-0 rounded-2xl bg-[var(--surface)] px-2 py-3 md:px-3 md:py-4">
                     <p className="text-[9px] tracking-[0.3em] mb-0.5" style={{ color: 'var(--gold)' }}>
                       {new Date(ev.start_time).toLocaleDateString('zh-TW', { month: 'long' })}
                     </p>
-                    <p className="font-serif font-semibold leading-none" style={{ fontSize: 'clamp(28px, 4vw, 48px)', color: 'var(--charcoal)' }}>
+                    <p className="font-serif font-semibold leading-none" style={{ fontSize: 'clamp(24px, 4vw, 42px)', color: 'var(--charcoal)' }}>
                       {new Date(ev.start_time).getDate()}
                     </p>
                   </div>
                   {/* Info */}
                   <div className="flex-1 min-w-0">
                     <h3 className="font-serif mb-1 truncate" style={{ fontSize: 'clamp(14px, 2vw, 20px)', color: 'var(--charcoal)' }}>{ev.title}</h3>
-                    <p className="text-[11px] leading-relaxed flex items-center gap-1" style={{ color: 'var(--gray)' }}>
+                    <p className="text-[11px] leading-relaxed flex items-center gap-1 flex-wrap" style={{ color: 'var(--gray)' }}>
                       <CalendarDays size={10} /> {formatDate(ev.start_time)}
                       &nbsp;·&nbsp;
                       {ev.is_paid ? `NT$ ${ev.price.toLocaleString()}` : '免費'}
@@ -493,8 +634,8 @@ export default async function HomePage() {
                   </div>
                   {/* Button — desktop only */}
                   <div className="hidden md:block text-right shrink-0">
-                    <span className="inline-block px-6 py-2 text-xs tracking-widest border transition-colors" style={{ borderColor: 'var(--border-color)', color: 'var(--gray)' }}>
-                      {ev.is_paid ? '立即報名' : '免費報名'}
+                    <span className="inline-block rounded-full bg-[var(--surface)] px-5 py-2 text-xs tracking-widest border transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]" style={{ borderColor: 'var(--border-color)', color: 'var(--charcoal)' }}>
+                      {ev.is_paid ? CTA.events.register : CTA.events.freeRegister}
                     </span>
                   </div>
                   {/* Mobile arrow */}
@@ -508,46 +649,50 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ─── Brand Manifesto ─── */}
+      <section className="py-20" style={{ background: 'var(--surface)' }}>
+        <div className="container-narrow">
+          <div className="rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] px-6 py-8 md:px-10 md:py-10 shadow-[0_10px_28px_rgba(26,16,8,0.04)]">
+            <p className="label-tag mb-4">Our Belief</p>
+            <h2 className="font-serif text-3xl md:text-4xl mb-4" style={{ color: 'var(--charcoal)' }}>
+              不只是一個場地
+            </h2>
+            <div className="gold-divider" />
+            <div className="mt-8 space-y-3 text-sm leading-loose" style={{ color: 'var(--gray)' }}>
+              <p>我們相信，每一個聚集，都在改變某人的軌跡。</p>
+              <p>好的空間，讓想法有地方落地。</p>
+              <p>心宇宙是一個起點，也是一個歸處。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── CTA ─── */}
       <section
-        className="text-center hidden md:block"
-        style={{ padding: '120px 80px', background: 'var(--charcoal)', position: 'relative', overflow: 'hidden' }}
+        className="hidden md:block"
+        style={{ padding: '96px 0', background: 'var(--surface)' }}
       >
-        <div
-          style={{
-            position: 'absolute', top: '50%', left: '50%',
-            transform: 'translate(-50%,-50%)',
-            width: 400, height: 400, borderRadius: '50%',
-            border: '1px solid rgba(184,152,64,0.15)',
-            pointerEvents: 'none',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute', top: '50%', left: '50%',
-            transform: 'translate(-50%,-50%)',
-            width: 260, height: 260, borderRadius: '50%',
-            border: '1px solid rgba(184,152,64,0.25)',
-            pointerEvents: 'none',
-          }}
-        />
-        <div className="container-narrow" style={{ position: 'relative', zIndex: 1 }}>
-          <h2 className="font-serif text-4xl md:text-5xl mb-5" style={{ color: 'var(--cream)', letterSpacing: '0.08em' }}>
-            預約您的專屬場地
-          </h2>
-          <p className="text-sm tracking-widest mb-12" style={{ color: 'rgba(244,239,230,0.45)', letterSpacing: '0.15em' }}>
-            填寫租借申請，我們將於一個工作日內與您確認
-          </p>
-          <Link
-            href="/rent"
-            className="btn-cta-ghost inline-flex items-center gap-2 px-16 py-3 text-xs tracking-widest"
-          >
-            立即申請 <ArrowRight size={13} />
-          </Link>
+        <div className="container-narrow">
+          <div className="relative overflow-hidden rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] px-8 py-12 md:px-14 md:py-16 text-center shadow-[0_12px_32px_rgba(26,16,8,0.06)]">
+            <div className="absolute inset-x-8 top-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(196,160,56,0.45), transparent)' }} />
+            <p className="label-tag mb-4">Start Here</p>
+            <h2 className="font-serif text-3xl md:text-5xl mb-5" style={{ color: 'var(--charcoal)', letterSpacing: '0.06em' }}>
+              預約您的專屬場地
+            </h2>
+            <p className="text-sm tracking-widest mb-10" style={{ color: 'var(--gray)', letterSpacing: '0.14em' }}>
+              填寫租借申請，我們將於一個工作日內與您確認
+            </p>
+            <Link
+              href="/rent"
+              className="btn-gold-fill inline-flex items-center gap-2 px-14 py-3 text-xs tracking-widest"
+            >
+              {CTA.home.startRental} <ArrowRight size={13} />
+            </Link>
+          </div>
         </div>
       </section>
       {/* ─── 手機版：底部固定 CTA 佔位（避免被遮住）─── */}
-      <div className="md:hidden" style={{ height: 56 }} />
+      <div className="md:hidden" style={{ height: 170 }} />
 
       {/* ─── 手機底部固定 CTA ─── */}
       <MobileBottomCTA />

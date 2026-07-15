@@ -6,6 +6,7 @@ import { ArrowRight, Users, MapPin, Train, Car } from 'lucide-react'
 import type { Metadata } from 'next'
 import type { VenuePricing, TimeSlot, LayoutType } from '@/lib/types'
 import { TIME_SLOT_LABEL, LAYOUT_TYPES } from '@/lib/types'
+import { CTA } from '@/lib/cta'
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
 
@@ -109,12 +110,38 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
 
   if (!venue) notFound()
 
-  const jsonLd = {
+  const photos = (venue.venue_photos ?? []).sort((a: { sort_order: number; alt_text?: string }, b: { sort_order: number }) => a.sort_order - b.sort_order)
+  const pricing: VenuePricing[] = venue.venue_pricing ?? []
+  const layouts: Partial<Record<LayoutType, number>> = venue.layout_capacities ?? {}
+  const suitableFor: string[] = venue.suitable_for ?? []
+
+  const minPrice = pricing.filter(p => p.day_type === 'weekday').length
+    ? Math.min(...pricing.filter(p => p.day_type === 'weekday').map(p => p.price))
+    : null
+
+  const jsonLd: Record<string, unknown> = {
     '@context': 'https://schema.org',
     '@type': 'Place',
     name: venue.name,
     description: venue.description ?? '',
     url: `${SITE}/venues/${slug}`,
+    ...(venue.capacity ? { maximumAttendeeCapacity: venue.capacity } : {}),
+    ...(venue.area_ping ? { floorSize: { '@type': 'QuantitativeValue', value: venue.area_ping, unitCode: 'ping' } } : {}),
+    ...(venue.equipment?.length ? {
+      amenityFeature: (venue.equipment as string[]).map((eq: string) => ({
+        '@type': 'LocationFeatureSpecification',
+        name: eq,
+        value: true,
+      })),
+    } : {}),
+    ...(minPrice ? {
+      offers: {
+        '@type': 'Offer',
+        priceCurrency: 'TWD',
+        price: minPrice,
+        description: '平日場地租借費用（每時段 3 小時）',
+      },
+    } : {}),
     containedInPlace: {
       '@type': 'LocalBusiness',
       name: '心宇宙商務中心',
@@ -122,16 +149,54 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
     },
   }
 
-  const photos = (venue.venue_photos ?? []).sort((a: { sort_order: number; alt_text?: string }, b: { sort_order: number }) => a.sort_order - b.sort_order)
-  const pricing: VenuePricing[] = venue.venue_pricing ?? []
-  const layouts: Partial<Record<LayoutType, number>> = venue.layout_capacities ?? {}
-  const suitableFor: string[] = venue.suitable_for ?? []
+  const faqLd = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: [
+      {
+        '@type': 'Question',
+        name: '場地租借最少要多久？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '每個時段為 3 小時，不接受零星小時租借。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '場地費用含哪些設備？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '場地定價含所有列出的基本設備，無需另行加購。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '如何申請租借？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '在本頁點擊「申請租借」填寫表單，工作人員將於一個工作日內確認可用時段。',
+        },
+      },
+      {
+        '@type': 'Question',
+        name: '可以提早進場或延後離場嗎？',
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: '可依超時費率延長使用，請事先告知工作人員，每 30 分鐘依訂定費率計費。',
+        },
+      },
+    ],
+  }
 
   return (
-    <div className="py-20">
+    <div className="py-20 pb-32 md:pb-20">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
       />
       <div className="container-narrow mb-10">
         <p className="label-tag mb-4">Venue</p>
@@ -197,6 +262,23 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
 
           {/* Pricing table */}
           {pricing.length > 0 && <PricingTable pricing={pricing} />}
+
+          {pricing.length > 0 && (
+            <div className="hidden md:flex items-center justify-between gap-4 rounded-xl border border-[var(--border-color)] bg-[var(--surface)] px-5 py-4 mb-10">
+              <div>
+                <p className="text-xs tracking-widest mb-1" style={{ color: 'var(--gold)' }}>申請租借</p>
+                <p className="text-sm text-[var(--gray)]">
+                  {minPrice ? <>平日起 NT$ {minPrice.toLocaleString()} 起</> : '歡迎直接提出租借申請'}
+                </p>
+              </div>
+              <Link
+                href={`/rent?venue=${venue.slug}`}
+                className="btn-gold-fill inline-flex items-center gap-2 px-6 py-3 text-xs tracking-widest"
+              >
+                {CTA.venue.applyRentalNow} <ArrowRight size={13} />
+              </Link>
+            </div>
+          )}
 
           {/* Equipment */}
           {venue.equipment?.length > 0 && (
@@ -264,7 +346,7 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
               href={`/rent?venue=${venue.slug}`}
               className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[var(--gold)] text-white text-sm tracking-widest hover:bg-[var(--gold-dark)] transition-colors"
             >
-              申請租借 <ArrowRight size={14} />
+              {CTA.venue.applyRental} <ArrowRight size={14} />
             </Link>
           </div>
 
@@ -297,6 +379,29 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
           </div>
         </div>
       </div>
+
+      {pricing.length > 0 && (
+        <div className="md:hidden fixed left-0 right-0 bottom-0 z-40 border-t border-[var(--gold)] bg-[var(--charcoal)]/95 backdrop-blur-sm" style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}>
+          <div className="container-narrow py-3 flex items-center justify-between gap-4">
+            <div className="min-w-0">
+              {minPrice ? (
+                <>
+                  <p className="text-[10px] tracking-widest mb-1" style={{ color: 'rgba(255,255,255,0.72)' }}>平日起</p>
+                  <p className="text-sm font-medium text-[var(--gold)]">NT$ {minPrice.toLocaleString()} 起</p>
+                </>
+              ) : (
+                <p className="text-xs text-[rgba(255,255,255,0.72)]">立即提出租借需求</p>
+              )}
+            </div>
+            <Link
+              href={`/rent?venue=${venue.slug}`}
+              className="shrink-0 rounded-none bg-[var(--gold)] px-5 py-3 text-xs tracking-widest text-white"
+            >
+              {CTA.venue.applyRental}
+            </Link>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

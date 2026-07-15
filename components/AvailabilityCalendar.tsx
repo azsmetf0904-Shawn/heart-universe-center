@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
 import type { TimeSlot } from '@/lib/types'
+import { CTA } from '@/lib/cta'
 
 const SLOTS: TimeSlot[] = ['morning', 'afternoon', 'evening']
 const DOW = ['日', '一', '二', '三', '四', '五', '六']
@@ -96,6 +97,9 @@ export function AvailabilityCalendar({ venueId }: Props) {
 
   const cells = buildCells(year, month)
   const activeDay = activeDate ? new Date(activeDate + 'T00:00:00') : null
+  const activeDateLabel = activeDay
+    ? `${activeDay.getMonth() + 1} 月 ${activeDay.getDate()} 日（${DOW[activeDay.getDay()]}）`
+    : ''
 
   return (
     <div>
@@ -247,14 +251,22 @@ export function AvailabilityCalendar({ venueId }: Props) {
             })}
           </div>
 
-          {SLOTS.some(s => getStatus(activeDay, s) === 'available') && (
+          <div className="mt-4 rounded-xl border border-[var(--border-color)] bg-[var(--surface)] p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-[10px] tracking-[0.3em]" style={{ color: 'var(--gold)' }}>
+                {activeDateLabel} 已選取
+              </p>
+              <p className="text-xs mt-1" style={{ color: 'var(--gray)' }}>
+                直接帶入申請表單，接著挑選要預約的時段
+              </p>
+            </div>
             <Link
               href={`/rent?date=${activeDate}`}
-              className="btn-gold-fill block text-center text-xs tracking-widest py-3"
+              className="btn-gold-fill inline-flex items-center justify-center text-xs tracking-widest px-5 py-3"
             >
-              申請租借這一天 →
+              {CTA.venue.applyFromAvailability}
             </Link>
-          )}
+          </div>
         </div>
       )}
     </div>

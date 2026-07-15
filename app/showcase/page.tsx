@@ -3,6 +3,7 @@ import Link from 'next/link'
 import type { Metadata } from 'next'
 import { ShowcaseClient } from './ShowcaseClient'
 import type { PastEvent } from './ShowcaseClient'
+import { CTA } from '@/lib/cta'
 
 export const metadata: Metadata = {
   title: '活動回顧 | 心宇宙商務中心',
@@ -59,7 +60,7 @@ export default async function ShowcasePage() {
           <p className="font-serif text-2xl mb-3" style={{ color: 'var(--charcoal)' }}>想在這裡舉辦您的活動？</p>
           <p className="text-sm mb-8" style={{ color: 'var(--gray)', letterSpacing: '0.06em' }}>填寫租借申請，一個工作日內確認</p>
           <Link href="/rent" className="btn-gold-fill text-xs tracking-widest px-12 py-3">
-            立即申請
+            {CTA.home.startRental}
           </Link>
         </div>
       </section>
