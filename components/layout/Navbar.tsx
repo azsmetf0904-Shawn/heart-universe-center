@@ -10,6 +10,7 @@ const links = [
   { href: '/availability', label: '可用時段' },
   { href: '/events', label: '活動課程' },
   { href: '/showcase', label: '活動回顧' },
+  { href: '/charity', label: '二手公益', highlight: true },
   { href: '/rent', label: '租借申請' },
   { href: '/my-booking', label: '查詢申請狀態' },
 ]
@@ -50,7 +51,7 @@ export default function Navbar() {
               key={l.href}
               href={l.href}
               className="text-xs tracking-widest transition-colors hover:text-[var(--charcoal)]"
-              style={{ color: 'var(--gray)' }}
+              style={{ color: l.highlight ? 'var(--gold)' : 'var(--gray)' }}
             >
               {l.label}
             </Link>

@@ -649,6 +649,48 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* ─── Charity Banner ─── */}
+      <section style={{ background: '#1A0E06' }}>
+        <div className="container-wide">
+          <div className="grid md:grid-cols-2 items-center gap-0">
+            {/* Photo */}
+            <div className="relative overflow-hidden" style={{ height: '420px' }}>
+              <Image
+                src="/charity/grid-2.jpg"
+                alt="愛物王斷捨離二手公益商店"
+                fill
+                className="object-cover"
+                sizes="(max-width: 768px) 100vw, 50vw"
+              />
+              <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, transparent 60%, #1A0E06)' }} />
+            </div>
+            {/* Text */}
+            <div className="px-8 py-14 md:px-14 md:py-20">
+              <p className="text-[10px] tracking-[0.45em] uppercase mb-5" style={{ color: 'rgba(196,160,56,0.75)' }}>
+                Charity · 二手公益
+              </p>
+              <h2 className="font-serif text-2xl md:text-3xl text-white mb-3 leading-snug">
+                愛物王斷捨離<br />二手公益
+              </h2>
+              <p className="text-sm mb-6 tracking-widest" style={{ color: 'rgba(196,160,56,0.85)' }}>
+                斷捨離，讓愛傳下去
+              </p>
+              <p className="text-xs leading-loose mb-8" style={{ color: 'rgba(255,255,255,0.5)' }}>
+                接收高品質二手物資、整理義賣，扣除管銷後全數捐出。<br />
+                台北松山 · 週二至週日 12:00–20:00
+              </p>
+              <Link
+                href="/charity"
+                className="inline-flex items-center gap-2 text-xs tracking-widest border px-6 py-2.5 transition-all hover:bg-[var(--gold)] hover:text-white hover:border-[var(--gold)]"
+                style={{ borderColor: 'rgba(196,160,56,0.5)', color: 'rgba(196,160,56,0.9)' }}
+              >
+                了解更多 <ArrowRight size={12} />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Brand Manifesto ─── */}
       <section className="py-20" style={{ background: 'var(--surface)' }}>
         <div className="container-narrow">
