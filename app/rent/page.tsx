@@ -438,17 +438,35 @@ function RentForm() {
       }
       const totalAmount = (estimatedPrice ?? 0) + addonTotal
       setSubmittedTotal(totalAmount > 0 ? totalAmount : null)
-      // 通知申請者
+      // 通知申請者（email）
       fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'rental_request', to: form.email, amount: totalAmount || null, ...emailPayload }),
       }).catch(() => {})
-      // 通知管理員
+      // 通知管理員（email）
       fetch('/api/send-email', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'admin_rental_notification', ...emailPayload }),
+      }).catch(() => {})
+      // 通知管理員（LINE 群組 Flex Message）
+      fetch('/api/line/notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          type: 'new_booking',
+          bookingId: req.id,
+          name: form.name,
+          phone: form.phone,
+          eventTitle: form.event_title,
+          bookingDate: form.booking_date,
+          timeSlot: emailPayload.timeSlot ?? '',
+          venueName: selectedVenue?.name ?? '',
+          guestCount: form.guest_count || null,
+          note: form.note || null,
+          isWaitlist,
+        }),
       }).catch(() => {})
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(RENT_DRAFT_KEY)

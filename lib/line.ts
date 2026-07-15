@@ -53,6 +53,59 @@ export function lineWaitlistMsg(name: string, eventTitle: string, bookingDate: s
 請於 24 小時內回覆確認是否仍有意租借，逾時將保留給下一位候補者。`
 }
 
+export function buildAdminNewBookingFlex(
+  bookingId: string,
+  name: string, phone: string, eventTitle: string,
+  bookingDate: string, timeSlot: string,
+  venueName: string, guestCount: string | null, note: string | null,
+  isWaitlist: boolean,
+) {
+  const postback = (action: string) => `action=${action}&bookingId=${bookingId}`
+  const headerColor = isWaitlist ? '#8B5CF6' : '#C4A038'
+  const headerText = isWaitlist ? '🔔 新候補申請' : '📋 新預約申請'
+
+  const row = (label: string, value: string) => ({
+    type: 'box', layout: 'horizontal',
+    contents: [
+      { type: 'text', text: label, color: '#888888', size: 'sm', flex: 2 },
+      { type: 'text', text: value || '—', size: 'sm', flex: 3, wrap: true },
+    ],
+  })
+
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical',
+      backgroundColor: headerColor, paddingAll: '16px',
+      contents: [{ type: 'text', text: headerText, color: '#FFFFFF', weight: 'bold', size: 'md' }],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [
+        row('申請人', name),
+        row('電話', phone),
+        row('活動名稱', eventTitle),
+        row('場地', venueName),
+        row('日期', bookingDate),
+        row('時段', timeSlot),
+        ...(guestCount ? [row('人數', `${guestCount} 人`)] : []),
+        ...(note ? [{ type: 'separator', margin: 'md' }, row('備註', note)] : []),
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'horizontal', spacing: 'sm', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'primary', color: '#4ade80', height: 'sm',
+          action: { type: 'postback', label: '核可', data: postback('confirm') } },
+        { type: 'button', style: 'primary', color: '#c084fc', height: 'sm',
+          action: { type: 'postback', label: '候補', data: postback('waitlist') } },
+        { type: 'button', style: 'primary', color: '#f87171', height: 'sm',
+          action: { type: 'postback', label: '取消', data: postback('cancel') } },
+      ],
+    },
+  }
+}
+
 export function buildAdminPaymentFlex(
   bookingId: string,
   name: string, eventTitle: string, bookingDate: string, timeSlot: string,
