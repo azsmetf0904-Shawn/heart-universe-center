@@ -666,9 +666,14 @@ export default async function HomePage() {
             </div>
             {/* Text */}
             <div className="px-8 py-14 md:px-14 md:py-20">
-              <p className="text-[10px] tracking-[0.45em] uppercase mb-5" style={{ color: 'rgba(196,160,56,0.75)' }}>
-                Charity · 二手公益
-              </p>
+              <div className="flex items-center gap-4 mb-6">
+                <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0" style={{ background: '#f5ede4' }}>
+                  <Image src="/charity/logo.jpg" alt="台灣愛物王公益協會" fill className="object-cover" sizes="56px" />
+                </div>
+                <p className="text-[10px] tracking-[0.45em] uppercase" style={{ color: 'rgba(196,160,56,0.75)' }}>
+                  Charity · 二手公益
+                </p>
+              </div>
               <h2 className="font-serif text-2xl md:text-3xl text-white mb-3 leading-snug">
                 愛物王斷捨離<br />二手公益
               </h2>

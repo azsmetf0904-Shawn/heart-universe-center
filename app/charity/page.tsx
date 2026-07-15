@@ -179,6 +179,11 @@ export default function CharityPage() {
       {/* ── ABOUT ── */}
       <section className="py-20">
         <div className="container-narrow text-center max-w-2xl mx-auto px-6">
+          <div className="flex justify-center mb-6">
+            <div className="relative w-28 h-28 rounded-full overflow-hidden" style={{ background: '#f5ede4' }}>
+              <Image src="/charity/logo.jpg" alt="台灣愛物王公益協會" fill className="object-cover" sizes="112px" />
+            </div>
+          </div>
           <p className="label-tag mb-4">關於我們</p>
           <h2 className="text-2xl md:text-3xl mb-6 leading-snug">
             9 成新，才是有溫度的分享
