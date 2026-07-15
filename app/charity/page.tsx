@@ -1,32 +1,25 @@
 import type { Metadata } from 'next'
+import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, ExternalLink, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
 
-function IgIcon({ size = 14 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-    </svg>
-  )
-}
-
 export const metadata: Metadata = {
-  title: '愛物王二手公益 | 心宇宙商務中心 B1',
+  title: '愛物王斷捨離二手公益 | 台北松山',
   description:
-    '愛物王二手公益商店位於台北松山八德路三段223號B1，週二至週日12:00-20:00，接收高品質二手物資義賣，扣除管銷後全數捐出。捷運小巨蛋步行10分鐘。',
+    '愛物王斷捨離二手公益商店位於台北松山八德路三段223號B1，週二至週日12:00-20:00，接收高品質二手物資義賣，扣除管銷後全數捐出。捷運小巨蛋步行10分鐘。',
   openGraph: {
-    title: '愛物王二手公益商店',
-    description: '台北松山二手公益——接收9成新物資義賣，全數捐出。週二至週日 12:00-20:00，八德路三段223號B1。',
+    title: '愛物王斷捨離二手公益',
+    description: '斷捨離，讓愛傳下去。台北松山二手公益——接收9成新物資義賣，全數捐出。週二至週日 12:00-20:00，八德路三段223號B1。',
+    images: [{ url: '/charity/hero.jpg' }],
   },
 }
 
 const orgLd = {
   '@context': 'https://schema.org',
   '@type': 'Store',
-  name: '愛物王二手公益商店',
+  name: '愛物王斷捨離二手公益商店',
   description: '接收高品質二手物資整理義賣，扣除人事管銷後全數捐出的在地公益商店',
+  slogan: '斷捨離，讓愛傳下去',
   address: {
     '@type': 'PostalAddress',
     streetAddress: '八德路三段223號B1',
@@ -94,6 +87,15 @@ const faqLd = {
   ],
 }
 
+const gallery = [
+  { src: '/charity/grid-1.jpg', alt: '愛物王精品展示區' },
+  { src: '/charity/grid-2.jpg', alt: '愛物王苔蘚樹牆藝術裝置' },
+  { src: '/charity/grid-3.jpg', alt: '愛物王店內全景' },
+  { src: '/charity/grid-4.jpg', alt: '愛物王活動人潮' },
+  { src: '/charity/grid-5.jpg', alt: '愛物王家居餐具區' },
+  { src: '/charity/grid-6.jpg', alt: '愛物王服飾陳列區' },
+]
+
 const steps = [
   {
     num: '01',
@@ -101,7 +103,7 @@ const steps = [
     desc: '先至官方 IG 確認當時確實需要的項目，避免機構無法處理的廢棄物。',
     link: { label: '查看 IG 需求清單', href: 'https://www.instagram.com/love_secondhand_charity?igsh=MXc0ajdrODQxZGNrdA==' },
     notes: [
-      { type: 'warn', text: '大體積或大量物品，需事先拍照聯絡確認空間（LINE 水柔 0960591267）' },
+      { type: 'warn' as const, text: '大體積或大量物品，需事先拍照聯絡確認空間（LINE 水柔 0960591267）' },
     ],
   },
   {
@@ -109,9 +111,9 @@ const steps = [
     title: '物品整理與分類',
     desc: '整理好再帶來，讓志工能更有效率地幫助更多人。',
     notes: [
-      { type: 'ok', text: '衣物請清洗乾淨、去除異味；書籍物資需整理乾淨' },
-      { type: 'ok', text: '按性別、季節、尺寸分類裝袋／裝箱' },
-      { type: 'ok', text: '在紙箱外標示內容（如：「二手冬裝-女M-10件」）' },
+      { type: 'ok' as const, text: '衣物請清洗乾淨、去除異味；書籍物資需整理乾淨' },
+      { type: 'ok' as const, text: '按性別、季節、尺寸分類裝袋／裝箱' },
+      { type: 'ok' as const, text: '在紙箱外標示內容（如：「二手冬裝-女M-10件」）' },
     ],
   },
   {
@@ -120,48 +122,175 @@ const steps = [
     desc: '確認沒問題後，親自帶物資至愛物王二手公益商店 B1。不接受寄送。',
     link: { label: '查看 Google 地圖', href: 'https://maps.app.goo.gl/NCZomv2nD1zPsq2B7?g_st=ic' },
     notes: [
-      { type: 'ok', text: '先私訊官方 IG 確認，再帶至店面' },
+      { type: 'ok' as const, text: '先私訊官方 IG 確認，再帶至店面' },
     ],
   },
 ]
 
-const notAccepted = [
-  '破損、泛黃、髒污物品',
-  '內衣褲',
-  '毛絨玩具',
-  '二手寢具',
-]
+function IgIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
+    </svg>
+  )
+}
 
 export default function CharityPage() {
   return (
-    <div className="py-20">
+    <div>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
 
-      {/* Header */}
-      <div className="container-narrow mb-14">
-        <p className="label-tag mb-4">Charity</p>
-        <h1 className="text-4xl md:text-5xl mb-5">愛物王二手公益</h1>
-        <p className="text-sm leading-relaxed max-w-xl" style={{ color: 'var(--gray)' }}>
-          捐贈物資請以「9成新、我也會想給家人用」的高品質為主，這才是最有溫度的分享。
-          義賣所得扣除人事管銷後，全數捐出。
-        </p>
-        <div className="gold-divider" />
-      </div>
-
-      {/* Location + Hours */}
-      <div className="container-narrow mb-14">
+      {/* ── HERO ── */}
+      <section className="relative w-full" style={{ height: 'min(90vh, 680px)' }}>
+        <Image
+          src="/charity/hero.jpg"
+          alt="愛物王斷捨離二手公益商店入口"
+          fill
+          priority
+          className="object-cover"
+          sizes="100vw"
+        />
         <div
-          className="rounded-2xl p-6 md:p-8 border flex flex-col md:flex-row gap-6 md:gap-12"
-          style={{ borderColor: 'var(--border-color)', background: 'var(--bg-card, #fff)' }}
-        >
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2" style={{ color: 'var(--gold)' }}>
-              <MapPin size={14} />
-              <span className="text-xs tracking-[0.2em] uppercase">地址</span>
+          className="absolute inset-0"
+          style={{ background: 'linear-gradient(to bottom, rgba(28,16,8,0.35) 0%, rgba(28,16,8,0.65) 100%)' }}
+        />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+          <p className="text-[10px] tracking-[0.5em] uppercase mb-5" style={{ color: 'rgba(196,160,56,0.9)' }}>
+            Heart Universe · Charity
+          </p>
+          <h1 className="text-3xl md:text-5xl font-serif mb-4 text-white leading-snug">
+            愛物王斷捨離<br />二手公益
+          </h1>
+          <p className="text-base md:text-lg tracking-widest" style={{ color: 'rgba(255,255,255,0.75)' }}>
+            斷捨離，讓愛傳下去
+          </p>
+          <div className="mt-8 flex items-center gap-3 text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            <MapPin size={12} />
+            <span>台北松山・八德路三段 223 號 B1</span>
+            <span>｜</span>
+            <span>週二至週日 12:00–20:00</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ── ABOUT ── */}
+      <section className="py-20">
+        <div className="container-narrow text-center max-w-2xl mx-auto px-6">
+          <p className="label-tag mb-4">關於我們</p>
+          <h2 className="text-2xl md:text-3xl mb-6 leading-snug">
+            9 成新，才是有溫度的分享
+          </h2>
+          <p className="text-sm leading-loose" style={{ color: 'var(--gray)' }}>
+            愛物王斷捨離二手公益由心宇宙商務中心發起，接收高品質二手物資、用心整理分類後公開義賣。
+            扣除人事與管銷成本，所有收入全數捐出。每一件物品，都在延續它的生命；每一筆消費，都是一份流動的善意。
+          </p>
+          <div className="gold-divider mt-8" />
+        </div>
+      </section>
+
+      {/* ── GALLERY ── */}
+      <section className="pb-20">
+        <div className="container-wide px-4 md:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+            {gallery.map((img, i) => (
+              <div
+                key={i}
+                className="relative overflow-hidden rounded-xl"
+                style={{ aspectRatio: '4/3' }}
+              >
+                <Image
+                  src={img.src}
+                  alt={img.alt}
+                  fill
+                  className="object-cover transition-transform duration-500 hover:scale-105"
+                  sizes="(max-width: 768px) 50vw, 33vw"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 不收清單 ── */}
+      <section className="pb-6">
+        <div className="container-narrow px-6">
+          <div
+            className="rounded-2xl p-5 border flex gap-4 items-start"
+            style={{ borderColor: 'rgba(220,50,50,0.18)', background: 'rgba(220,50,50,0.03)' }}
+          >
+            <XCircle size={16} className="mt-0.5 shrink-0" style={{ color: '#c0392b' }} />
+            <div>
+              <p className="text-xs font-semibold mb-1.5" style={{ color: '#c0392b' }}>以下物品恕不接受</p>
+              <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
+                破損・泛黃・髒污物品、內衣褲、毛絨玩具、二手寢具
+              </p>
+              <p className="text-xs mt-2" style={{ color: 'var(--gray)' }}>
+                請勿將物資當作資源回收，以免增加志工整理上的負擔，謝謝大家的體諒與支持。
+              </p>
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 捐贈流程 ── */}
+      <section className="py-16">
+        <div className="container-narrow px-6">
+          <p className="text-xs tracking-[0.35em] uppercase mb-10" style={{ color: 'var(--gold)' }}>
+            物資捐贈流程
+          </p>
+          <div className="flex flex-col gap-10">
+            {steps.map(({ num, title, desc, link, notes }) => (
+              <div key={num} className="flex gap-5">
+                <div
+                  className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-xs font-mono font-semibold"
+                  style={{ background: 'rgba(196,160,56,0.12)', color: 'var(--gold)' }}
+                >
+                  {num}
+                </div>
+                <div className="flex-1 pt-1.5">
+                  <h3 className="text-sm font-semibold mb-1">{title}</h3>
+                  <p className="text-xs leading-relaxed mb-3" style={{ color: 'var(--gray)' }}>{desc}</p>
+                  {notes && (
+                    <ul className="space-y-1.5 mb-3">
+                      {notes.map(n => (
+                        <li key={n.text} className="flex items-start gap-2 text-xs" style={{ color: 'var(--gray)' }}>
+                          {n.type === 'ok'
+                            ? <CheckCircle2 size={12} className="mt-0.5 shrink-0" style={{ color: '#27ae60' }} />
+                            : <AlertTriangle size={12} className="mt-0.5 shrink-0" style={{ color: '#e67e22' }} />
+                          }
+                          <span>{n.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                  {link && (
+                    <a
+                      href={link.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-xs hover:underline"
+                      style={{ color: 'var(--gold)' }}
+                    >
+                      <ExternalLink size={11} /> {link.label}
+                    </a>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 地址 / 時間 ── */}
+      <section className="py-16" style={{ background: 'var(--bg-surface, #f5f0eb)' }}>
+        <div className="container-narrow px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
+          <div>
+            <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: 'var(--gold)' }}>地址</p>
             <p className="text-sm mb-1">台北市松山區八德路三段 223 號 B1</p>
-            <p className="text-xs mb-3" style={{ color: 'var(--gray)' }}>捷運小巨蛋站 步行約 10 分鐘</p>
+            <p className="text-xs mb-4" style={{ color: 'var(--gray)' }}>捷運小巨蛋站 步行約 10 分鐘</p>
             <a
               href="https://maps.app.goo.gl/NCZomv2nD1zPsq2B7?g_st=ic"
               target="_blank"
@@ -169,157 +298,88 @@ export default function CharityPage() {
               className="inline-flex items-center gap-1 text-xs hover:underline"
               style={{ color: 'var(--gold)' }}
             >
-              <ExternalLink size={11} /> 開啟地圖導航
+              <MapPin size={11} /> 開啟地圖導航
             </a>
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2" style={{ color: 'var(--gold)' }}>
-              <span className="text-xs tracking-[0.2em] uppercase">營業時間</span>
-            </div>
+          <div>
+            <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: 'var(--gold)' }}>營業時間</p>
             <p className="text-sm mb-1">週二 ─ 週日　12:00 – 20:00</p>
             <p className="text-xs" style={{ color: 'var(--gray)' }}>週一公休</p>
           </div>
-          <div className="flex-1">
-            <div className="flex items-center gap-2 mb-2" style={{ color: 'var(--gold)' }}>
-              <IgIcon size={14} />
-              <span className="text-xs tracking-[0.2em] uppercase">官方 IG</span>
-            </div>
+          <div>
+            <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: 'var(--gold)' }}>官方 IG</p>
             <a
               href="https://www.instagram.com/love_secondhand_charity?igsh=MXc0ajdrODQxZGNrdA=="
               target="_blank"
               rel="noopener noreferrer"
-              className="text-sm hover:underline"
+              className="inline-flex items-center gap-2 text-sm hover:underline mb-1"
               style={{ color: 'var(--gold)' }}
             >
-              @love_secondhand_charity
+              <IgIcon size={13} /> @love_secondhand_charity
             </a>
-            <p className="text-xs mt-1" style={{ color: 'var(--gray)' }}>
-              查看需求清單 · 私訊預約捐贈
-            </p>
+            <p className="text-xs" style={{ color: 'var(--gray)' }}>查看需求清單・私訊預約捐贈</p>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Not accepted */}
-      <div className="container-narrow mb-14">
-        <div
-          className="rounded-2xl p-5 border flex flex-col sm:flex-row gap-4 items-start"
-          style={{ borderColor: 'rgba(220,50,50,0.15)', background: 'rgba(220,50,50,0.03)' }}
-        >
-          <XCircle size={16} className="mt-0.5 shrink-0" style={{ color: '#c0392b' }} />
-          <div>
-            <p className="text-xs font-semibold mb-2" style={{ color: '#c0392b' }}>以下物品恕不接受</p>
-            <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
-              {notAccepted.join('、')}
+      {/* ── CTA ── */}
+      <section className="py-20">
+        <div className="container-narrow px-6">
+          <div
+            className="rounded-3xl p-8 md:p-12 text-center border"
+            style={{ borderColor: 'rgba(196,160,56,0.2)', background: 'rgba(196,160,56,0.04)' }}
+          >
+            <h2 className="text-xl md:text-2xl mb-3">準備好讓愛流動了嗎？</h2>
+            <p className="text-sm mb-8" style={{ color: 'var(--gray)' }}>
+              先至 IG 確認需求清單，整理好物資後私訊預約，確認後親自帶來 B1。
             </p>
-            <p className="text-xs mt-2" style={{ color: 'var(--gray)' }}>
-              請勿將物資當作資源回收，以免增加志工整理上的負擔，謝謝大家的體諒與支持。
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* Steps */}
-      <div className="container-narrow mb-16">
-        <h2 className="text-xs tracking-[0.3em] uppercase mb-8" style={{ color: 'var(--gold)' }}>
-          物資捐贈流程
-        </h2>
-        <div className="flex flex-col gap-8">
-          {steps.map(({ num, title, desc, link, notes }) => (
-            <div key={num} className="flex gap-5">
-              <div
-                className="shrink-0 w-9 h-9 rounded-full flex items-center justify-center text-xs font-mono font-semibold"
-                style={{ background: 'rgba(196,160,56,0.12)', color: 'var(--gold)' }}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <a
+                href="https://www.instagram.com/love_secondhand_charity?igsh=MXc0ajdrODQxZGNrdA=="
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn primary inline-flex items-center gap-2 justify-center"
               >
-                {num}
-              </div>
-              <div className="flex-1 pt-1.5">
-                <h3 className="text-sm font-semibold mb-1">{title}</h3>
-                <p className="text-xs leading-relaxed mb-3" style={{ color: 'var(--gray)' }}>{desc}</p>
-                {notes && (
-                  <ul className="space-y-1.5 mb-3">
-                    {notes.map(n => (
-                      <li key={n.text} className="flex items-start gap-2 text-xs" style={{ color: 'var(--gray)' }}>
-                        {n.type === 'ok' && <CheckCircle2 size={12} className="mt-0.5 shrink-0" style={{ color: '#27ae60' }} />}
-                        {n.type === 'warn' && <AlertTriangle size={12} className="mt-0.5 shrink-0" style={{ color: '#e67e22' }} />}
-                        <span>{n.text}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                {link && (
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 text-xs hover:underline"
-                    style={{ color: 'var(--gold)' }}
-                  >
-                    <ExternalLink size={11} /> {link.label}
-                  </a>
-                )}
-              </div>
+                <IgIcon size={14} /> 前往官方 IG
+              </a>
+              <a
+                href="https://maps.app.goo.gl/NCZomv2nD1zPsq2B7?g_st=ic"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="btn inline-flex items-center gap-2 justify-center"
+              >
+                <MapPin size={14} /> 地圖導航
+              </a>
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* CTA */}
-      <div className="container-narrow mb-16">
-        <div
-          className="rounded-3xl p-8 md:p-10 text-center border"
-          style={{ borderColor: 'rgba(196,160,56,0.2)', background: 'rgba(196,160,56,0.04)' }}
-        >
-          <p className="text-xs tracking-[0.3em] uppercase mb-3" style={{ color: 'var(--gold)' }}>
-            準備好了嗎？
-          </p>
-          <p className="text-sm mb-6" style={{ color: 'var(--gray)' }}>
-            先至 IG 確認需求清單，整理好物資後私訊官方帳號預約，確認後親自帶來 B1。
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <a
-              href="https://www.instagram.com/love_secondhand_charity?igsh=MXc0ajdrODQxZGNrdA=="
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn primary inline-flex items-center gap-2 justify-center"
-            >
-              <IgIcon size={14} /> 前往官方 IG
-            </a>
-            <a
-              href="https://maps.app.goo.gl/NCZomv2nD1zPsq2B7?g_st=ic"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn inline-flex items-center gap-2 justify-center"
-            >
-              <MapPin size={14} /> 地圖導航
-            </a>
+            <p className="text-xs mt-8" style={{ color: 'var(--gray)' }}>
+              也歡迎{' '}
+              <Link href="/rent" className="hover:underline" style={{ color: 'var(--gold)' }}>
+                租借場地
+              </Link>{' '}
+              舉辦公益活動
+            </p>
           </div>
-          <p className="text-xs mt-6" style={{ color: 'var(--gray)' }}>
-            也歡迎{' '}
-            <Link href="/rent" className="hover:underline" style={{ color: 'var(--gold)' }}>
-              租借場地
-            </Link>{' '}
-            舉辦公益活動
-          </p>
         </div>
-      </div>
+      </section>
 
-      {/* FAQ */}
-      <div className="container-narrow">
-        <h2 className="text-xs tracking-[0.3em] uppercase mb-8" style={{ color: 'var(--gold)' }}>
-          常見問題
-        </h2>
-        <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
-          {faqLd.mainEntity.map(q => (
-            <div key={q.name} className="py-6">
-              <h3 className="text-sm font-medium mb-2">{q.name}</h3>
-              <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
-                {q.acceptedAnswer.text}
-              </p>
-            </div>
-          ))}
+      {/* ── FAQ ── */}
+      <section className="pb-24">
+        <div className="container-narrow px-6">
+          <p className="text-xs tracking-[0.35em] uppercase mb-8" style={{ color: 'var(--gold)' }}>
+            常見問題
+          </p>
+          <div className="divide-y" style={{ borderColor: 'var(--border-color)' }}>
+            {faqLd.mainEntity.map(q => (
+              <div key={q.name} className="py-6">
+                <h3 className="text-sm font-medium mb-2">{q.name}</h3>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
+                  {q.acceptedAnswer.text}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      </section>
     </div>
   )
 }
