@@ -37,7 +37,7 @@ export default async function VenuesPage() {
               <Link
                 key={v.id}
                 href={`/venues/${v.slug}`}
-                className="group bg-[var(--card-bg)] border border-[var(--border-color)] overflow-hidden hover:border-[var(--gold)] transition-colors"
+                className="group bg-[var(--card-bg)] border border-[var(--border-color)] overflow-hidden hover:border-[var(--gold)] hover:shadow-[0_16px_40px_rgba(26,16,8,0.10)] hover:-translate-y-1 transition-[border-color,box-shadow,transform] duration-300"
               >
                 <div className="relative aspect-video bg-[var(--surface)] overflow-hidden">
                   {cover

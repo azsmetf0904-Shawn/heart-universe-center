@@ -1,12 +1,19 @@
 const ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN
 
 async function lineApiPost(endpoint: string, body: unknown) {
-  if (!ACCESS_TOKEN) return
-  await fetch(`https://api.line.me/v2/bot/${endpoint}`, {
+  if (!ACCESS_TOKEN) {
+    console.error('[LINE] LINE_CHANNEL_ACCESS_TOKEN not set')
+    return
+  }
+  const res = await fetch(`https://api.line.me/v2/bot/${endpoint}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${ACCESS_TOKEN}` },
     body: JSON.stringify(body),
-  }).catch(() => {})
+  }).catch(err => { console.error('[LINE] fetch error:', err); return null })
+  if (res && !res.ok) {
+    const errBody = await res.text().catch(() => '')
+    console.error(`[LINE] ${endpoint} failed ${res.status}: ${errBody}`)
+  }
 }
 
 export async function linePush(to: string, text: string) {

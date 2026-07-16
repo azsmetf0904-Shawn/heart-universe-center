@@ -15,6 +15,9 @@ export default function Footer() {
               台北市八德路<br />
               精品場地租借 × 活動課程
             </p>
+            <p className="text-xs mt-4 leading-loose" style={{ color: 'rgba(138,114,82,0.60)', letterSpacing: '0.07em' }}>
+              每一個聚集，<br />都在改變某人的軌跡。
+            </p>
           </div>
           <div>
             <p className="text-[10px] tracking-[0.4em] uppercase mb-4" style={{ color: 'var(--gold)' }}>導覽</p>

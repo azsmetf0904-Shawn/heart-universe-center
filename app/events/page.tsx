@@ -5,6 +5,7 @@ import { ArrowRight, CalendarDays, ExternalLink, Users } from 'lucide-react'
 import type { Metadata } from 'next'
 import { CTA } from '@/lib/cta'
 import PageTabs from '@/components/layout/PageTabs'
+import type { EventRegistration } from '@/lib/types'
 
 export const metadata: Metadata = { title: '活動課程' }
 
@@ -25,7 +26,7 @@ export default async function EventsPage({
   const now = new Date().toISOString()
   let query = supabase
     .from('events')
-    .select('*')
+    .select('*, event_registrations(id, status)')
     .eq('status', isEnded ? 'ended' : 'published')
     .order('start_time', { ascending: !isEnded })
 
@@ -46,9 +47,17 @@ export default async function EventsPage({
       {!events?.length ? (
         <div className="container-narrow text-center py-20">
           <p className="text-sm mb-4" style={{ color: 'var(--gray)' }}>
-            {isEnded ? '尚無結束的活動' : '近期暫無公開活動'}
+            {isEnded ? '目前暫無結束的活動回顧' : '近期暫無公開活動'}
           </p>
-          {!isEnded && (
+          {isEnded ? (
+            <Link
+              href="/events"
+              className="inline-flex items-center gap-2 text-xs tracking-widest border px-5 py-2 transition-all hover:border-[var(--gold)] hover:text-[var(--gold)]"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--charcoal)' }}
+            >
+              查看即將到來的活動 <ArrowRight size={11} />
+            </Link>
+          ) : (
             <Link
               href="/rent"
               className="inline-flex items-center gap-2 text-xs tracking-widest border px-5 py-2 transition-all hover:border-[var(--gold)] hover:text-[var(--gold)]"
@@ -61,10 +70,16 @@ export default async function EventsPage({
       ) : (
         <div className="container-wide grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map(ev => (
+            (() => {
+              const registrations = Array.isArray(ev.event_registrations) ? ev.event_registrations as EventRegistration[] : []
+              const registeredCount = registrations.filter(r => r.status === 'registered').length
+              const remainingSeats = ev.capacity !== null && ev.capacity !== undefined ? ev.capacity - registeredCount : null
+
+              return (
             <Link
               key={ev.id}
               href={`/events/${ev.slug}`}
-              className="group bg-[var(--card-bg)] border border-[var(--border-color)] overflow-hidden hover:border-[var(--gold)] transition-colors"
+              className="group bg-[var(--card-bg)] border border-[var(--border-color)] overflow-hidden hover:border-[var(--gold)] hover:shadow-[0_16px_40px_rgba(26,16,8,0.10)] hover:-translate-y-1 transition-[border-color,box-shadow,transform] duration-300"
             >
               <div className="relative aspect-video bg-[var(--surface)] overflow-hidden">
                 {ev.cover_image_url
@@ -77,9 +92,14 @@ export default async function EventsPage({
                   <CalendarDays size={12} /> {formatDate(ev.start_time)}
                 </p>
                 <h2 className="text-base mb-2 leading-snug">{ev.title}</h2>
-                {ev.capacity && (
-                  <p className="text-xs text-[var(--gray)] flex items-center gap-1 mb-3">
-                    <Users size={11} /> 限 {ev.capacity} 名
+                {ev.capacity !== null && ev.capacity !== undefined && (
+                  <p
+                    className={`text-xs flex items-center gap-1 mb-3 ${remainingSeats !== null && remainingSeats <= 0 ? 'text-red-500' : 'text-[var(--gray)]'}`}
+                  >
+                    <Users size={11} />
+                    {remainingSeats !== null && remainingSeats <= 0
+                      ? '名額已滿'
+                      : `剩 ${remainingSeats ?? ev.capacity} 名`}
                   </p>
                 )}
                 <div className="flex items-center justify-between">
@@ -106,6 +126,8 @@ export default async function EventsPage({
                 </div>
               </div>
             </Link>
+              )
+            })()
           ))}
         </div>
       )}

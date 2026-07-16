@@ -2,6 +2,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
+import { usePathname } from 'next/navigation'
 import { Menu, X, Settings, ChevronDown } from 'lucide-react'
 import { CTA } from '@/lib/cta'
 
@@ -22,8 +23,10 @@ const moreLinks = [
 export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [moreOpen, setMoreOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const desktopMoreRef = useRef<HTMLDivElement | null>(null)
   const mobileMoreRef = useRef<HTMLDivElement | null>(null)
+  const pathname = usePathname()
 
   useEffect(() => {
     function onDocumentClick(e: MouseEvent) {
@@ -36,10 +39,22 @@ export default function Navbar() {
     return () => document.removeEventListener('click', onDocumentClick)
   }, [])
 
+  useEffect(() => {
+    const handler = () => setScrolled(window.scrollY > 24)
+    handler()
+    window.addEventListener('scroll', handler, { passive: true })
+    return () => window.removeEventListener('scroll', handler)
+  }, [])
+
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b"
-      style={{ background: 'rgba(237,228,212,0.97)', borderColor: 'var(--border-color)', backdropFilter: 'blur(12px)' }}
+      className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-[background,box-shadow] duration-300"
+      style={{
+        background: scrolled ? 'rgba(218,208,190,0.99)' : 'rgba(237,228,212,0.97)',
+        borderColor: 'var(--border-color)',
+        boxShadow: scrolled ? '0 2px 20px rgba(26,16,8,0.08)' : 'none',
+        backdropFilter: 'blur(12px)',
+      }}
     >
       <div className="container-wide flex items-center justify-between h-16">
 
@@ -64,16 +79,22 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-10">
-          {mainLinks.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              className="text-xs tracking-widest transition-colors hover:text-[var(--charcoal)]"
-              style={{ color: ('highlight' in l && l.highlight) ? 'var(--gold)' : 'var(--gray)' }}
-            >
-              {l.label}
-            </Link>
-          ))}
+          {mainLinks.map(l => {
+            const isActive = pathname === l.href || pathname.startsWith(l.href + '/')
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className="relative text-xs tracking-widest transition-colors hover:text-[var(--charcoal)]"
+                style={{ color: ('highlight' in l && l.highlight) ? 'var(--gold)' : isActive ? 'var(--charcoal)' : 'var(--gray)' }}
+              >
+                {l.label}
+                {isActive && (
+                  <span className="absolute -bottom-0.5 left-0 right-0 h-px" style={{ background: 'var(--gold)' }} />
+                )}
+              </Link>
+            )
+          })}
           <div
             ref={desktopMoreRef}
             className="relative"
@@ -109,8 +130,7 @@ export default function Navbar() {
           </div>
           <Link
             href="/rent"
-            className="text-xs tracking-widest uppercase px-5 py-2 border transition-all hover:bg-[var(--gold)] hover:text-white"
-            style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}
+            className="btn-gold-fill text-xs tracking-widest uppercase px-5 py-2"
           >
             {CTA.home.startRental}
           </Link>
@@ -135,20 +155,20 @@ export default function Navbar() {
           className="md:hidden px-6 py-6 flex flex-col gap-6 border-t"
           style={{ background: 'var(--cream)', borderColor: 'var(--border-color)' }}
         >
-          {mainLinks.map(l => (
-            <Link
-              key={l.href}
-              href={l.href}
-              onClick={() => {
-                setOpen(false)
-                setMoreOpen(false)
-              }}
-              className="text-sm tracking-widest"
-              style={{ color: ('highlight' in l && l.highlight) ? 'var(--gold)' : 'var(--gray)' }}
-            >
-              {('highlight' in l && l.highlight) ? `♡ ${l.label}` : l.label}
-            </Link>
-          ))}
+          {mainLinks.map(l => {
+            const isActive = pathname === l.href || pathname.startsWith(l.href + '/')
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                onClick={() => { setOpen(false); setMoreOpen(false) }}
+                className="text-sm tracking-widest"
+                style={{ color: ('highlight' in l && l.highlight) ? 'var(--gold)' : isActive ? 'var(--charcoal)' : 'var(--gray)' }}
+              >
+                {('highlight' in l && l.highlight) ? `♡ ${l.label}` : l.label}
+              </Link>
+            )
+          })}
           <div ref={mobileMoreRef} className="flex flex-col gap-4">
             <button
               type="button"

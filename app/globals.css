@@ -182,8 +182,8 @@
 }
 
 /* Button utilities */
-.btn-gold-fill { background: var(--gold); color: #fff; transition: background 0.2s; display: inline-flex; align-items: center; gap: 8px; }
-.btn-gold-fill:hover { background: var(--gold-dark); }
+.btn-gold-fill { background: var(--gold); color: #fff; transition: background 0.2s, transform 0.15s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-gold-fill:hover { background: var(--gold-dark); transform: scale(1.02); }
 .btn-cta-ghost { border: 1px solid var(--gold); color: var(--gold); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
 .btn-cta-ghost:hover { background: var(--gold); color: #fff; }
 .event-row { transition: background 0.2s; }
@@ -205,6 +205,11 @@
   height: 1px;
   background: var(--gold);
   margin: 1.25rem 0;
+  animation: divider-expand 0.7s ease-out both;
+}
+@keyframes divider-expand {
+  from { width: 0; opacity: 0; }
+  to   { width: 40px; opacity: 1; }
 }
 
 .label-tag {

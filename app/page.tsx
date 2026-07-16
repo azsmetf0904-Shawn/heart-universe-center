@@ -4,6 +4,7 @@ import { ArrowRight, CalendarDays } from 'lucide-react'
 import { createClient } from '@/lib/supabase/server'
 import { CTA } from '@/lib/cta'
 import { MobileBottomCTA } from '@/components/MobileBottomCTA'
+import { ScrollRevealSection } from '@/components/ScrollRevealSection'
 import { MobileAvailabilityStrip } from '@/components/MobileAvailabilityStrip'
 
 function formatDate(s: string) {
@@ -295,10 +296,10 @@ export default async function HomePage() {
               { icon: '🚇', title: '捷運步行可達', desc: '小巨蛋站 3 號出口 · 國父紀念館站 1 號出口，步行約 10 分鐘' },
               { icon: '🪑', title: '彈性座位配置', desc: '劇院型 · 島嶼式 100–150 人，桌椅自由調整' },
               { icon: '🎤', title: '高規格視聽設備', desc: '雷射投影機 · Sure 無線麥克風 × 4 · 專業音響，全包含於場租' },
-            ].map(f => (
+            ].map((f, i) => (
+              <ScrollRevealSection key={f.title} delay={i * 130}>
               <div
-                key={f.title}
-                className="rounded-3xl border border-[var(--border-color)] bg-[var(--cream)] px-8 py-10 md:px-10 md:py-12 text-center shadow-[0_10px_28px_rgba(26,16,8,0.04)]"
+                className="rounded-sm border border-[var(--border-color)] bg-[var(--cream)] px-8 py-10 md:px-10 md:py-12 text-center shadow-[0_10px_28px_rgba(26,16,8,0.04)]"
               >
                 <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full" style={{ background: 'rgba(196,160,56,0.12)', color: 'var(--gold)' }}>
                   <span className="text-2xl">{f.icon}</span>
@@ -307,6 +308,7 @@ export default async function HomePage() {
                 <div className="mx-auto mb-4 h-px w-10" style={{ background: 'var(--gold)', opacity: 0.45 }} />
                 <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>{f.desc}</p>
               </div>
+              </ScrollRevealSection>
             ))}
           </div>
         </div>
@@ -318,11 +320,12 @@ export default async function HomePage() {
       {venues && venues.length > 0 && <MobileAvailabilityStrip venueId={venues[0].id} />}
 
       {/* ─── Venue + Showcase（左右分欄）─── */}
+      <ScrollRevealSection>
       <section style={{ background: 'var(--cream)', borderBottom: '1px solid var(--border-color)' }}>
         <div className="container-wide grid md:grid-cols-2 gap-6 md:gap-8 py-6 md:py-10">
 
           {/* ── 左：精品場地空間 ── */}
-          <div className="rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] px-5 md:px-10 py-10 md:py-12 shadow-[0_10px_28px_rgba(26,16,8,0.04)]">
+          <div className="rounded-sm border border-[var(--border-color)] bg-[var(--card-bg)] px-5 md:px-10 py-10 md:py-12 shadow-[0_10px_28px_rgba(26,16,8,0.04)]">
             <div className="flex items-end justify-between mb-6 md:mb-10">
               <div>
                 <p className="text-[10px] tracking-[0.5em] uppercase mb-2" style={{ color: 'var(--gold)' }}>Venue</p>
@@ -387,7 +390,7 @@ export default async function HomePage() {
           </div>
 
           {/* ── 右：過去的活動回顧 ── */}
-          <div className="rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] px-5 md:px-10 py-10 md:py-12 shadow-[0_10px_28px_rgba(26,16,8,0.04)]">
+          <div className="rounded-sm border border-[var(--border-color)] bg-[var(--card-bg)] px-5 md:px-10 py-10 md:py-12 shadow-[0_10px_28px_rgba(26,16,8,0.04)]">
             <div className="flex items-end justify-between mb-6 md:mb-10">
               <div>
                 <p className="text-[10px] tracking-[0.5em] uppercase mb-2" style={{ color: 'var(--gold)' }}>Showcase</p>
@@ -453,8 +456,10 @@ export default async function HomePage() {
 
         </div>
       </section>
+      </ScrollRevealSection>
 
       {/* ─── Events ─── */}
+      <ScrollRevealSection>
       <section className="py-10 md:py-20" style={{ background: 'var(--card-bg)' }}>
         <div className="container-wide">
           <div className="flex items-end justify-between mb-8 md:mb-12">
@@ -477,10 +482,10 @@ export default async function HomePage() {
                 <Link
                   key={ev.id}
                   href={`/events/${ev.slug}`}
-                  className="group grid grid-cols-[76px_1fr_auto] md:grid-cols-[120px_1fr_auto] items-center gap-4 md:gap-8 rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-4 md:px-6 md:py-5 shadow-[0_8px_24px_rgba(26,16,8,0.04)] transition-colors hover:border-[var(--gold)]"
+                  className="group grid grid-cols-[76px_1fr_auto] md:grid-cols-[120px_1fr_auto] items-center gap-4 md:gap-8 rounded-sm border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-4 md:px-6 md:py-5 shadow-[0_8px_24px_rgba(26,16,8,0.04)] hover:shadow-[0_16px_40px_rgba(26,16,8,0.10)] hover:-translate-y-0.5 transition-[border-color,box-shadow,transform] duration-300 hover:border-[var(--gold)]"
                 >
                   {/* Date box */}
-                  <div className="text-center shrink-0 rounded-2xl bg-[var(--surface)] px-2 py-3 md:px-3 md:py-4">
+                  <div className="text-center shrink-0 rounded-sm bg-[var(--surface)] px-2 py-3 md:px-3 md:py-4">
                     <p className="text-[9px] tracking-[0.3em] mb-0.5" style={{ color: 'var(--gold)' }}>
                       {new Date(ev.start_time).toLocaleDateString('zh-TW', { month: 'long' })}
                     </p>
@@ -499,7 +504,7 @@ export default async function HomePage() {
                   </div>
                   {/* Button — desktop only */}
                   <div className="hidden md:block text-right shrink-0">
-                    <span className="inline-block rounded-full bg-[var(--surface)] px-5 py-2 text-xs tracking-widest border transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]" style={{ borderColor: 'var(--border-color)', color: 'var(--charcoal)' }}>
+                    <span className="inline-block rounded-sm bg-[var(--surface)] px-5 py-2 text-xs tracking-widest border transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]" style={{ borderColor: 'var(--border-color)', color: 'var(--charcoal)' }}>
                       {ev.is_paid ? CTA.events.register : CTA.events.freeRegister}
                     </span>
                   </div>
@@ -513,8 +518,10 @@ export default async function HomePage() {
           )}
         </div>
       </section>
+      </ScrollRevealSection>
 
       {/* ─── Charity Banner ─── */}
+      <ScrollRevealSection>
       <section style={{ background: '#1A0E06' }}>
         <div className="container-wide">
           <div className="grid md:grid-cols-2 items-center gap-0">
@@ -558,11 +565,12 @@ export default async function HomePage() {
           </div>
         </div>
       </section>
+      </ScrollRevealSection>
 
       {/* ─── Brand Manifesto ─── */}
       <section className="py-20" style={{ background: 'var(--surface)' }}>
         <div className="container-narrow">
-          <div className="rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] px-6 py-8 md:px-10 md:py-10 shadow-[0_10px_28px_rgba(26,16,8,0.04)]">
+          <div className="rounded-sm border border-[var(--border-color)] bg-[var(--card-bg)] px-6 py-8 md:px-10 md:py-10 shadow-[0_10px_28px_rgba(26,16,8,0.04)]">
             <p className="label-tag mb-4">Our Belief</p>
             <h2 className="font-serif text-3xl md:text-4xl mb-4" style={{ color: 'var(--charcoal)' }}>
               不只是一個場地
@@ -579,11 +587,10 @@ export default async function HomePage() {
 
       {/* ─── CTA ─── */}
       <section
-        className="hidden md:block"
-        style={{ padding: '96px 0', background: 'var(--surface)' }}
+        style={{ padding: '56px 0 64px', background: 'var(--surface)' }}
       >
         <div className="container-narrow">
-          <div className="relative overflow-hidden rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] px-8 py-12 md:px-14 md:py-16 text-center shadow-[0_12px_32px_rgba(26,16,8,0.06)]">
+          <div className="relative overflow-hidden rounded-sm border border-[var(--border-color)] bg-[var(--card-bg)] px-8 py-12 md:px-14 md:py-16 text-center shadow-[0_12px_32px_rgba(26,16,8,0.06)]">
             <div className="absolute inset-x-8 top-0 h-px" style={{ background: 'linear-gradient(90deg, transparent, rgba(196,160,56,0.45), transparent)' }} />
             <p className="label-tag mb-4">Start Here</p>
             <h2 className="font-serif text-3xl md:text-5xl mb-5" style={{ color: 'var(--charcoal)', letterSpacing: '0.06em' }}>

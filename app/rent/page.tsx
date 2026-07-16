@@ -646,6 +646,79 @@ function RentForm() {
           </div>
         )}
 
+        {/* Progress bar */}
+        <div className="mt-8 mb-8 rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-4 md:px-6">
+          <div className="hidden md:grid grid-cols-3 gap-3">
+            {[
+              { n: 1, label: '基本資料' },
+              { n: 2, label: '加購選項' },
+              { n: 3, label: '確認送出' },
+            ].map((item, index) => {
+              const isDone = step > item.n
+              const isActive = step === item.n
+              return (
+                <div key={item.n} className="flex flex-col gap-3">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium ${
+                        isDone || isActive ? 'bg-[var(--gold)] text-white' : 'border border-[var(--border-color)] text-[var(--gray)]'
+                      }`}
+                    >
+                      {isDone ? '✓' : item.n}
+                    </div>
+                    <span
+                      className="text-xs tracking-widest"
+                      style={{ color: isActive ? 'var(--charcoal)' : 'var(--gray)' }}
+                    >
+                      {item.label}
+                    </span>
+                  </div>
+                  <div className="h-1 rounded-full bg-[var(--border-color)] overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: step >= item.n ? '100%' : '0%',
+                        background: step >= item.n ? 'var(--gold)' : 'transparent',
+                      }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 md:hidden">
+            {[
+              { n: 1, label: '1' },
+              { n: 2, label: '2' },
+              { n: 3, label: '3' },
+            ].map(item => {
+              const isDone = step > item.n
+              const isActive = step === item.n
+              return (
+                <div key={item.n} className="flex flex-col items-center gap-2">
+                  <div
+                    className={`flex h-7 w-7 items-center justify-center rounded-full text-xs font-medium ${
+                      isDone || isActive ? 'bg-[var(--gold)] text-white' : 'border border-[var(--border-color)] text-[var(--gray)]'
+                    }`}
+                  >
+                    {isDone ? '✓' : item.label}
+                  </div>
+                  <div className="h-1 w-full rounded-full bg-[var(--border-color)] overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{
+                        width: step >= item.n ? '100%' : '0%',
+                        background: step >= item.n ? 'var(--gold)' : 'transparent',
+                      }}
+                    />
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
         {/* Step indicator */}
         <div className="flex items-center gap-4 mt-8 mb-10">
           {['基本資料', '選加購', '確認送出'].map((s, i) => (

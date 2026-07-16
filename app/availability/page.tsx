@@ -58,19 +58,30 @@ export default async function AvailabilityPage() {
 
       {/* CTA */}
       <section
-        className="py-12 text-center"
-        style={{ background: 'var(--surface)', borderTop: '1px solid var(--border-color)' }}
+        className="py-12 md:py-14"
+        style={{ background: 'var(--cream)', borderTop: '1px solid var(--border-color)' }}
       >
-        <div className="container-narrow">
-          <p className="text-sm mb-6" style={{ color: 'var(--gray)', letterSpacing: '0.05em' }}>
-            確認好日期與時段後，填寫租借申請表，我們將於一個工作日內回覆
+        <div className="container-narrow text-center">
+          <p className="font-serif text-2xl md:text-3xl mb-4" style={{ color: 'var(--charcoal)' }}>
+            確認好時段了嗎？填寫申請只需 3 分鐘
           </p>
-          <Link
-            href="/rent"
-            className="btn-gold-fill inline-flex items-center gap-2 text-xs tracking-widest px-10 py-3"
-          >
-            {CTA.venue.applyFromAvailability} <ArrowRight size={13} />
-          </Link>
+          <p className="text-sm mb-8 leading-relaxed" style={{ color: 'var(--gray)', letterSpacing: '0.05em' }}>
+            選好日期與時段後，直接進入租借申請，我們將於一個工作日內回覆
+          </p>
+          <div className="flex flex-col md:flex-row items-center justify-center gap-4">
+            <Link
+              href="/rent"
+              className="btn-gold-fill inline-flex items-center gap-2 text-xs tracking-widest px-10 py-3"
+            >
+              {CTA.venue.applyFromAvailability} <ArrowRight size={13} />
+            </Link>
+            <Link
+              href="/venues"
+              className="text-xs tracking-widest text-[var(--gray)] hover:text-[var(--gold)] transition-colors"
+            >
+              先查看場地詳情
+            </Link>
+          </div>
         </div>
       </section>
     </>

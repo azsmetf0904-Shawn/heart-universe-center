@@ -12,7 +12,7 @@ export default function TermsPage() {
         <p className="label-tag mb-4">Terms of Service</p>
         <h1 className="text-3xl mb-4">服務條款</h1>
         <div className="gold-divider" />
-        <p className="text-xs text-[var(--gray)] mt-4 mb-12">最後更新：2025 年 1 月</p>
+        <p className="text-xs text-[var(--gray)] mt-4 mb-12">最後更新：2026 年 7 月</p>
 
         <div className="flex flex-col gap-10 text-sm text-[var(--charcoal)] leading-loose">
           <section>

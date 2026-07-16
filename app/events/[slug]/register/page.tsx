@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { Event } from '@/lib/types'
 import QRCode from 'qrcode'
@@ -83,6 +84,12 @@ export default function RegisterPage() {
   if (state === 'success') {
     return (
       <div className="py-20 flex flex-col items-center text-center container-narrow max-w-md">
+        <Link
+          href={`/events/${slug}`}
+          className="mb-4 inline-flex items-center gap-1 text-xs tracking-widest text-[var(--gray)] hover:text-[var(--gold)] transition-colors"
+        >
+          ← 返回活動詳情
+        </Link>
         <p className="label-tag mb-4">Registration Complete</p>
         <h2 className="text-2xl mb-2">報名成功</h2>
         <div className="gold-divider mx-auto" />
@@ -112,6 +119,12 @@ export default function RegisterPage() {
   return (
     <div className="py-20">
       <div className="container-narrow max-w-xl">
+        <Link
+          href={`/events/${slug}`}
+          className="mb-4 inline-flex items-center gap-1 text-xs tracking-widest text-[var(--gray)] hover:text-[var(--gold)] transition-colors"
+        >
+          ← 返回活動詳情
+        </Link>
         <p className="label-tag mb-4">Register</p>
         <h1 className="text-3xl mb-2">{event.title}</h1>
         <div className="gold-divider" />
