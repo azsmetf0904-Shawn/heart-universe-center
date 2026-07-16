@@ -339,9 +339,15 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
                 </span>
               </div>
             )}
-            <p className="text-xs text-[var(--gray)] leading-relaxed mb-6">
+            <p className="text-xs text-[var(--gray)] leading-relaxed mb-4">
               申請後由工作人員確認，不直接線上付款。
             </p>
+            <Link
+              href="/availability"
+              className="w-full flex items-center justify-center gap-1 text-xs tracking-widest mb-3 py-2 border border-[var(--border-color)] text-[var(--gray)] hover:border-[var(--gold)] hover:text-[var(--gold)] transition-colors"
+            >
+              查看可用時段 <ArrowRight size={11} />
+            </Link>
             <Link
               href={`/rent?venue=${venue.slug}`}
               className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[var(--gold)] text-white text-sm tracking-widest hover:bg-[var(--gold-dark)] transition-colors"

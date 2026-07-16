@@ -12,9 +12,8 @@ function formatDate(s: string) {
 
 export default async function HomePage() {
   const supabase = await createClient()
-  const nowIso = new Date().toISOString()
 
-  const [{ data: venues }, { data: events }, { data: showcaseEvents }, { data: endedPastEvents }, { data: publishedPastEvents }] = await Promise.all([
+  const [{ data: venues }, { data: events }, { data: showcaseEvents }] = await Promise.all([
     supabase
       .from('venues')
       .select('id, name, slug, capacity, area_ping, venue_photos(image_url, sort_order)')
@@ -35,28 +34,7 @@ export default async function HomePage() {
       .lt('start_time', new Date().toISOString())
       .order('start_time', { ascending: false })
       .limit(6),
-    supabase
-      .from('events')
-      .select('id, title, slug, start_time, organizer_name, cover_image_url')
-      .eq('status', 'ended')
-      .not('cover_image_url', 'is', null)
-      .order('start_time', { ascending: false })
-      .limit(3),
-    supabase
-      .from('events')
-      .select('id, title, slug, start_time, organizer_name, cover_image_url')
-      .eq('status', 'published')
-      .lt('start_time', nowIso)
-      .not('cover_image_url', 'is', null)
-      .order('start_time', { ascending: false })
-      .limit(3),
   ])
-
-  const endedIds = new Set((endedPastEvents ?? []).map(ev => ev.id))
-  const pastEvents = [
-    ...(endedPastEvents ?? []),
-    ...((publishedPastEvents ?? []).filter(ev => !endedIds.has(ev.id))),
-  ].slice(0, 3)
 
   type VenuePhoto = { image_url: string; sort_order: number }
 
