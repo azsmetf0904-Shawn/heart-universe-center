@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
-import { MapPin, ExternalLink, CheckCircle2, XCircle, AlertTriangle } from 'lucide-react'
+import { MapPin, ExternalLink, CheckCircle2, XCircle, AlertTriangle, ArrowRight } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: '愛物王斷捨離二手公益 | 台北松山',
@@ -368,7 +368,7 @@ export default function CharityPage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section className="pb-24">
+      <section className="pb-16">
         <div className="container-narrow px-6">
           <p className="text-xs tracking-[0.35em] uppercase mb-8" style={{ color: 'var(--gold)' }}>
             常見問題
@@ -383,6 +383,22 @@ export default function CharityPage() {
               </div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── 場地租借 crosslink ── */}
+      <section className="py-12 border-t" style={{ borderColor: 'var(--border-color)' }}>
+        <div className="container-narrow px-6 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <p className="text-sm" style={{ color: 'var(--gray)' }}>
+            想舉辦公益活動或課程？心宇宙場地可租借使用。
+          </p>
+          <Link
+            href="/rent"
+            className="shrink-0 inline-flex items-center gap-2 text-xs tracking-widest border px-6 py-2.5 transition-all hover:border-[var(--charcoal)] hover:text-[var(--charcoal)]"
+            style={{ borderColor: 'var(--border-color)', color: 'var(--gray)' }}
+          >
+            了解場地租借 <ArrowRight size={12} />
+          </Link>
         </div>
       </section>
     </div>

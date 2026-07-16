@@ -259,13 +259,13 @@ export default async function HomePage() {
                 }}
               >
                 {cover ? (
-                  <div className="relative shrink-0 overflow-hidden" style={{ width: 52, height: 52 }}>
-                    <Image src={cover} alt={v.name} fill className="object-cover" sizes="52px" />
+                  <div className="relative shrink-0 overflow-hidden" style={{ width: 64, height: 64 }}>
+                    <Image src={cover} alt={v.name} fill className="object-cover" sizes="64px" />
                   </div>
                 ) : (
                   <div
                     className="shrink-0 flex items-center justify-center text-lg"
-                    style={{ width: 52, height: 52, background: 'var(--surface)', border: '1px solid var(--border-color)' }}
+                    style={{ width: 64, height: 64, background: 'var(--surface)', border: '1px solid var(--border-color)' }}
                   >
                     🏛
                   </div>
@@ -307,44 +307,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── Stats — 手機深色三欄、桌機奶油四欄 ─── */}
-      {/* 手機版 */}
-      <section className="md:hidden" style={{ background: '#1C1008' }}>
-        <div className="container-wide py-4">
-          <div className="grid grid-cols-3 gap-3">
-          {[
-            { n: '100–150', unit: '人', label: '最大容納' },
-            { n: '15K', unit: '起', label: '平日場租' },
-            { n: '1', unit: '日', label: '確認回覆' },
-          ].map(s => (
-            <div key={s.label} className="rounded-2xl border border-[rgba(255,255,255,0.08)] bg-[rgba(255,255,255,0.03)] text-center py-4 px-2">
-              <div className="font-serif text-xl font-bold leading-none mb-1" style={{ color: '#C4A038', fontStyle: 'italic' }}>
-                {s.n}<span className="text-xs ml-0.5">{s.unit}</span>
-              </div>
-              <div className="text-[8px] tracking-widest" style={{ color: 'rgba(255,255,255,0.35)' }}>{s.label}</div>
-            </div>
-          ))}
-          </div>
-        </div>
-      </section>
-      {/* 桌機版 */}
-      <section className="hidden md:block" style={{ background: 'var(--cream)', borderBottom: '1px solid var(--border-color)' }}>
-        <div className="container-wide py-8 grid grid-cols-4 gap-4">
-          {[
-            { n: '100–150', unit: '人', label: '最大容納人數' },
-            { n: '15K', unit: '起', label: '平日場租 / 3 小時' },
-            { n: '10', unit: '分', label: '捷運步行可達' },
-            { n: '1', unit: '日', label: '工作日確認回覆' },
-          ].map(s => (
-            <div key={s.label} className="rounded-3xl border border-[var(--border-color)] bg-[var(--card-bg)] text-center py-14 px-6 shadow-[0_8px_24px_rgba(26,16,8,0.04)]">
-              <div className="font-serif text-5xl font-semibold leading-none mb-3" style={{ color: 'var(--gold)', fontStyle: 'italic' }}>
-                {s.n}<span className="text-2xl">{s.unit}</span>
-              </div>
-              <div className="text-[10px] tracking-widest" style={{ color: 'var(--gray)' }}>{s.label}</div>
-            </div>
-          ))}
-        </div>
-      </section>
 
 
       {/* ─── 手機版：7天可用時段快速條 ─── */}
@@ -523,7 +485,7 @@ export default async function HomePage() {
                   </div>
                   {/* Info */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-serif mb-1 truncate" style={{ fontSize: 'clamp(14px, 2vw, 20px)', color: 'var(--charcoal)' }}>{ev.title}</h3>
+                    <h3 className="font-serif mb-1 line-clamp-2" style={{ fontSize: 'clamp(14px, 2vw, 20px)', color: 'var(--charcoal)' }}>{ev.title}</h3>
                     <p className="text-[11px] leading-relaxed flex items-center gap-1 flex-wrap" style={{ color: 'var(--gray)' }}>
                       <CalendarDays size={10} /> {formatDate(ev.start_time)}
                       &nbsp;·&nbsp;

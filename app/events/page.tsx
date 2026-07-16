@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { ArrowRight, CalendarDays, ExternalLink, Users } from 'lucide-react'
 import type { Metadata } from 'next'
 import { CTA } from '@/lib/cta'
+import PageTabs from '@/components/layout/PageTabs'
 
 export const metadata: Metadata = { title: '活動課程' }
 
@@ -40,31 +41,22 @@ export default async function EventsPage({
         <div className="gold-divider" />
       </div>
 
-      {/* Tabs */}
-      <div className="container-narrow mb-10">
-        <div className="flex gap-6 border-b border-[var(--border-color)]">
-          {[
-            { tab: '', label: '即將舉辦' },
-            { tab: 'ended', label: '已結束' },
-          ].map(t => (
-            <Link
-              key={t.tab}
-              href={t.tab ? `?tab=${t.tab}` : '/events'}
-              className={`pb-3 text-sm tracking-widest border-b-2 transition-colors ${
-                (isEnded ? t.tab === 'ended' : t.tab === '')
-                  ? 'border-[var(--gold)] text-[var(--gold)]'
-                  : 'border-transparent text-[var(--gray)] hover:text-[var(--charcoal)]'
-              }`}
-            >
-              {t.label}
-            </Link>
-          ))}
-        </div>
-      </div>
+      <PageTabs active="events" />
 
       {!events?.length ? (
-        <div className="container-narrow text-center py-20 text-[var(--gray)]">
-          <p className="text-sm">{isEnded ? '尚無結束的活動' : '近期暫無活動，請持續關注'}</p>
+        <div className="container-narrow text-center py-20">
+          <p className="text-sm mb-4" style={{ color: 'var(--gray)' }}>
+            {isEnded ? '尚無結束的活動' : '近期暫無公開活動'}
+          </p>
+          {!isEnded && (
+            <Link
+              href="/rent"
+              className="inline-flex items-center gap-2 text-xs tracking-widest border px-5 py-2 transition-all hover:border-[var(--gold)] hover:text-[var(--gold)]"
+              style={{ borderColor: 'var(--border-color)', color: 'var(--charcoal)' }}
+            >
+              想在此舉辦活動？申請租借 <ArrowRight size={11} />
+            </Link>
+          )}
         </div>
       ) : (
         <div className="container-wide grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
