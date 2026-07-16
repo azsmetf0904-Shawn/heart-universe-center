@@ -6,10 +6,10 @@ import { MapPin, ExternalLink, CheckCircle2, XCircle, AlertTriangle } from 'luci
 export const metadata: Metadata = {
   title: '愛物王斷捨離二手公益 | 台北松山',
   description:
-    '愛物王斷捨離二手公益商店位於台北松山八德路三段223號B1，週二至週日12:00-20:00，接收高品質二手物資義賣，扣除管銷後全數捐出。捷運小巨蛋步行10分鐘。',
+    '愛物王斷捨離二手公益商店位於台北松山八德路三段223號B1，每日12:00-20:00營運，接收高品質二手物資義賣，扣除管銷後全數捐出。捷運小巨蛋站或國父紀念館站步行10分鐘。',
   openGraph: {
     title: '愛物王斷捨離二手公益',
-    description: '斷捨離，讓愛傳下去。台北松山二手公益——接收9成新物資義賣，全數捐出。週二至週日 12:00-20:00，八德路三段223號B1。',
+    description: '斷捨離，讓愛傳下去。台北松山二手公益——接收9成新物資義賣，全數捐出。每日 12:00-20:00，八德路三段223號B1。',
     images: [{ url: '/charity/hero.jpg' }],
   },
 }
@@ -31,7 +31,7 @@ const orgLd = {
   openingHoursSpecification: [
     {
       '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
       opens: '12:00',
       closes: '20:00',
     },
@@ -49,7 +49,7 @@ const faqLd = {
       name: '愛物王二手公益商店在哪裡？什麼時候可以去？',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: '位於台北市松山區八德路三段223號B1，捷運小巨蛋站步行約10分鐘。週二至週日 12:00-20:00 營運，週一公休。',
+        text: '位於台北市松山區八德路三段223號B1，捷運小巨蛋站或國父紀念館站步行約10分鐘。每日 12:00-20:00 營運，無公休。',
       },
     },
     {
@@ -171,7 +171,7 @@ export default function CharityPage() {
             <MapPin size={12} />
             <span>台北松山・八德路三段 223 號 B1</span>
             <span>｜</span>
-            <span>週二至週日 12:00–20:00</span>
+            <span>每日 12:00–20:00</span>
           </div>
         </div>
       </section>
@@ -295,7 +295,7 @@ export default function CharityPage() {
           <div>
             <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: 'var(--gold)' }}>地址</p>
             <p className="text-sm mb-1">台北市松山區八德路三段 223 號 B1</p>
-            <p className="text-xs mb-4" style={{ color: 'var(--gray)' }}>捷運小巨蛋站 步行約 10 分鐘</p>
+            <p className="text-xs mb-4" style={{ color: 'var(--gray)' }}>捷運小巨蛋站・國父紀念館站 步行約 10 分鐘</p>
             <a
               href="https://maps.app.goo.gl/NCZomv2nD1zPsq2B7?g_st=ic"
               target="_blank"
@@ -308,8 +308,8 @@ export default function CharityPage() {
           </div>
           <div>
             <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: 'var(--gold)' }}>營業時間</p>
-            <p className="text-sm mb-1">週二 ─ 週日　12:00 – 20:00</p>
-            <p className="text-xs" style={{ color: 'var(--gray)' }}>週一公休</p>
+            <p className="text-sm mb-1">每日　12:00 – 20:00</p>
+            <p className="text-xs" style={{ color: 'var(--gray)' }}>全年無休</p>
           </div>
           <div>
             <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: 'var(--gold)' }}>官方 IG</p>
