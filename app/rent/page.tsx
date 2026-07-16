@@ -577,7 +577,7 @@ function RentForm() {
           </div>
       <div className="px-5 py-3 border-t border-[var(--border-color)]">
             <p className="text-[11px] leading-relaxed" style={{ color: 'var(--gray)' }}>
-              完成匯款後，請至查詢申請頁回報匯款資訊，我們確認入帳後將正式核可您的預約。
+              請於 3 天內完成匯款。
             </p>
           </div>
         </div>

@@ -38,8 +38,35 @@ export default async function HomePage() {
 
   type VenuePhoto = { image_url: string; sort_order: number }
 
+  const localBusinessLd = {
+    '@context': 'https://schema.org',
+    '@type': 'LocalBusiness',
+    name: '心宇宙商務中心',
+    alternateName: 'Heart Universe Business Center',
+    url: 'https://heart-universe-center.vercel.app',
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '八德路三段',
+      addressLocality: '台北市松山區',
+      addressRegion: '台北市',
+      addressCountry: 'TW',
+    },
+    openingHoursSpecification: [
+      {
+        '@type': 'OpeningHoursSpecification',
+        dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        opens: '09:00',
+        closes: '21:30',
+      },
+    ],
+    priceRange: 'NT$15,000+',
+    description: '台北八德路精品場地租借，適合品牌講座、企業培訓、工作坊、課程活動，最多容納150人，捷運步行可達。',
+    hasMap: 'https://maps.app.goo.gl/NCZomv2nD1zPsq2B7',
+  }
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }} />
       {/* ─── Hero — 方案 B：左文字 + 右照片格 ─── */}
       <section className="grid md:grid-cols-2" style={{ minHeight: 'calc(100vh - 64px)' }}>
 

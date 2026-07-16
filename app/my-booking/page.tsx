@@ -137,13 +137,23 @@ export default function MyBookingPage() {
           請輸入申請時填寫的手機號碼或 Email
         </p>
 
+        {results === null && (
+          <div className="py-4 text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
+            還沒有申請記錄？{' '}
+            <a href="/rent" className="underline underline-offset-4 hover:text-[var(--gold)] transition-colors" style={{ color: 'var(--charcoal)' }}>
+              前往申請租借
+            </a>
+          </div>
+        )}
+
         {results !== null && results.length === 0 && (
-          <div className="py-10 text-[var(--gray)]">
-            <p className="text-sm leading-relaxed">
-              查詢不到結果，請確認：
+          <div className="py-10 border border-[var(--border-color)] px-6 bg-[var(--card-bg)]">
+            <p className="text-sm font-medium mb-3" style={{ color: 'var(--charcoal)' }}>查詢不到結果</p>
+            <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
+              請確認：
               <br />• 手機號碼格式（例：0912345678）
               <br />• Email 與申請時填寫的完全一致
-              <br />• 如仍無法查詢，請聯絡我們
+              <br />• 如仍無法查詢，請重新填寫申請或聯絡我們
             </p>
           </div>
         )}

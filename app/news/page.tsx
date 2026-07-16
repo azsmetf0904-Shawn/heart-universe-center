@@ -2,6 +2,7 @@ import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { ExternalLink, CalendarDays, ArrowRight } from 'lucide-react'
 import type { Metadata } from 'next'
+import PageTabs from '@/components/layout/PageTabs'
 
 export const metadata: Metadata = {
   title: '活動新聞與連結',
@@ -34,10 +35,12 @@ export default async function NewsPage() {
         </p>
         <div className="gold-divider" />
       </div>
+      <PageTabs active="news" />
 
       {!withLinks.length ? (
-        <div className="container-narrow text-center py-20 text-[var(--gray)]">
-          <p className="text-sm">目前暫無外部連結，請持續關注</p>
+        <div className="container-narrow text-center py-20">
+          <p className="text-sm mb-2" style={{ color: 'var(--gray)' }}>目前暫無媒體連結</p>
+          <p className="text-xs" style={{ color: 'var(--gray)' }}>活動報導將在此持續更新，歡迎關注我們的活動</p>
         </div>
       ) : (
         <div className="container-narrow flex flex-col divide-y divide-[var(--border-color)]">
@@ -50,7 +53,7 @@ export default async function NewsPage() {
                     <span className="text-[var(--gray)] ml-2">· {ev.organizer_name}</span>
                   )}
                 </p>
-                <h2 className="text-base mb-2 leading-snug truncate">{ev.title}</h2>
+                <h2 className="text-base mb-2 leading-snug line-clamp-2">{ev.title}</h2>
                 <div className="flex items-center gap-4">
                   <a
                     href={ev.external_url!}

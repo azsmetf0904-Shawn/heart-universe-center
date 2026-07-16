@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import { ShowcaseClient } from './ShowcaseClient'
 import type { PastEvent } from './ShowcaseClient'
 import { CTA } from '@/lib/cta'
+import PageTabs from '@/components/layout/PageTabs'
 
 export const metadata: Metadata = {
   title: '活動回顧 | 心宇宙商務中心',
@@ -45,10 +46,14 @@ export default async function ShowcasePage() {
           </p>
         </div>
       </section>
+      <PageTabs active="showcase" />
 
       {events.length === 0 ? (
         <section className="py-40 text-center" style={{ background: 'var(--cream)' }}>
-          <p className="text-sm" style={{ color: 'var(--gray)' }}>活動回顧整理中，敬請期待</p>
+          <p className="text-sm mb-3" style={{ color: 'var(--gray)' }}>活動回顧整理中，敬請期待</p>
+          <Link href="/events" className="text-xs tracking-widest underline underline-offset-4 hover:text-[var(--gold)] transition-colors" style={{ color: 'var(--charcoal)' }}>
+            查看即將到來的活動
+          </Link>
         </section>
       ) : (
         <ShowcaseClient events={events} />
