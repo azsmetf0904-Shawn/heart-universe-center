@@ -23,6 +23,7 @@ export default function Footer() {
                 { href: '/venues', label: '場地介紹' },
                 { href: '/events', label: '活動課程' },
                 { href: '/charity', label: '二手公益' },
+                { href: '/news', label: '活動新聞' },
                 { href: '/rent', label: CTA.booking.applyRental },
                 { href: '/my-booking', label: CTA.rental.queryStatus },
               ].map(l => (
@@ -34,10 +35,24 @@ export default function Footer() {
           </div>
           <div>
             <p className="text-[10px] tracking-[0.4em] uppercase mb-4" style={{ color: 'var(--gold)' }}>聯絡</p>
-            <p className="text-sm leading-loose" style={{ color: 'var(--dark-muted)' }}>
+            <p className="text-sm leading-loose mb-4" style={{ color: 'var(--dark-muted)' }}>
               如需洽詢請透過租借申請表<br />
               或掃描現場 QR Code 聯繫我們
             </p>
+            <a
+              href="https://www.instagram.com/love_secondhand_charity"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs tracking-widest hover:text-white transition-colors"
+              style={{ color: 'var(--dark-muted)' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <circle cx="12" cy="12" r="4"/>
+                <circle cx="17.5" cy="6.5" r="0.5" fill="currentColor" stroke="none"/>
+              </svg>
+              愛物王公益 IG
+            </a>
           </div>
         </div>
         <div

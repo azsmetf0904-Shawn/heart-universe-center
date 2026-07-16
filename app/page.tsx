@@ -154,7 +154,12 @@ export default async function HomePage() {
             ))}
           </div>
 
-          {/* CTA */}
+          {/* CTA — 手機版 */}
+          <Link href="/rent" className="relative z-10 md:hidden btn-gold-fill text-xs tracking-widest px-7 py-2.5 mb-6">
+            {CTA.home.startRental}
+          </Link>
+
+          {/* CTA — 桌機版 */}
           <div className="relative z-10 hidden md:flex gap-3 mb-auto">
             <Link href="/rent" className="btn-gold-fill text-xs tracking-widest px-8 py-3">
               {CTA.home.startRental}
@@ -341,113 +346,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ─── Past Events ─── */}
-      {pastEvents && pastEvents.length > 0 && (
-        <section className="py-16 md:py-24" style={{ background: 'var(--card-bg)' }}>
-          <div className="container-wide">
-            <div className="flex items-end justify-between gap-6 mb-8 md:mb-12">
-              <div>
-                <p className="label-tag mb-3">Past Events</p>
-                <h2 className="font-serif text-2xl md:text-4xl" style={{ color: 'var(--charcoal)' }}>過往精選</h2>
-                <div className="gold-divider mt-4" />
-                <p className="mt-4 text-sm leading-relaxed max-w-xl" style={{ color: 'var(--gray)' }}>
-                  從近期結束的活動中，挑選最值得回看的片段，讓場地的使用情境更直接。
-                </p>
-              </div>
-              <Link
-                href="/events"
-                className="hidden md:inline-flex items-center gap-2 text-xs tracking-widest pb-1 border-b transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
-                style={{ color: 'var(--gray)', borderColor: 'var(--border-color)' }}
-              >
-                {CTA.home.viewAllEvents} <ArrowRight size={12} />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-              <div className="md:hidden">
-                {pastEvents.slice(0, 1).map(ev => (
-                  <Link
-                    key={ev.id}
-                    href={`/events/${ev.slug}`}
-                    className="group block border border-[var(--border-color)] hover:border-[var(--gold)] transition-colors overflow-hidden rounded-3xl shadow-[0_12px_28px_rgba(26,16,8,0.08)]"
-                    style={{ background: 'var(--card-bg)' }}
-                  >
-                    <div className="relative aspect-[3/4] overflow-hidden bg-[var(--surface)]">
-                      <Image
-                        src={ev.cover_image_url!}
-                        alt={ev.title}
-                        fill
-                        className="object-cover group-hover:scale-105 transition-transform duration-700"
-                        sizes="100vw"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[rgba(26,16,8,0.78)] via-[rgba(26,16,8,0.18)] to-transparent" />
-                      <div className="absolute left-5 top-5 inline-flex items-center rounded-full px-3 py-1 text-[10px] tracking-[0.3em]" style={{ background: 'rgba(244,239,230,0.88)', color: 'var(--charcoal)' }}>
-                        回顧精選
-                      </div>
-                      <div className="absolute inset-x-0 bottom-0 p-4">
-                        <p className="text-[8px] tracking-[0.35em] mb-2" style={{ color: 'rgba(255,255,255,0.72)' }}>
-                          Past Events
-                        </p>
-                        <h3 className="font-serif text-[1.12rem] leading-tight mb-2" style={{ color: '#fff' }}>
-                          {ev.title}
-                        </h3>
-                        <div className="flex items-center gap-2 text-[9px] flex-wrap" style={{ color: 'rgba(255,255,255,0.72)' }}>
-                          <span>{new Date(ev.start_time).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric' })}</span>
-                          <span>·</span>
-                          <span>{ev.organizer_name || '心宇宙商務中心'}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-
-              <div className="hidden md:contents">
-                {pastEvents.map(ev => (
-                  <Link
-                    key={ev.id}
-                    href={`/events/${ev.slug}`}
-                    className="group block border border-[var(--border-color)] hover:border-[var(--gold)] transition-colors overflow-hidden rounded-2xl"
-                    style={{ background: 'var(--card-bg)' }}
-                >
-                  <div className="relative aspect-video overflow-hidden bg-[var(--surface)]">
-                    <Image
-                      src={ev.cover_image_url!}
-                      alt={ev.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform duration-700"
-                      sizes="(max-width: 768px) 100vw, 33vw"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[rgba(26,16,8,0.25)] via-transparent to-transparent" />
-                  </div>
-                  <div className="p-5 md:p-6">
-                    <p className="text-[10px] tracking-[0.3em] mb-2" style={{ color: 'var(--gold)' }}>
-                      {new Date(ev.start_time).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}
-                    </p>
-                    <h3 className="font-serif text-lg md:text-xl mb-3 leading-snug" style={{ color: 'var(--charcoal)' }}>
-                      {ev.title}
-                    </h3>
-                      <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
-                        主辦：{ev.organizer_name || '心宇宙商務中心'}
-                      </p>
-                    </div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            <div className="mt-6 md:hidden">
-              <Link
-                href="/events"
-                className="inline-flex items-center gap-2 text-xs tracking-widest pb-1 border-b transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
-                style={{ color: 'var(--gray)', borderColor: 'var(--border-color)' }}
-              >
-                {CTA.home.viewAllEvents} <ArrowRight size={12} />
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
 
       {/* ─── 手機版：7天可用時段快速條 ─── */}
       {venues && venues.length > 0 && <MobileAvailabilityStrip venueId={venues[0].id} />}
@@ -653,7 +551,6 @@ export default async function HomePage() {
       <section style={{ background: '#1A0E06' }}>
         <div className="container-wide">
           <div className="grid md:grid-cols-2 items-center gap-0">
-            {/* Photo */}
             <div className="relative overflow-hidden" style={{ height: '420px' }}>
               <Image
                 src="/charity/grid-2.jpg"
@@ -664,7 +561,6 @@ export default async function HomePage() {
               />
               <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, transparent 60%, #1A0E06)' }} />
             </div>
-            {/* Text */}
             <div className="px-8 py-14 md:px-14 md:py-20">
               <div className="flex items-center gap-4 mb-6">
                 <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0" style={{ background: '#f5ede4' }}>

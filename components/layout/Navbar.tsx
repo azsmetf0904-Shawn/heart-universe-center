@@ -183,8 +183,7 @@ export default function Navbar() {
               setOpen(false)
               setMoreOpen(false)
             }}
-            className="text-xs tracking-widest uppercase px-5 py-2 border text-center"
-            style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}
+            className="btn-gold-fill text-xs tracking-widest uppercase px-5 py-2.5 text-center"
           >
             {CTA.home.startRental}
           </Link>
