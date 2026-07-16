@@ -1,22 +1,40 @@
 'use client'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useState } from 'react'
-import { Menu, X, Settings } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { Menu, X, Settings, ChevronDown } from 'lucide-react'
 import { CTA } from '@/lib/cta'
 
-const links = [
-  { href: '/venues', label: '場地' },
-  { href: '/availability', label: '可用時段' },
+const mainLinks = [
+  { href: '/venues', label: '場地介紹' },
   { href: '/events', label: '活動課程' },
-  { href: '/showcase', label: '活動回顧' },
   { href: '/charity', label: '二手公益', highlight: true },
   { href: '/rent', label: '租借申請' },
+] as const
+
+const moreLinks = [
+  { href: '/availability', label: '可用時段' },
+  { href: '/showcase', label: '活動回顧' },
+  { href: '/news', label: '新聞連結' },
   { href: '/my-booking', label: '查詢申請狀態' },
-]
+] as const
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
+  const desktopMoreRef = useRef<HTMLDivElement | null>(null)
+  const mobileMoreRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    function onDocumentClick(e: MouseEvent) {
+      const target = e.target as Node
+      const desktopInside = desktopMoreRef.current?.contains(target)
+      const mobileInside = mobileMoreRef.current?.contains(target)
+      if (!desktopInside && !mobileInside) setMoreOpen(false)
+    }
+    document.addEventListener('click', onDocumentClick)
+    return () => document.removeEventListener('click', onDocumentClick)
+  }, [])
 
   return (
     <header
@@ -46,16 +64,49 @@ export default function Navbar() {
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-10">
-          {links.map(l => (
+          {mainLinks.map(l => (
             <Link
               key={l.href}
               href={l.href}
               className="text-xs tracking-widest transition-colors hover:text-[var(--charcoal)]"
-              style={{ color: l.highlight ? 'var(--gold)' : 'var(--gray)' }}
+              style={{ color: ('highlight' in l && l.highlight) ? 'var(--gold)' : 'var(--gray)' }}
             >
               {l.label}
             </Link>
           ))}
+          <div
+            ref={desktopMoreRef}
+            className="relative"
+            onMouseEnter={() => setMoreOpen(true)}
+            onMouseLeave={() => setMoreOpen(false)}
+          >
+            <button
+              type="button"
+              onClick={() => setMoreOpen(v => !v)}
+              className="text-xs tracking-widest transition-colors hover:text-[var(--charcoal)] inline-flex items-center gap-1"
+              style={{ color: 'var(--gray)' }}
+            >
+              更多 <ChevronDown size={10} />
+            </button>
+            {moreOpen && (
+              <div
+                className="absolute right-0 top-full mt-3 min-w-[140px] rounded-lg border py-2 shadow-lg"
+                style={{ background: 'var(--cream)', borderColor: 'var(--border-color)' }}
+              >
+                {moreLinks.map(l => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => setMoreOpen(false)}
+                    className="block px-4 py-2 text-xs tracking-widest transition-colors hover:bg-[var(--surface)] hover:text-[var(--charcoal)]"
+                    style={{ color: 'var(--gray)' }}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
           <Link
             href="/rent"
             className="text-xs tracking-widest uppercase px-5 py-2 border transition-all hover:bg-[var(--gold)] hover:text-white"
@@ -84,20 +135,54 @@ export default function Navbar() {
           className="md:hidden px-6 py-6 flex flex-col gap-6 border-t"
           style={{ background: 'var(--cream)', borderColor: 'var(--border-color)' }}
         >
-          {links.map(l => (
+          {mainLinks.map(l => (
             <Link
               key={l.href}
               href={l.href}
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false)
+                setMoreOpen(false)
+              }}
               className="text-sm tracking-widest"
-              style={{ color: 'var(--gray)' }}
+              style={{ color: ('highlight' in l && l.highlight) ? 'var(--gold)' : 'var(--gray)' }}
             >
-              {l.label}
+              {('highlight' in l && l.highlight) ? `♡ ${l.label}` : l.label}
             </Link>
           ))}
+          <div ref={mobileMoreRef} className="flex flex-col gap-4">
+            <button
+              type="button"
+              onClick={() => setMoreOpen(v => !v)}
+              className="text-sm tracking-widest inline-flex items-center gap-1"
+              style={{ color: 'var(--gray)' }}
+            >
+              更多 <ChevronDown size={10} />
+            </button>
+            {moreOpen && (
+              <div className="flex flex-col gap-4 pl-4 -mt-2">
+                {moreLinks.map(l => (
+                  <Link
+                    key={l.href}
+                    href={l.href}
+                    onClick={() => {
+                      setOpen(false)
+                      setMoreOpen(false)
+                    }}
+                    className="text-sm tracking-widest"
+                    style={{ color: 'var(--gray)' }}
+                  >
+                    {l.label}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
           <Link
             href="/rent"
-            onClick={() => setOpen(false)}
+            onClick={() => {
+              setOpen(false)
+              setMoreOpen(false)
+            }}
             className="text-xs tracking-widest uppercase px-5 py-2 border text-center"
             style={{ borderColor: 'var(--gold)', color: 'var(--gold)' }}
           >

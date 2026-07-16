@@ -682,7 +682,7 @@ export default async function HomePage() {
               </p>
               <p className="text-xs leading-loose mb-8" style={{ color: 'rgba(255,255,255,0.5)' }}>
                 接收高品質二手物資、整理義賣，扣除管銷後全數捐出。<br />
-                台北松山 · 週二至週日 12:00–20:00
+                台北松山 · 每日 12:00–20:00
               </p>
               <Link
                 href="/charity"
