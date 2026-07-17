@@ -42,6 +42,37 @@ export async function lineReply(replyToken: string, text: string) {
   await lineApiPost('message/reply', { replyToken, messages: [{ type: 'text', text }] })
 }
 
+export async function lineReplyFlex(replyToken: string, altText: string, contents: unknown) {
+  await lineApiPost('message/reply', { replyToken, messages: [{ type: 'flex', altText, contents }] })
+}
+
+export function buildCalendarButtonFlex(calUrl: string, year: number, month: number) {
+  const MONTH_ZH = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二']
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#C4A038', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#F0D9B0', size: 'xs' },
+        { type: 'text', text: `📅 ${year} 年 ${MONTH_ZH[month]} 月 場地月曆`, color: '#FFFFFF', weight: 'bold', size: 'md' },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '查看本月所有預約時段、狀態及申請人資訊。', size: 'sm', color: '#888888', wrap: true },
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'primary', color: '#C4A038', height: 'sm',
+          action: { type: 'uri', label: '開啟月曆', uri: calUrl } },
+      ],
+    },
+  }
+}
+
 export function lineConfirmedMsg(name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
   return `✅ 場地租借確認！
 

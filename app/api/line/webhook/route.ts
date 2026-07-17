@@ -1,7 +1,7 @@
 import { createHmac } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { linePush, lineReply, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg, lineWaitlistToPayMsg, getLineGroupMemberName } from '@/lib/line'
+import { linePush, lineReply, lineReplyFlex, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg, lineWaitlistToPayMsg, getLineGroupMemberName, buildCalendarButtonFlex } from '@/lib/line'
 import { TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus } from '@/lib/types'
 
@@ -95,12 +95,25 @@ export async function POST(req: NextRequest) {
       continue
     }
 
-    // ── Message：驗證碼綁定 ──
+    // ── Message ──
     if (event.type !== 'message' || event.message?.type !== 'text') continue
     const userId = event.source?.userId
     if (!userId) continue
 
-    const code = event.message.text.trim().toUpperCase()
+    const text = event.message.text.trim()
+
+    // 月曆關鍵字：回覆月曆連結
+    if (['月曆', '行事曆', 'calendar', '查月曆', 'cal'].includes(text)) {
+      const token = process.env.ADMIN_CALENDAR_TOKEN ?? process.env.LINE_CHANNEL_SECRET?.slice(0, 12) ?? ''
+      const now = new Date()
+      const calUrl = `https://heart-universe-center.vercel.app/admin-calendar?token=${encodeURIComponent(token)}&year=${now.getFullYear()}&month=${now.getMonth() + 1}`
+      if (event.replyToken) {
+        await lineReplyFlex(event.replyToken, `📅 ${now.getFullYear()}年${now.getMonth() + 1}月 場地月曆`, buildCalendarButtonFlex(calUrl, now.getFullYear(), now.getMonth() + 1))
+      }
+      continue
+    }
+
+    const code = text.toUpperCase()
     if (!/^[A-Z0-9]{6}$/.test(code)) continue
 
     const { data } = await supabase
