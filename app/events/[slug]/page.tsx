@@ -64,7 +64,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
     description: event.description ?? '',
     startDate: event.start_time,
     endDate: event.end_time,
-    eventStatus: isEnded ? 'https://schema.org/EventCancelled' : 'https://schema.org/EventScheduled',
+    eventStatus: 'https://schema.org/EventScheduled',
     eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
     location: {
       '@type': 'Place',

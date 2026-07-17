@@ -8,7 +8,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const [{ data: venues }, { data: events }] = await Promise.all([
     supabase.from('venues').select('slug, updated_at').eq('is_active', true),
-    supabase.from('events').select('slug, updated_at'),
+    supabase.from('events').select('slug, updated_at').neq('status', 'draft'),
   ])
 
   const staticRoutes: MetadataRoute.Sitemap = [

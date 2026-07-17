@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
@@ -81,6 +81,21 @@ export default function RegisterPage() {
   if (loading) return <div className="py-40 text-center text-[var(--gray)] text-sm">載入中…</div>
   if (!event) return <div className="py-40 text-center text-[var(--gray)] text-sm">活動不存在</div>
 
+  const isUnavailable = event.status !== 'published' || new Date(event.end_time) < new Date()
+  if (isUnavailable) {
+    return (
+      <div className="py-40 text-center container-narrow max-w-md">
+        <p className="label-tag mb-4">Registration Closed</p>
+        <h2 className="text-2xl mb-4">報名已截止</h2>
+        <div className="gold-divider mx-auto" />
+        <p className="text-sm text-[var(--gray)] mt-6 mb-8">此活動已結束或不開放報名。</p>
+        <Link href={`/events/${slug}`} className="text-xs tracking-widest text-[var(--gold)] hover:underline">
+          返回活動詳情
+        </Link>
+      </div>
+    )
+  }
+
   if (state === 'success') {
     return (
       <div className="py-20 flex flex-col items-center text-center container-narrow max-w-md">
@@ -137,7 +152,7 @@ export default function RegisterPage() {
             { key: 'email', label: 'Email', type: 'email', required: true },
           ].map(f => (
             <div key={f.key}>
-              <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>{f.label}</label>
+              <label className="form-label mb-2">{f.label}</label>
               <input
                 type={f.type}
                 required={f.required}
@@ -148,7 +163,7 @@ export default function RegisterPage() {
             </div>
           ))}
           <div>
-            <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>備註</label>
+            <label className="form-label mb-2">備註（選填）</label>
             <textarea
               rows={3}
               value={form.note}

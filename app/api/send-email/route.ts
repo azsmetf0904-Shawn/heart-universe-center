@@ -152,32 +152,24 @@ export async function POST(req: NextRequest) {
     }
 
     if (type === 'rental_confirmed') {
-      const { to, name, eventTitle, bookingDate, timeSlot, venueName, amount } = body
+      const { to, name, eventTitle, bookingDate, timeSlot, venueName } = body
       await resend.emails.send({
         from: `${BRAND} <${FROM}>`,
         to,
-        subject: `【場地租借確認】${eventTitle} — 請於期限內完成匯款`,
+        subject: `【預約核可】${eventTitle} — 場地租借已正式確認`,
         html: emailHtml({
-          title: '場地租借已確認，請完成匯款',
+          title: '場地租借已正式核可',
           content: `
             <p>親愛的 <strong>${name}</strong>，</p>
-            <p>您的場地租借申請已通過確認，請於 <strong>3 天內</strong>完成匯款，以保留您的時段。</p>
+            <p>恭喜！您的匯款已確認入帳，場地租借預約正式核可。</p>
             <table style="margin-top:16px;border-collapse:collapse;width:100%;font-size:14px">
               <tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE;width:120px">活動名稱</td><td style="padding:8px 12px"><strong>${eventTitle}</strong></td></tr>
               ${venueName ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">場地</td><td style="padding:8px 12px">${venueName}</td></tr>` : ''}
               ${bookingDate ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">日期</td><td style="padding:8px 12px">${bookingDate}</td></tr>` : ''}
               ${timeSlot ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">時段</td><td style="padding:8px 12px">${timeSlot}</td></tr>` : ''}
-              ${amount ? `<tr><td style="padding:8px 12px;color:#8A8A8A;background:#F4F2EE">應付金額</td><td style="padding:8px 12px"><strong style="color:#C9A96E">NT$ ${Number(amount).toLocaleString()}</strong></td></tr>` : ''}
             </table>
-            <div style="margin-top:28px;padding:20px 24px;background:#FAFAF0;border:1px solid #E8E4DC;border-left:3px solid #C9A96E">
-              <p style="margin:0 0 6px;font-size:13px;color:#8A8A8A;letter-spacing:0.1em">✨ 匯款帳號</p>
-              <p style="margin:4px 0;font-size:15px;color:#2C2C2C"><strong>中國信託銀行（822）北投分行</strong></p>
-              <p style="margin:4px 0;font-size:15px;color:#2C2C2C">帳號：<strong>680541314031</strong></p>
-              <p style="margin:4px 0;font-size:15px;color:#2C2C2C">戶名：<strong>財富女神股份有限公司</strong></p>
-            </div>
             <p style="margin-top:20px;font-size:13px;color:#8A8A8A">
-              完成匯款後，請回覆此封 Email 或來電告知，我們將於確認入帳後寄發收據。<br>
-              逾期未匯款者，時段保留將自動取消，敬請留意。
+              期待您的到來！如有任何問題，請回覆此封 Email 或直接聯繫心宇宙商務中心。
             </p>
           `,
         }),

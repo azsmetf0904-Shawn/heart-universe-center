@@ -763,19 +763,6 @@ function RentForm() {
           </div>
         </div>
 
-        {/* Step indicator */}
-        <div className="flex items-center gap-4 mt-8 mb-10">
-          {['基本資料', '選加購', '確認送出'].map((s, i) => (
-            <div key={s} className="flex items-center gap-2">
-              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${step > i + 1 ? 'bg-[var(--gold)] text-white' : step === i + 1 ? 'bg-[var(--charcoal)] text-white' : 'border border-[var(--border-color)] text-[var(--gray)]'}`}>
-                {step > i + 1 ? '✓' : i + 1}
-              </div>
-              <span className={`text-xs tracking-widest ${step === i + 1 ? 'text-[var(--charcoal)]' : 'text-[var(--gray)]'}`}>{s}</span>
-              {i < 2 && <div className="w-8 h-px bg-[var(--border-color)]" />}
-            </div>
-          ))}
-        </div>
-
         {/* ── Step 1 ── */}
         {step === 1 && (
           <div className="flex flex-col gap-6">
