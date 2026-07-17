@@ -334,6 +334,39 @@
   .hu-nav-charity .hu-nav-main-brand > img { width: 32px !important; height: 32px !important; }
 }
 
+/* Mobile dual-brand lockup: equal geometry, hierarchy through opacity only. */
+@media (max-width: 767px) {
+  .hu-nav-brand-group > a > img,
+  .hu-nav-home .hu-nav-charity-identity .hu-nav-charity-logo,
+  .hu-nav-charity .hu-nav-main-brand > img {
+    width: 34px !important;
+    height: 34px !important;
+    flex: 0 0 34px;
+  }
+  .hu-nav-brand-group > a > div p:first-child,
+  .hu-nav-charity-title p:first-child {
+    font-size: 11px !important;
+    line-height: 1.2;
+    letter-spacing: .03em !important;
+  }
+  .hu-nav-home .hu-nav-charity-identity,
+  .hu-nav-charity .hu-nav-main-brand {
+    transform: none !important;
+    opacity: .58;
+  }
+  .hu-nav-home .hu-nav-main-brand,
+  .hu-nav-charity .hu-nav-charity-identity {
+    transform: none !important;
+    opacity: 1;
+  }
+  .hu-nav-home .hu-nav-charity-identity .hu-nav-charity-logo {
+    filter: saturate(.72) brightness(.96);
+  }
+  .hu-nav-charity .hu-nav-main-brand > img {
+    filter: saturate(.65) brightness(.92);
+  }
+}
+
 /* Safe area support for bottom CTA on notched iPhones */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);
