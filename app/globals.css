@@ -1040,6 +1040,15 @@ button, a, [role="button"], label[for] {
   .hu-charity-about .gold-divider {
     margin-left: 0 !important;
   }
+  .hu-charity-about-copy .label-tag { font-size: 12px !important; }
+  .hu-charity-about-copy h2 { font-size: clamp(32px, 3vw, 42px) !important; }
+  .hu-charity-about-copy > p.text-sm {
+    max-width: 680px;
+    font-size: 16px !important;
+    line-height: 2 !important;
+  }
+  .hu-charity-philosophy h2 { font-size: clamp(32px, 3vw, 42px) !important; }
+  .hu-charity-philosophy p.text-sm { font-size: 16px !important; line-height: 2 !important; }
   .hu-charity-philosophy > .container-narrow {
     max-width: 1080px !important;
   }
@@ -1047,10 +1056,15 @@ button, a, [role="button"], label[for] {
 
 @media (max-width: 767px) {
   .hu-charity-hero {
-    height: 590px !important;
-    min-height: 590px;
+    height: 720px !important;
+    min-height: 720px;
     background: var(--charcoal);
     overflow: hidden;
+  }
+  .hu-charity-hero-copy {
+    justify-content: flex-start !important;
+    padding-top: 128px !important;
+    padding-bottom: 54px !important;
   }
   .hu-charity-hero-image {
     inset: 0 0 auto !important;

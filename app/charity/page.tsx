@@ -216,15 +216,17 @@ export default function CharityPage() {
               <Image src="/charity/logo.jpg" alt="台灣愛物王公益協會" fill className="object-cover" sizes="112px" />
             </div>
           </div>
-          <p className="label-tag mb-4">關於我們</p>
-          <h2 className="text-2xl md:text-3xl mb-6 leading-snug">
-            9 成新，才是有溫度的分享
-          </h2>
-          <p className="text-sm leading-loose" style={{ color: 'var(--gray)' }}>
-            愛物王斷捨離二手公益由心宇宙商務中心發起，接收高品質二手物資、用心整理分類後公開義賣。
-            扣除人事與管銷成本，所有收入全數捐出。每一件物品，都在延續它的生命；每一筆消費，都是一份流動的善意。
-          </p>
-          <div className="gold-divider mt-8" />
+          <div className="hu-charity-about-copy">
+            <p className="label-tag mb-4">關於我們</p>
+            <h2 className="text-2xl md:text-3xl mb-6 leading-snug">
+              9 成新，才是有溫度的分享
+            </h2>
+            <p className="text-sm leading-loose" style={{ color: 'var(--gray)' }}>
+              愛物王斷捨離二手公益由心宇宙商務中心發起，接收高品質二手物資、用心整理分類後公開義賣。
+              扣除人事與管銷成本，所有收入全數捐出。每一件物品，都在延續它的生命；每一筆消費，都是一份流動的善意。
+            </p>
+            <div className="gold-divider mt-8" />
+          </div>
         </div>
       </section>
 
