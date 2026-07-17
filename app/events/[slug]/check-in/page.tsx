@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
+import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { CTA } from '@/lib/cta'
@@ -62,7 +63,10 @@ export default function CheckInPage() {
           <div className="flex flex-col items-center text-center py-10">
             <CheckCircle2 size={48} className="text-[var(--gold)] mb-4" />
             <h2 className="text-xl mb-2">{CTA.system.checkInSuccess}</h2>
-            <p className="text-[var(--gray)] text-sm">{name}，歡迎參加活動</p>
+            <p className="text-[var(--gray)] text-sm mb-6">{name}，歡迎參加活動！</p>
+            <Link href={`/events/${slug}`} className="text-xs tracking-widest text-[var(--gold)] hover:underline">
+              返回活動詳情
+            </Link>
           </div>
         )}
 
@@ -70,7 +74,10 @@ export default function CheckInPage() {
           <div className="flex flex-col items-center text-center py-10">
             <CheckCircle2 size={48} className="text-[var(--gold)] mb-4" />
             <h2 className="text-xl mb-2">{CTA.system.alreadyCheckedIn}</h2>
-            <p className="text-[var(--gray)] text-sm">{name}，您已簽到過了</p>
+            <p className="text-[var(--gray)] text-sm mb-6">{name}，您已簽到過了</p>
+            <Link href={`/events/${slug}`} className="text-xs tracking-widest text-[var(--gold)] hover:underline">
+              返回活動詳情
+            </Link>
           </div>
         )}
 

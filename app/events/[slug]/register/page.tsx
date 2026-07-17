@@ -178,9 +178,23 @@ export default function RegisterPage() {
             />
           </div>
           {event.is_paid && (
-            <div className="bg-[var(--card-bg)] border border-[var(--border-color)] p-4 text-sm text-[var(--gray)]">
-              本活動費用 <strong className="text-[var(--charcoal)]">NT$ {event.price.toLocaleString()}</strong>，
-              付款方式於確認後另行通知。
+            <div className="border border-[var(--border-color)] bg-[var(--card-bg)] p-5">
+              <p className="label-tag mb-3">費用與付款方式</p>
+              <div className="grid grid-cols-2 gap-y-2 text-xs mb-4">
+                <span className="text-[var(--gray)]">活動費用</span>
+                <span className="font-medium text-[var(--charcoal)]">NT$ {event.price.toLocaleString()}</span>
+                <span className="text-[var(--gray)]">付款方式</span>
+                <span className="text-[var(--charcoal)]">銀行匯款</span>
+                <span className="text-[var(--gray)]">銀行</span>
+                <span className="text-[var(--charcoal)]">中國信託（822）北投</span>
+                <span className="text-[var(--gray)]">帳號</span>
+                <span className="font-mono font-semibold text-[var(--charcoal)]">680541314031</span>
+                <span className="text-[var(--gray)]">戶名</span>
+                <span className="text-[var(--charcoal)]">財富女神股份有限公司</span>
+              </div>
+              <p className="text-[10px] text-[var(--gray)] leading-relaxed">
+                報名送出後請於 3 天內完成匯款，並回覆確認信告知末 5 碼，我們確認入帳後將正式核可。
+              </p>
             </div>
           )}
           <button

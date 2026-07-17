@@ -1,17 +1,11 @@
 import { Resend } from 'resend'
 import { NextRequest, NextResponse } from 'next/server'
-import { rateLimit } from '@/lib/rate-limit'
+import { createAdminClient } from '@/lib/supabase/server'
 
 const FROM = process.env.RESEND_FROM ?? 'noreply@heart-universe.tw'
 const BRAND = '心宇宙商務中心'
 
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? 'unknown'
-  const { ok } = rateLimit(ip, 5, 60_000)
-  if (!ok) {
-    return NextResponse.json({ ok: false, error: 'rate_limited' }, { status: 429 })
-  }
-
   if (!process.env.RESEND_API_KEY) {
     return NextResponse.json({ ok: false, error: 'RESEND_API_KEY not set' }, { status: 200 })
   }
@@ -19,6 +13,34 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json()
   const { type } = body
+
+  // Validate that the recipient is tied to a real booking before sending.
+  // This prevents arbitrary email abuse without requiring an external rate-limit store.
+  const oneHourAgo = new Date(Date.now() - 3_600_000).toISOString()
+  if (type === 'rental_request' || type === 'admin_rental_notification') {
+    const supabase = await createAdminClient()
+    const email = body.to ?? body.email
+    if (email) {
+      const { count } = await supabase
+        .from('rental_requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('email', email)
+        .gte('created_at', oneHourAgo)
+      if (!count) return NextResponse.json({ ok: false, error: 'no_booking' }, { status: 400 })
+    }
+  }
+  if (type === 'event_registration') {
+    const supabase = await createAdminClient()
+    const email = body.to
+    if (email) {
+      const { count } = await supabase
+        .from('event_registrations')
+        .select('id', { count: 'exact', head: true })
+        .eq('email', email)
+        .gte('created_at', oneHourAgo)
+      if (!count) return NextResponse.json({ ok: false, error: 'no_registration' }, { status: 400 })
+    }
+  }
 
   try {
     if (type === 'event_registration') {
