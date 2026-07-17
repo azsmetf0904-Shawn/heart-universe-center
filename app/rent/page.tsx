@@ -373,7 +373,7 @@ function RentForm() {
 
   const isHolidayDate = calSel ? isHoliday(calSel.date) : false
   const lineLoginRequired = Boolean(process.env.NEXT_PUBLIC_LINE_LIFF_ID) && !lineProfile
-  const needsFriendGate = Boolean(lineProfile) && lineFriendStatus !== 'friend'
+  const needsFriendGate = Boolean(lineProfile) && lineFriendStatus !== null && lineFriendStatus !== 'friend'
 
   async function handleSubmit({ fromLineLogin = false }: { fromLineLogin?: boolean } = {}) {
     if (lineLoginRequired) {
@@ -563,15 +563,6 @@ function RentForm() {
               <p className="text-xs" style={{ color: 'var(--gray)' }}>{lineProfile.displayName}，審核結果將直接推播給您</p>
             </div>
           </div>
-          <a
-            href="https://lin.ee/wMS5gQU"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 py-3 text-xs tracking-widest text-white font-medium"
-            style={{ background: '#06C755' }}
-          >
-            ＋ 尚未加入？點此加入官方帳號確保收到通知
-          </a>
         </div>
       ) : lineCode ? (
         <div className="w-full max-w-sm mb-8 border border-[var(--gold)] p-5" style={{ background: 'rgba(196,160,56,0.04)' }}>
@@ -633,7 +624,7 @@ function RentForm() {
       {!isWaitlistDone && (
         <div className="w-full max-w-sm mb-4 border border-[var(--border-color)] bg-[var(--card-bg)] px-5 py-4 text-sm leading-relaxed" style={{ color: 'var(--gray)' }}>
           已完成匯款？請至「
-          <Link href="/my-booking" className="text-[var(--gold)] underline underline-offset-4">
+          <Link href={`/my-booking?phone=${encodeURIComponent(form.phone)}`} className="text-[var(--gold)] underline underline-offset-4">
             查詢申請頁
           </Link>
           」回報匯款資訊，我們將儘速審核。
@@ -651,7 +642,7 @@ function RentForm() {
             <p className="text-[11px] leading-relaxed" style={{ color: 'var(--gray)' }}>
               加入心宇宙官方帳號，匯款確認後我們將第一時間推播通知給您。
             </p>
-            <a href="https://lin.ee/RlmKDmn" target="_blank" rel="noopener noreferrer"
+            <a href="https://lin.ee/wMS5gQU" target="_blank" rel="noopener noreferrer"
               className="inline-block mt-2 text-[11px] px-3 py-1 text-white"
               style={{ background: '#06C755' }}>
               + 加入官方 LINE
@@ -661,7 +652,7 @@ function RentForm() {
       )}
 
       <div className="flex gap-4">
-        <button onClick={() => router.push('/my-booking')} className="text-sm text-[var(--gold)] tracking-widest hover:underline">
+        <button onClick={() => router.push(`/my-booking?phone=${encodeURIComponent(form.phone)}`)} className="text-sm text-[var(--gold)] tracking-widest hover:underline">
           {CTA.rental.queryStatus}
         </button>
         <span className="text-[var(--border-color)]">|</span>

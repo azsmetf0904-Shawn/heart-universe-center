@@ -1,5 +1,19 @@
 const ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN
 
+async function lineApiGet(endpoint: string): Promise<unknown | null> {
+  if (!ACCESS_TOKEN) return null
+  const res = await fetch(`https://api.line.me/v2/bot/${endpoint}`, {
+    headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+  }).catch(() => null)
+  if (!res?.ok) return null
+  return res.json().catch(() => null)
+}
+
+export async function getLineGroupMemberName(groupId: string, userId: string): Promise<string | null> {
+  const data = await lineApiGet(`group/${groupId}/member/${userId}`) as { displayName?: string } | null
+  return data?.displayName ?? null
+}
+
 async function lineApiPost(endpoint: string, body: unknown) {
   if (!ACCESS_TOKEN) {
     console.error('[LINE] LINE_CHANNEL_ACCESS_TOKEN not set')
@@ -46,6 +60,20 @@ export function lineCancelledMsg(name: string, eventTitle: string) {
 親愛的 ${name}，您申請的《${eventTitle}》場地租借申請已被取消。
 
 如有疑問請直接聯繫心宇宙商務中心，我們很樂意為您重新安排。`
+}
+
+export function lineWaitlistToPayMsg(name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
+  return `🎉 候補已確認！
+
+親愛的 ${name}，好消息！您候補的場地時段已有空缺，申請正式受理。
+
+📋 活動：${eventTitle}
+📅 日期：${bookingDate}
+🕐 時段：${timeSlot}
+
+請於 3 天內完成匯款，並至官網回報匯款資訊，我們確認入帳後將正式核可。
+
+如有疑問請直接聯繫心宇宙商務中心。`
 }
 
 export function lineWaitlistMsg(name: string, eventTitle: string, bookingDate: string, timeSlot: string) {

@@ -1,7 +1,7 @@
 import { createHmac } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { linePush, lineReply, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg } from '@/lib/line'
+import { linePush, lineReply, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg, lineWaitlistToPayMsg, getLineGroupMemberName } from '@/lib/line'
 import { TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus } from '@/lib/types'
 
@@ -44,8 +44,18 @@ export async function POST(req: NextRequest) {
         waitlist: 'waitlist',
         cancel: 'cancelled',
       }
-      const newStatus = statusMap[action]
-      if (!newStatus) continue
+      const intendedStatus = statusMap[action]
+      if (!intendedStatus) continue
+
+      // 先查目前狀態：候補申請被「核可」時應先轉 pending（待付款），而非直接 confirmed
+      const { data: current } = await supabase
+        .from('rental_requests')
+        .select('status')
+        .eq('id', bookingId)
+        .single()
+
+      const isWaitlistConvert = current?.status === 'waitlist' && action === 'confirm'
+      const newStatus: RentalStatus = isWaitlistConvert ? 'pending' : intendedStatus
 
       const { data: req } = await supabase
         .from('rental_requests')
@@ -54,10 +64,22 @@ export async function POST(req: NextRequest) {
         .select('name, event_title, booking_date, time_slot, line_user_id')
         .single()
 
-      // 回覆管理員
-      const labelMap: Record<string, string> = { confirmed: '✅ 已核可', waitlist: '🕐 已設為候補', cancelled: '❌ 已取消' }
+      // 回覆管理員（含操作者名稱）
+      const labelMap: Record<string, string> = {
+        confirmed: '✅ 已核可',
+        pending: '🔔 候補已轉正式，等待客戶匯款',
+        waitlist: '🕐 已設為候補',
+        cancelled: '❌ 已取消',
+      }
       if (event.replyToken) {
-        await lineReply(event.replyToken, `${labelMap[newStatus]}：${req?.event_title ?? bookingId}`)
+        const actorUserId = event.source?.userId
+        let actorName = ''
+        if (actorUserId) {
+          const groupId = process.env.ADMIN_LINE_GROUP_ID
+          if (groupId) actorName = await getLineGroupMemberName(groupId, actorUserId) ?? ''
+        }
+        const replyText = `${labelMap[newStatus] ?? '已更新'}：${req?.event_title ?? bookingId}${actorName ? `\n👤 操作者：${actorName}` : ''}`
+        await lineReply(event.replyToken, replyText)
       }
 
       // 通知客戶
@@ -65,6 +87,7 @@ export async function POST(req: NextRequest) {
         const slotLabel = req.time_slot ? (TIME_SLOT_LABEL[req.time_slot as keyof typeof TIME_SLOT_LABEL] ?? req.time_slot) : ''
         let customerMsg = ''
         if (newStatus === 'confirmed') customerMsg = lineConfirmedMsg(req.name, req.event_title, req.booking_date ?? '', slotLabel)
+        else if (newStatus === 'pending' && isWaitlistConvert) customerMsg = lineWaitlistToPayMsg(req.name, req.event_title, req.booking_date ?? '', slotLabel)
         else if (newStatus === 'cancelled') customerMsg = lineCancelledMsg(req.name, req.event_title)
         else if (newStatus === 'waitlist') customerMsg = lineWaitlistMsg(req.name, req.event_title, req.booking_date ?? '', slotLabel)
         if (customerMsg) await linePush(req.line_user_id, customerMsg)
