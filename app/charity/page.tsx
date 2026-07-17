@@ -194,6 +194,17 @@ export default function CharityPage() {
             <span>｜</span>
             <span>每日 12:00–20:00</span>
           </div>
+          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <a href="#donate-process" className="btn-gold-fill inline-flex min-h-12 items-center justify-center rounded-full px-7 text-xs tracking-[0.16em] shadow-lg">
+              我要捐物資 <span className="ml-2 text-base">↓</span>
+            </a>
+            <a href="#donate-rules" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/50 bg-white/5 px-7 text-xs tracking-[0.14em] text-white transition-colors hover:bg-white/10">
+              查看捐贈規範
+            </a>
+          </div>
+          <p className="mt-4 text-[11px] tracking-[0.08em]" style={{ color: 'rgba(255,255,255,0.52)' }}>
+            先確認收件規範，再讓物品延續它的生命
+          </p>
         </div>
       </section>
 
@@ -214,6 +225,29 @@ export default function CharityPage() {
             扣除人事與管銷成本，所有收入全數捐出。每一件物品，都在延續它的生命；每一筆消費，都是一份流動的善意。
           </p>
           <div className="gold-divider mt-8" />
+        </div>
+      </section>
+
+      {/* ── DONATION PHILOSOPHY ── */}
+      <section className="hu-charity-philosophy py-16 md:py-20">
+        <div className="container-narrow px-6">
+          <p className="text-xs tracking-[0.35em] uppercase mb-5" style={{ color: 'var(--gold)' }}>Why We Share</p>
+          <h2 className="text-2xl md:text-3xl leading-snug mb-5">每一件物品，<br />都值得被好好對待</h2>
+          <p className="max-w-2xl text-sm leading-loose" style={{ color: 'var(--gray)' }}>
+            你捐出的不只是物品，而是一段被延續的生命，也是下一個人重新開始時，收到的一份溫柔支持。
+          </p>
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {[
+              ['延續物品生命', '讓仍然美好的物品，繼續被需要、被珍惜。'],
+              ['讓資源再次流動', '透過整理與義賣，讓善意走得更遠。'],
+              ['把愛送到需要的地方', '義賣收入扣除管銷後，全數投入公益。'],
+            ].map(([title, desc]) => (
+              <div key={title} className="border-t pt-4" style={{ borderColor: 'rgba(196,160,56,.28)' }}>
+                <p className="font-serif text-sm mb-2" style={{ color: 'var(--gold)' }}>{title}</p>
+                <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>{desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -241,7 +275,7 @@ export default function CharityPage() {
       </section>
 
       {/* ── 不收清單 ── */}
-      <section className="pb-6">
+      <section className="pb-6" id="donate-rules">
         <div className="container-narrow px-6">
           <div
             className="rounded-2xl p-5 border flex gap-4 items-start"
@@ -262,7 +296,7 @@ export default function CharityPage() {
       </section>
 
       {/* ── 捐贈流程 ── */}
-      <section className="hu-charity-process py-16">
+      <section className="hu-charity-process py-16" id="donate-process">
         <div className="container-narrow px-6">
           <p className="text-xs tracking-[0.35em] uppercase mb-10" style={{ color: 'var(--gold)' }}>
             物資捐贈流程
