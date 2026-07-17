@@ -7,10 +7,26 @@ export const metadata: Metadata = {
   title: '愛物王斷捨離二手公益 | 台北松山',
   description:
     '愛物王斷捨離二手公益商店位於台北松山八德路三段223號B1，每日12:00-20:00營運，接收高品質二手物資義賣，扣除管銷後全數捐出。捷運小巨蛋站或國父紀念館站步行10分鐘。',
+  keywords: ['愛物王', '斷捨離', '二手公益', '二手公益商店', '台北二手店', '松山二手公益'],
+  alternates: {
+    canonical: '/charity',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
     title: '愛物王斷捨離二手公益',
     description: '斷捨離，讓愛傳下去。台北松山二手公益——接收9成新物資義賣，全數捐出。每日 12:00-20:00，八德路三段223號B1。',
+    url: '/charity',
+    type: 'website',
     images: [{ url: '/charity/hero.jpg' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '愛物王斷捨離二手公益',
+    description: '台北松山二手公益商店：斷捨離，讓愛傳下去。',
+    images: ['/charity/hero.jpg'],
   },
 }
 
