@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { linePush, linePushFlex, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg, buildAdminPaymentFlex, buildAdminNewBookingFlex } from '@/lib/line'
+import { linePush, linePushFlex, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg, buildAdminPaymentFlex, buildAdminNewBookingFlex, buildCustomerBookingConfirmFlex } from '@/lib/line'
 
 export async function POST(req: NextRequest) {
   try {
@@ -10,10 +10,10 @@ export async function POST(req: NextRequest) {
     if (type === 'new_booking') {
       const adminId = process.env.ADMIN_LINE_GROUP_ID ?? process.env.ADMIN_LINE_USER_ID
       if (!adminId) return NextResponse.json({ ok: false, error: 'ADMIN_LINE_GROUP_ID not set' })
-      const { bookingId, phone, venueName, guestCount, note, isWaitlist } = body
+      const { bookingId, phone, email, venueName, guestCount, note, isWaitlist, lineUserId: customerLineUserId } = body
       const flex = buildAdminNewBookingFlex(
-        bookingId, name, phone, eventTitle, bookingDate, timeSlot,
-        venueName ?? '', guestCount ?? null, note ?? null, !!isWaitlist,
+        bookingId, name, phone, email ?? '', eventTitle, bookingDate, timeSlot,
+        venueName ?? '', guestCount ?? null, note ?? null, !!isWaitlist, customerLineUserId ?? null,
       )
       const altText = `${isWaitlist ? '🔔 候補' : '📋 新預約'}：${name}・${eventTitle}`
       await linePushFlex(adminId, altText, flex)
@@ -27,6 +27,18 @@ export async function POST(req: NextRequest) {
       const { bookingId, last5, paymentDate, amount } = body
       const flex = buildAdminPaymentFlex(bookingId, name, eventTitle, bookingDate, timeSlot, last5, paymentDate, amount)
       await linePushFlex(adminId, `💰 ${name} 已回報匯款`, flex)
+      return NextResponse.json({ ok: true })
+    }
+
+    // 客戶通知：預約已收到（立即 Flex 確認）
+    if (type === 'booking_received') {
+      if (!lineUserId) return NextResponse.json({ ok: false, error: 'lineUserId required' })
+      const { venueName, totalAmount, phone, isWaitlist } = body
+      const flex = buildCustomerBookingConfirmFlex(
+        name, eventTitle, bookingDate, timeSlot,
+        venueName ?? '', totalAmount ?? null, phone ?? '', !!isWaitlist,
+      )
+      await linePushFlex(lineUserId, `${name}，您的場地申請已收到！`, flex)
       return NextResponse.json({ ok: true })
     }
 

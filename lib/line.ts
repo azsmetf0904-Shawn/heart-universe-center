@@ -62,10 +62,10 @@ export function lineWaitlistMsg(name: string, eventTitle: string, bookingDate: s
 
 export function buildAdminNewBookingFlex(
   bookingId: string,
-  name: string, phone: string, eventTitle: string,
+  name: string, phone: string, email: string, eventTitle: string,
   bookingDate: string, timeSlot: string,
   venueName: string, guestCount: string | null, note: string | null,
-  isWaitlist: boolean,
+  isWaitlist: boolean, lineUserId: string | null = null,
 ) {
   const postback = (action: string) => `action=${action}&bookingId=${bookingId}`
   const headerColor = isWaitlist ? '#8B5CF6' : '#C4A038'
@@ -91,6 +91,7 @@ export function buildAdminNewBookingFlex(
       contents: [
         row('申請人', name),
         row('電話', phone),
+        row('Email', email),
         row('活動名稱', eventTitle),
         row('場地', venueName),
         row('日期', bookingDate),
@@ -100,14 +101,28 @@ export function buildAdminNewBookingFlex(
       ],
     },
     footer: {
-      type: 'box', layout: 'horizontal', spacing: 'sm', paddingAll: '12px',
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '12px',
       contents: [
-        { type: 'button', style: 'primary', color: '#4ade80', height: 'sm',
-          action: { type: 'postback', label: '核可', data: postback('confirm') } },
-        { type: 'button', style: 'primary', color: '#c084fc', height: 'sm',
-          action: { type: 'postback', label: '候補', data: postback('waitlist') } },
-        { type: 'button', style: 'primary', color: '#f87171', height: 'sm',
-          action: { type: 'postback', label: '取消', data: postback('cancel') } },
+        {
+          type: 'box', layout: 'horizontal', spacing: 'sm',
+          contents: [
+            { type: 'button', style: 'primary', color: '#4ade80', height: 'sm',
+              action: { type: 'postback', label: '核可', data: postback('confirm') } },
+            { type: 'button', style: 'primary', color: '#c084fc', height: 'sm',
+              action: { type: 'postback', label: '候補', data: postback('waitlist') } },
+            { type: 'button', style: 'primary', color: '#f87171', height: 'sm',
+              action: { type: 'postback', label: '取消', data: postback('cancel') } },
+          ],
+        },
+        {
+          type: 'box', layout: 'horizontal', spacing: 'sm',
+          contents: [
+            { type: 'button', style: 'secondary', height: 'sm',
+              action: { type: 'uri', label: '撥打電話', uri: `tel:${phone}` } },
+            ...(lineUserId ? [{ type: 'button', style: 'secondary', height: 'sm',
+              action: { type: 'uri', label: 'LINE 聯絡', uri: `https://line.me/ti/p/${lineUserId}` } }] : []),
+          ],
+        },
       ],
     },
   }
@@ -177,6 +192,70 @@ export function buildAdminPaymentFlex(
           type: 'button', style: 'primary', color: '#f87171', height: 'sm',
           action: { type: 'postback', label: '取消', data: postback('cancel') },
         },
+      ],
+    },
+  }
+}
+
+const SITE_URL = 'https://heart-universe-center.vercel.app'
+
+export function buildCustomerBookingConfirmFlex(
+  name: string, eventTitle: string, bookingDate: string, timeSlot: string,
+  venueName: string, totalAmount: number | null, phone: string, isWaitlist: boolean,
+) {
+  const headerColor = isWaitlist ? '#8B5CF6' : '#C4A038'
+
+  const row = (label: string, value: string) => ({
+    type: 'box', layout: 'horizontal',
+    contents: [
+      { type: 'text', text: label, color: '#888888', size: 'sm', flex: 2 },
+      { type: 'text', text: value || '—', size: 'sm', flex: 3, wrap: true },
+    ],
+  })
+
+  const bodyContents: unknown[] = [
+    ...(venueName ? [row('場地', venueName)] : []),
+    ...(bookingDate ? [row('日期', bookingDate)] : []),
+    ...(timeSlot ? [row('時段', timeSlot)] : []),
+    ...(totalAmount ? [row('預估金額', `NT$ ${totalAmount.toLocaleString()}`)] : []),
+  ]
+
+  if (!isWaitlist) {
+    bodyContents.push(
+      { type: 'separator', margin: 'md' },
+      { type: 'text', text: '匯款資訊', weight: 'bold', size: 'sm', margin: 'md', color: '#C4A038' },
+      row('銀行', '中國信託 822 北投'),
+      row('帳號', '680541314031'),
+      row('戶名', '財富女神股份有限公司'),
+      { type: 'text', text: '請於 3 個工作日內完成匯款，並點下方按鈕回報。', size: 'xs', color: '#888888', margin: 'sm', wrap: true },
+    )
+  } else {
+    bodyContents.push(
+      { type: 'text', text: '若有空缺我們將優先通知您，請靜候佳音。', size: 'xs', color: '#888888', margin: 'sm', wrap: true },
+    )
+  }
+
+  const myBookingUrl = `${SITE_URL}/my-booking?phone=${encodeURIComponent(phone)}`
+
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: headerColor, paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: 'rgba(255,255,255,0.7)', size: 'xs' },
+        { type: 'text', text: `${name}，${isWaitlist ? '已列入候補' : '申請已收到'}！`, color: '#FFFFFF', weight: 'bold', size: 'md' },
+        { type: 'text', text: eventTitle, color: 'rgba(255,255,255,0.85)', size: 'sm', wrap: true },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: bodyContents,
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'primary', color: '#C4A038', height: 'sm',
+          action: { type: 'uri', label: '查詢申請 / 回報匯款', uri: myBookingUrl } },
       ],
     },
   }

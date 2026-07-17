@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { CTA } from '@/lib/cta'
 import type { RentalRequest } from '@/lib/types'
@@ -94,12 +94,11 @@ export default function MyBookingPage() {
     setPaymentSubmitting(false)
   }
 
-  async function handleSearch(e: React.FormEvent) {
-    e.preventDefault()
-    if (!query.trim()) return
+  const doSearch = useCallback(async (q: string) => {
+    if (!q.trim()) return
     setSearching(true)
     const supabase = createClient()
-    const filters = buildQueryFilters(query)
+    const filters = buildQueryFilters(q)
     const { data } = await supabase
       .from('rental_requests')
       .select('*, venue:venues(name)')
@@ -107,6 +106,21 @@ export default function MyBookingPage() {
       .order('created_at', { ascending: false })
     setResults(data ?? [])
     setSearching(false)
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const params = new URLSearchParams(window.location.search)
+    const phone = params.get('phone')
+    if (phone) {
+      setQuery(phone)
+      doSearch(phone)
+    }
+  }, [doSearch])
+
+  async function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    await doSearch(query)
   }
 
   return (

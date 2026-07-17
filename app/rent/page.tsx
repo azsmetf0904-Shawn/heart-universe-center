@@ -459,6 +459,8 @@ function RentForm() {
           bookingId: req.id,
           name: form.name,
           phone: form.phone,
+          email: form.email,
+          lineUserId: lineProfile?.userId ?? null,
           eventTitle: form.event_title,
           bookingDate: form.booking_date,
           timeSlot: emailPayload.timeSlot ?? '',
@@ -468,6 +470,25 @@ function RentForm() {
           isWaitlist,
         }),
       }).catch(() => {})
+      // 通知預約者（LINE 推播，立即確認 + 匯款資訊）
+      if (lineProfile?.userId) {
+        fetch('/api/line/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: 'booking_received',
+            lineUserId: lineProfile.userId,
+            name: form.name,
+            eventTitle: form.event_title,
+            bookingDate: form.booking_date,
+            timeSlot: emailPayload.timeSlot ?? '',
+            venueName: selectedVenue?.name ?? '',
+            totalAmount: totalAmount > 0 ? totalAmount : null,
+            phone: form.phone,
+            isWaitlist,
+          }),
+        }).catch(() => {})
+      }
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(RENT_DRAFT_KEY)
       }
