@@ -285,6 +285,19 @@
 .hu-nav-charity .hu-nav-charity-identity { order: 1 !important; }
 .hu-nav-charity .hu-nav-main-brand { order: 2 !important; }
 @media (max-width: 767px) {
+  .hu-charity-hero-actions {
+    width: min(100%, 320px);
+    margin-left: auto;
+    margin-right: auto;
+    gap: 10px !important;
+  }
+  .hu-charity-hero-actions > a {
+    width: 100%;
+    min-height: 50px;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+  }
+
   /* Dual-brand mobile header: keep both identities readable without clipping. */
   .hu-nav-brand-group {
     flex: 1 1 auto;

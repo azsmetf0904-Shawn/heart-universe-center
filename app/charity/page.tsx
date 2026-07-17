@@ -194,7 +194,7 @@ export default function CharityPage() {
             <span>｜</span>
             <span>每日 12:00–20:00</span>
           </div>
-          <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="hu-charity-hero-actions mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <a href="#donate-process" className="btn-gold-fill inline-flex min-h-12 items-center justify-center rounded-full px-7 text-xs tracking-[0.16em] shadow-lg">
               我要捐物資 <span className="ml-2 text-base">↓</span>
             </a>
