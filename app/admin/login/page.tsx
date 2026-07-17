@@ -20,7 +20,10 @@ export default function AdminLoginPage() {
       setError('帳號或密碼錯誤')
       setLoading(false)
     } else {
-      router.push('/admin')
+      const redirect = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('redirect') ?? '/admin'
+        : '/admin'
+      router.push(redirect)
       router.refresh()
     }
   }
@@ -34,7 +37,7 @@ export default function AdminLoginPage() {
         </div>
         <form onSubmit={handleLogin} className="flex flex-col gap-5">
           <div>
-            <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>Email</label>
+            <label className="form-label mb-2">Email</label>
             <input
               type="email"
               required
@@ -44,7 +47,7 @@ export default function AdminLoginPage() {
             />
           </div>
           <div>
-            <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>密碼</label>
+            <label className="form-label mb-2">密碼</label>
             <input
               type="password"
               required

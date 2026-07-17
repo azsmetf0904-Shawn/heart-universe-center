@@ -1,9 +1,10 @@
 import Link from 'next/link'
 
-type TabKey = 'events' | 'showcase' | 'news'
+type TabKey = 'events' | 'events-ended' | 'showcase' | 'news'
 
 const tabs: Array<{ key: TabKey; href: string; label: string }> = [
   { key: 'events', href: '/events', label: '即將到來' },
+  { key: 'events-ended', href: '/events?tab=ended', label: '已結束' },
   { key: 'showcase', href: '/showcase', label: '活動回顧' },
   { key: 'news', href: '/news', label: '媒體連結' },
 ]

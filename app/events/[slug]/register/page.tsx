@@ -23,10 +23,12 @@ export default function RegisterPage() {
 
   useEffect(() => {
     const supabase = createClient()
-    supabase.from('events').select('*').eq('slug', slug).single().then(({ data }) => {
-      setEvent(data)
-      setLoading(false)
-    })
+    supabase.from('events')
+      .select('*, event_registrations(id, status)')
+      .eq('slug', slug).single().then(({ data }) => {
+        setEvent(data)
+        setLoading(false)
+      })
   }, [slug])
 
   async function handleSubmit(e: React.FormEvent) {
@@ -81,14 +83,18 @@ export default function RegisterPage() {
   if (loading) return <div className="py-40 text-center text-[var(--gray)] text-sm">載入中…</div>
   if (!event) return <div className="py-40 text-center text-[var(--gray)] text-sm">活動不存在</div>
 
-  const isUnavailable = event.status !== 'published' || new Date(event.end_time) < new Date()
+  const registeredCount = (event.event_registrations ?? []).filter((r: { status: string }) => r.status === 'registered').length
+  const isFull = !!event.capacity && registeredCount >= event.capacity
+  const isUnavailable = event.status !== 'published' || new Date(event.end_time) < new Date() || isFull
   if (isUnavailable) {
     return (
       <div className="py-40 text-center container-narrow max-w-md">
         <p className="label-tag mb-4">Registration Closed</p>
-        <h2 className="text-2xl mb-4">報名已截止</h2>
+        <h2 className="text-2xl mb-4">{isFull ? '名額已滿' : '報名已截止'}</h2>
         <div className="gold-divider mx-auto" />
-        <p className="text-sm text-[var(--gray)] mt-6 mb-8">此活動已結束或不開放報名。</p>
+        <p className="text-sm text-[var(--gray)] mt-6 mb-8">
+          {isFull ? '此活動名額已額滿，感謝您的支持。' : '此活動已結束或不開放報名。'}
+        </p>
         <Link href={`/events/${slug}`} className="text-xs tracking-widest text-[var(--gold)] hover:underline">
           返回活動詳情
         </Link>

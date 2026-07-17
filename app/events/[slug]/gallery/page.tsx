@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import type { Metadata } from 'next'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
@@ -39,11 +40,13 @@ export default async function GalleryPage({ params }: { params: Promise<{ slug: 
         <div className="container-wide grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
           {photos.map((p: { image_url: string; caption: string | null; sort_order: number }, i: number) => (
             <div key={i} className="flex flex-col">
-              <div className="aspect-square bg-[var(--surface)] overflow-hidden">
-                <img
+              <div className="aspect-square bg-[var(--surface)] overflow-hidden relative">
+                <Image
                   src={p.image_url}
                   alt={p.caption ?? `照片 ${i + 1}`}
-                  className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
+                  fill
+                  className="object-cover hover:scale-105 transition-transform duration-500"
+                  sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                 />
               </div>
               {p.caption && (

@@ -50,7 +50,7 @@ export default async function EventsPage({
         <div className="gold-divider" />
       </div>
 
-      <PageTabs active="events" />
+      <PageTabs active={isEnded ? 'events-ended' : 'events'} />
 
       {!events?.length ? (
         <div className="container-narrow text-center py-20">
