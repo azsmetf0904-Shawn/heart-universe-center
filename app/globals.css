@@ -809,11 +809,6 @@ button, a, [role="button"], label[for] {
   0%, 100% { box-shadow: 0 0 0 0 rgba(196,160,56,.18); }
   50% { box-shadow: 0 0 0 9px rgba(196,160,56,0); }
 }
-@keyframes hu-charityHeroSweep {
-  0%, 28% { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
-  42% { opacity: .28; }
-  68%, 100% { transform: translateX(480%) skewX(-18deg); opacity: 0; }
-}
 @keyframes hu-charityHeroPulse {
   0%, 100% { opacity: .18; transform: scale(.92) translate3d(0,0,0); }
   50% { opacity: .42; transform: scale(1.12) translate3d(2%, -2%, 0); }
@@ -825,11 +820,13 @@ button, a, [role="button"], label[for] {
   74% { opacity: .62; transform: translate3d(-18px, -62px, 0) scale(.9); }
 }
 .hu-charity-spirit-field {
-  position: absolute;
+  position: fixed;
   z-index: 3;
-  inset: 0;
+  inset: 64px 0 0;
   overflow: hidden;
   pointer-events: none;
+  opacity: .78;
+  mix-blend-mode: screen;
 }
 .hu-charity-spirit-field i {
   position: absolute;
@@ -837,8 +834,10 @@ button, a, [role="button"], label[for] {
   width: 5px;
   height: 5px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,249,210,.98) 0 18%, rgba(230,190,78,.82) 42%, transparent 72%);
-  box-shadow: 0 0 8px 2px rgba(230,190,78,.32), 0 0 22px rgba(255,243,176,.2);
+  background: rgba(218,190,116,.72);
+  box-shadow: none;
+  filter: blur(.15px);
+  border-radius: 62% 38% 55% 45%;
   animation: hu-spiritDrift 9s ease-in-out infinite;
 }
 .hu-charity-spirit-field i:nth-child(1) { left: 18%; top: 22%; width: 3px; height: 3px; animation-duration: 8s; animation-delay: -2s; }
@@ -859,6 +858,18 @@ button, a, [role="button"], label[for] {
 .hu-charity-spirit-field i:nth-child(16) { left: 93%; top: 52%; width: 5px; height: 5px; animation-duration: 10.5s; animation-delay: -4.5s; }
 .hu-charity-spirit-field i:nth-child(17) { left: 23%; top: 86%; width: 2px; height: 2px; animation-duration: 13s; animation-delay: -9.5s; }
 .hu-charity-spirit-field i:nth-child(18) { left: 64%; top: 91%; width: 4px; height: 4px; animation-duration: 9s; animation-delay: -3.5s; }
+.hu-charity-spirit-field i:nth-child(19) { left: 7%; top: 34%; width: 4px; height: 2px; animation-duration: 15s; animation-delay: -5s; transform: rotate(24deg); }
+.hu-charity-spirit-field i:nth-child(20) { left: 15%; top: 74%; width: 2px; height: 5px; animation-duration: 12s; animation-delay: -2s; transform: rotate(-18deg); }
+.hu-charity-spirit-field i:nth-child(21) { left: 33%; top: 43%; width: 5px; height: 3px; animation-duration: 17s; animation-delay: -11s; transform: rotate(42deg); }
+.hu-charity-spirit-field i:nth-child(22) { left: 41%; top: 9%; width: 3px; height: 5px; animation-duration: 14s; animation-delay: -7s; transform: rotate(-32deg); }
+.hu-charity-spirit-field i:nth-child(23) { left: 49%; top: 61%; width: 5px; height: 2px; animation-duration: 16s; animation-delay: -13s; transform: rotate(18deg); }
+.hu-charity-spirit-field i:nth-child(24) { left: 55%; top: 37%; width: 2px; height: 4px; animation-duration: 10s; animation-delay: -4s; transform: rotate(36deg); }
+.hu-charity-spirit-field i:nth-child(25) { left: 69%; top: 8%; width: 4px; height: 2px; animation-duration: 18s; animation-delay: -15s; transform: rotate(-24deg); }
+.hu-charity-spirit-field i:nth-child(26) { left: 76%; top: 64%; width: 3px; height: 5px; animation-duration: 13s; animation-delay: -8s; transform: rotate(28deg); }
+.hu-charity-spirit-field i:nth-child(27) { left: 84%; top: 44%; width: 5px; height: 3px; animation-duration: 16s; animation-delay: -10s; transform: rotate(-36deg); }
+.hu-charity-spirit-field i:nth-child(28) { left: 91%; top: 78%; width: 2px; height: 5px; animation-duration: 12s; animation-delay: -6s; transform: rotate(16deg); }
+.hu-charity-spirit-field i:nth-child(29) { left: 26%; top: 11%; width: 3px; height: 2px; animation-duration: 19s; animation-delay: -14s; transform: rotate(52deg); }
+.hu-charity-spirit-field i:nth-child(30) { left: 63%; top: 72%; width: 4px; height: 2px; animation-duration: 15s; animation-delay: -9s; transform: rotate(-48deg); }
 .hu-charity-hero::before {
   content: '';
   position: absolute;
@@ -873,19 +884,6 @@ button, a, [role="button"], label[for] {
   pointer-events: none;
   mix-blend-mode: screen;
   animation: hu-charityHeroPulse 13s ease-in-out infinite;
-}
-.hu-charity-hero::after {
-  content: '';
-  position: absolute;
-  z-index: 5;
-  top: -12%;
-  bottom: -12%;
-  left: 0;
-  width: 11%;
-  background: linear-gradient(90deg, transparent, rgba(255,239,185,.16), transparent);
-  filter: blur(12px);
-  pointer-events: none;
-  animation: hu-charityHeroSweep 15s ease-in-out infinite;
 }
 .hu-charity-page > section:not(.hu-charity-hero) {
   background-image:
@@ -1152,8 +1150,8 @@ button, a, [role="button"], label[for] {
     top: 5%;
     opacity: .45;
   }
-  .hu-charity-spirit-field i:nth-child(n+10) { display: none; }
-  .hu-charity-spirit-field i { box-shadow: 0 0 6px 1px rgba(230,190,78,.28); }
+  .hu-charity-spirit-field i:nth-child(n+16) { display: none; }
+  .hu-charity-spirit-field i { box-shadow: none; }
 }
 
 /* Layered motion language for the charity sub-home. */
