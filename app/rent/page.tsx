@@ -82,6 +82,8 @@ function RentForm() {
   const [prefilledDate, setPrefilledDate] = useState('')
   const [showOptional, setShowOptional] = useState(false)
   const [copied, setCopied] = useState(false)
+  const [lineFriendStatus, setLineFriendStatus] = useState<'friend' | 'not_friend' | 'unknown' | null>(null)
+  const [lineFriendConfirmed, setLineFriendConfirmed] = useState(false)
   const [errors, setErrors] = useState<Partial<Record<keyof RentFormState, string>>>({})
 
   const [form, setForm] = useState<RentFormState>({ ...initialForm, time_slots: [] })
@@ -90,18 +92,24 @@ function RentForm() {
   useEffect(() => {
     const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID
     if (!liffId) { setLiffLoading(false); return }
-    import('@line/liff').then(({ default: liff }) => {
-      liff.init({ liffId }).then(() => {
+    import('@line/liff').then(async ({ default: liff }) => {
+      try {
+        await liff.init({ liffId })
         if (liff.isLoggedIn()) {
-          liff.getProfile().then(p => {
-            setLineProfile({ userId: p.userId, displayName: p.displayName, pictureUrl: p.pictureUrl })
-            setLiffLoading(false)
-          })
-        } else {
-          // 不自動跳轉，讓用戶主動點按鈕
-          setLiffLoading(false)
+          const p = await liff.getProfile()
+          setLineProfile({ userId: p.userId, displayName: p.displayName, pictureUrl: p.pictureUrl })
+          try {
+            const { friendFlag } = await liff.getFriendship()
+            setLineFriendStatus(friendFlag ? 'friend' : 'not_friend')
+          } catch {
+            setLineFriendStatus('unknown')
+          }
         }
-      }).catch(() => setLiffLoading(false))
+      } catch {
+        // LIFF init failed
+      } finally {
+        setLiffLoading(false)
+      }
     })
   }, [])
 
@@ -251,12 +259,14 @@ function RentForm() {
 
   useEffect(() => {
     if (!draftReady || done || step !== 3 || !lineProfile || typeof window === 'undefined') return
+    if (lineFriendStatus === null) return // getFriendship 尚未完成
     if (window.sessionStorage.getItem(LINE_PENDING_SUBMIT_KEY) !== '1') return
 
     window.sessionStorage.removeItem(LINE_PENDING_SUBMIT_KEY)
     window.sessionStorage.removeItem(LINE_RESUME_STEP_KEY)
+    if (lineFriendStatus !== 'friend') return // 未加好友，顯示 gate 讓用戶手動送出
     void handleSubmit({ fromLineLogin: true })
-  }, [draftReady, done, lineProfile, step])
+  }, [draftReady, done, lineProfile, lineFriendStatus, step])
 
   function handleVenueChange(id: string) {
     const v = venues.find(x => x.id === id) ?? null
@@ -363,10 +373,15 @@ function RentForm() {
 
   const isHolidayDate = calSel ? isHoliday(calSel.date) : false
   const lineLoginRequired = Boolean(process.env.NEXT_PUBLIC_LINE_LIFF_ID) && !lineProfile
+  const needsFriendGate = Boolean(lineProfile) && lineFriendStatus !== 'friend'
 
   async function handleSubmit({ fromLineLogin = false }: { fromLineLogin?: boolean } = {}) {
     if (lineLoginRequired) {
       setSubmitError(`請先登入 LINE 後再${CTA.rental.submit}`)
+      return
+    }
+    if (needsFriendGate && !lineFriendConfirmed) {
+      setSubmitError('請先加入心宇宙官方帳號好友，勾選確認後再送出。')
       return
     }
     setSubmitting(true)
@@ -1103,6 +1118,34 @@ function RentForm() {
               )
             )}
 
+            {/* 加入官方帳號確認 gate */}
+            {needsFriendGate && (
+              <div className="border border-[#06C755] p-4 flex flex-col gap-3" style={{ background: 'rgba(6,199,85,0.04)' }}>
+                <div>
+                  <p className="text-xs font-medium mb-1" style={{ color: '#06C755' }}>
+                    {lineFriendStatus === 'not_friend' ? '尚未加入官方帳號' : '請確認已加入官方帳號'}
+                  </p>
+                  <p className="text-[11px] leading-relaxed mb-2" style={{ color: 'var(--gray)' }}>
+                    加入好友後才能收到預約確認、匯款提醒及審核通知。
+                  </p>
+                  <a href="https://lin.ee/wMS5gQU" target="_blank" rel="noopener noreferrer"
+                    className="inline-block text-[11px] px-3 py-1.5 text-white"
+                    style={{ background: '#06C755' }}>
+                    ＋ 加入心宇宙官方帳號
+                  </a>
+                </div>
+                <label className="flex items-center gap-2 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={lineFriendConfirmed}
+                    onChange={e => { setLineFriendConfirmed(e.target.checked); setSubmitError('') }}
+                    className="w-4 h-4 accent-[#06C755]"
+                  />
+                  <span className="text-xs" style={{ color: 'var(--charcoal)' }}>我已加入心宇宙官方帳號好友</span>
+                </label>
+              </div>
+            )}
+
             {submitError && (
               <div className="mb-2 flex items-center justify-between gap-3 rounded-md border border-red-100 bg-red-50/70 px-3 py-2">
                 <p className="text-xs text-red-600 leading-relaxed">{submitError}</p>
@@ -1119,7 +1162,7 @@ function RentForm() {
               <button onClick={() => setStep(2)} className="flex-1 py-3 border border-[var(--border-color)] text-sm tracking-widest hover:border-[var(--charcoal)] transition-colors">{CTA.rental.back}</button>
               <button
                 onClick={lineLoginRequired ? handleLineLogin : () => void handleSubmit()}
-                disabled={submitting}
+                disabled={submitting || (needsFriendGate && !lineFriendConfirmed)}
                 className="flex-1 py-3 bg-[var(--gold)] text-white text-sm tracking-widest hover:bg-[var(--gold-dark)] transition-colors disabled:opacity-50">
                 {lineLoginRequired ? CTA.rental.loginLineThenSubmit : (submitting ? CTA.rental.submitting : CTA.rental.submit)}
               </button>
