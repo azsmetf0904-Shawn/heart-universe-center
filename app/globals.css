@@ -314,8 +314,8 @@ button, a, [role="button"], label[for] {
   50%      { background-position: 30% 42%, 68% 58%, 0 0; }
 }
 @keyframes hu-photoDrift {
-  0%, 100% { transform: scale(1.04) translate3d(0, 0, 0); }
-  50%      { transform: scale(1.08) translate3d(-1.2%, -0.7%, 0); }
+  0%, 100% { transform: scale(1.015) translate3d(0, 0, 0); }
+  50%      { transform: scale(1.03) translate3d(-.55%, -.35%, 0); }
 }
 @keyframes hu-captionFloat {
   0%, 100% { transform: translateY(0); opacity: .72; }
@@ -445,6 +445,15 @@ button, a, [role="button"], label[for] {
   45% { opacity: .55; }
   70%, 100% { transform: translateX(500%); opacity: 0; }
 }
+@keyframes hu-organicMorph {
+  0% { border-radius: 62% 38% 44% 56% / 42% 55% 45% 58%; transform: rotate(-13deg) translate3d(0,0,0) scale(.94); }
+  50% { border-radius: 42% 58% 55% 45% / 58% 40% 60% 42%; transform: rotate(-5deg) translate3d(-2%, 5%, 0) scale(1.04); }
+  100% { border-radius: 55% 45% 38% 62% / 46% 61% 39% 54%; transform: rotate(-17deg) translate3d(2%, 1%, 0) scale(.98); }
+}
+@keyframes hu-organicOrbit {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  50% { transform: translate3d(18%, -12%, 0) rotate(24deg); }
+}
 
 /* Perfect desktop direction recovered from /private/tmp/heart-v-perfect.html. */
 @media (min-width: 1024px) {
@@ -551,9 +560,12 @@ button, a, [role="button"], label[for] {
     display: block;
   }
   .hu-perfect-hero > [data-hp="photo"] > div:first-child > img {
-    transform: scale(1.04);
-    filter: saturate(.72) contrast(1.05) brightness(.72);
+    transform: scale(1.015) translateZ(0);
+    filter: saturate(.9) contrast(1.03) brightness(.86);
     animation: hu-photoDrift 18s ease-in-out infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+    image-rendering: auto;
   }
   .hu-perfect-hero > [data-hp="photo"] > div:first-child > div {
     background:
@@ -561,6 +573,36 @@ button, a, [role="button"], label[for] {
       linear-gradient(to top, rgba(10,6,2,.62), transparent 48%) !important;
   }
   .hu-perfect-hero > [data-hp="photo"] > div:not(:first-child) { display: none; }
+  .hu-perfect-hero > [data-hp="photo"] > .hu-organic-orb {
+    display: block !important;
+    position: absolute;
+    z-index: 3;
+    width: clamp(180px, 22vw, 360px);
+    aspect-ratio: 1.15;
+    right: -5%;
+    top: 10%;
+    pointer-events: none;
+    border: 1px solid rgba(245,224,164,.25);
+    border-radius: 62% 38% 44% 56% / 42% 55% 45% 58%;
+    background: radial-gradient(ellipse at 35% 35%, rgba(245,224,164,.16), rgba(196,160,56,.035) 48%, transparent 72%);
+    box-shadow: inset 0 0 34px rgba(255,244,207,.06), 0 0 42px rgba(196,160,56,.08);
+    mix-blend-mode: screen;
+    opacity: .8;
+    transform: rotate(-13deg);
+    animation: hu-organicMorph 16s ease-in-out infinite alternate;
+  }
+  .hu-perfect-hero > [data-hp="photo"] > .hu-organic-orb::after {
+    content: '';
+    position: absolute;
+    width: 36%;
+    aspect-ratio: 1;
+    left: 18%;
+    bottom: -13%;
+    border-radius: 48% 52% 60% 40% / 55% 42% 58% 45%;
+    border: 1px solid rgba(245,224,164,.18);
+    background: rgba(245,224,164,.05);
+    animation: hu-organicOrbit 11s ease-in-out infinite;
+  }
   .hu-perfect-hero > [data-hp="photo"]::before {
     content: '';
     position: absolute;
@@ -594,6 +636,14 @@ button, a, [role="button"], label[for] {
 
 /* Tablet and mobile: keep the Hero whole, calm, and readable. */
 @media (max-width: 1023px) {
+  .hu-home-nav .hu-mobile-menu {
+    background: rgba(247,241,232,.99) !important;
+    border-color: rgba(196,160,56,.2) !important;
+  }
+  .hu-home-nav .hu-mobile-menu a,
+  .hu-home-nav .hu-mobile-menu button { color: var(--charcoal) !important; }
+  .hu-home-nav .hu-mobile-menu a:hover,
+  .hu-home-nav .hu-mobile-menu button:hover { color: var(--gold) !important; }
   .hu-perfect-hero {
     display: block !important;
     min-height: auto !important;

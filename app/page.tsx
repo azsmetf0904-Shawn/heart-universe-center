@@ -192,11 +192,6 @@ async function HomePageContent() {
             ))}
           </div>
 
-          {/* CTA — mobile */}
-          <Link data-hp="text" href="/rent" className="hu-hero-mobile-cta relative z-10 md:hidden btn-gold-fill text-xs tracking-widest px-7 py-2.5 mb-6">
-            {CTA.home.startRental}
-          </Link>
-
           {/* CTA — desktop */}
           <div data-hp="text" className="hu-hero-desktop-ctas relative z-10 hidden md:flex gap-3">
             <Link href="/rent" className="btn-gold-fill text-xs tracking-widest px-8 py-3">
@@ -219,7 +214,7 @@ async function HomePageContent() {
             <Image
               src="/home-hero/event-family-day-1.jpg"
               alt="心宇宙商務中心親子日活動現場"
-              fill className="object-cover" sizes="50vw" priority
+              fill className="object-cover" sizes="(min-width: 1024px) 58vw, 100vw" quality={95} priority
               style={{ objectPosition: 'center center' }}
             />
             <div className="absolute bottom-0 left-0 right-0 px-5 py-3"
@@ -229,6 +224,7 @@ async function HomePageContent() {
               </p>
             </div>
           </div>
+          <div className="hu-organic-orb" aria-hidden="true" />
           {[
             { src: '/home-hero/event-family-day-2.jpg', alt: '親子日活動舞台與觀眾' },
             { src: '/home-hero/event-family-day-3.jpg', alt: '親子日活動互動現場' },

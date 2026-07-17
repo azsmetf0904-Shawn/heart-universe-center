@@ -153,7 +153,7 @@ export default function Navbar() {
 
       {open && (
         <div
-          className="md:hidden px-6 py-6 flex flex-col gap-6 border-t"
+          className="hu-mobile-menu md:hidden px-6 py-6 flex flex-col gap-6 border-t"
           style={{ background: 'var(--cream)', borderColor: 'var(--border-color)' }}
         >
           {mainLinks.map(l => {

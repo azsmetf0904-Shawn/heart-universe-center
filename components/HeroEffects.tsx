@@ -45,7 +45,9 @@ export function HeroEffects({ heroId, leftId }: { heroId: string; leftId: string
       const rx = (e.clientX / window.innerWidth - 0.5) * 14
       const ry = (e.clientY / window.innerHeight - 0.5) * 10
       textEls.forEach(el => { el.style.transform = `translate(${-rx * 0.4}px, ${-ry * 0.3}px)` })
-      photoEls.forEach(el => { el.style.transform = `scale(1.04) translate(${rx * 0.6}px, ${ry * 0.5}px)` })
+      // Keep the parallax on the frame only. Scaling the frame here and the
+      // image in CSS at the same time creates a soft, resampled photograph.
+      photoEls.forEach(el => { el.style.transform = `translate3d(${rx * 0.38}px, ${ry * 0.3}px, 0)` })
     }
 
     document.addEventListener('mousemove', onMove, { passive: true })
