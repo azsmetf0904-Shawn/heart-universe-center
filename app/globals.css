@@ -286,3 +286,43 @@ button, a, [role="button"], label[for] {
   margin: 0 auto;
   padding: 0 1.5rem;
 }
+
+/* ── Homepage v-alive Animations ─────────────────────────────────────────── */
+@keyframes hu-gradShift {
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
+}
+@keyframes hu-haloBreath {
+  0%, 100% { transform: translate(-50%, -50%) scale(1);    opacity: 0.6; }
+  50%      { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+}
+@keyframes hu-blobMorph {
+  0%, 100% { border-radius: 60% 40% 70% 30% / 50% 60% 40% 50%; }
+  33%      { border-radius: 40% 60% 30% 70% / 60% 40% 60% 40%; }
+  66%      { border-radius: 70% 30% 50% 50% / 40% 70% 30% 60%; }
+}
+@keyframes hu-floatNum {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-8px); }
+}
+@keyframes hu-breathe {
+  0%, 100% { opacity: 0.5; }
+  50%      { opacity: 0.88; }
+}
+
+/* Feature strip hover — gold top-line reveal */
+.hu-f-cell {
+  position: relative;
+  transition: background 0.35s;
+}
+.hu-f-cell::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 0; height: 2px;
+  background: var(--gold);
+  opacity: 0.55;
+  transition: width 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.hu-f-cell:hover::after { width: 100%; }
+.hu-f-cell:hover { background: #EAE0D2; }
