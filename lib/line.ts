@@ -304,6 +304,7 @@ export function buildAdminNewBookingFlex(
     footer: {
       type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '12px',
       contents: [
+        { type: 'text', text: '操作說明：核可＝通知付款；候補＝保留候補；取消＝結束申請。', size: 'xs', color: '#888888', wrap: true },
         {
           type: 'box', layout: 'horizontal', spacing: 'sm',
           contents: [
@@ -374,20 +375,23 @@ export function buildAdminPaymentFlex(
       ],
     },
     footer: {
-      type: 'box', layout: 'horizontal', spacing: 'sm', paddingAll: '12px',
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '12px',
       contents: [
+        { type: 'text', text: '操作說明：確認入帳＝成立預約；退回修改＝請客戶重新回報；取消預約＝釋出時段。', size: 'xs', color: '#888888', wrap: true },
+        { type: 'box', layout: 'horizontal', spacing: 'sm', contents: [
         {
           type: 'button', style: 'primary', color: '#4ade80', height: 'sm',
-          action: { type: 'postback', label: '核可', data: postback('confirm') },
+          action: { type: 'postback', label: '確認入帳', data: postback('payment_confirm') },
         },
         {
-          type: 'button', style: 'primary', color: '#c084fc', height: 'sm',
-          action: { type: 'postback', label: '候補', data: postback('waitlist') },
+          type: 'button', style: 'secondary', height: 'sm',
+          action: { type: 'postback', label: '退回修改', data: postback('payment_return') },
         },
         {
           type: 'button', style: 'primary', color: '#f87171', height: 'sm',
           action: { type: 'postback', label: '取消', data: postback('cancel') },
         },
+        ]},
       ],
     },
   }
@@ -399,6 +403,7 @@ const DEFAULT_PAYMENT_LIFF_ID = '2010632211-TAiLlAYX'
 export function buildCustomerBookingConfirmFlex(
   name: string, eventTitle: string, bookingDate: string, timeSlot: string,
   venueName: string, totalAmount: number | null, phone: string, isWaitlist: boolean,
+  approved = false, paymentDueAt?: string | null,
 ) {
   const headerColor = isWaitlist ? '#8B5CF6' : '#C4A038'
 
@@ -410,13 +415,17 @@ export function buildCustomerBookingConfirmFlex(
   ]
 
   if (!isWaitlist) {
+    if (approved && paymentDueAt) {
+      const due = new Date(paymentDueAt).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+      bodyContents.push(row('付款期限', due))
+    }
     bodyContents.push(
       { type: 'separator', margin: 'md' },
       { type: 'text', text: '匯款資訊', weight: 'bold', size: 'sm', margin: 'md', color: '#C4A038' },
       row('銀行', '中國信託 822 北投'),
       row('帳號', '680541314031'),
       row('戶名', '財富女神股份有限公司'),
-      { type: 'text', text: '請於 3 個工作日內完成匯款，並點下方按鈕回報。', size: 'xs', color: '#888888', margin: 'sm', wrap: true },
+        { type: 'text', text: approved ? '已核可，請於 3 個工作日內完成匯款，再點下方按鈕回報。' : '請於 3 個工作日內完成匯款，並點下方按鈕回報。', size: 'xs', color: '#888888', margin: 'sm', wrap: true },
     )
   } else {
     bodyContents.push(
@@ -433,7 +442,7 @@ export function buildCustomerBookingConfirmFlex(
       type: 'box', layout: 'vertical', backgroundColor: headerColor, paddingAll: '16px',
       contents: [
         { type: 'text', text: '心宇宙商務中心', color: '#F0D9B0', size: 'xs' },
-        { type: 'text', text: `${name}，${isWaitlist ? '已列入候補' : '申請已收到'}！`, color: '#FFFFFF', weight: 'bold', size: 'md' },
+        { type: 'text', text: `${name}，${isWaitlist ? '已列入候補' : approved ? '已核可・待付款' : '申請已收到'}！`, color: '#FFFFFF', weight: 'bold', size: 'md' },
         { type: 'text', text: eventTitle, color: '#FFFFFF', size: 'sm', wrap: true },
       ],
     },

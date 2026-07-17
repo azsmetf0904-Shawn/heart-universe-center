@@ -71,6 +71,7 @@ CREATE TABLE IF NOT EXISTS rental_requests (
   note text,
   status text DEFAULT 'pending',     -- pending / confirmed / payment_pending / completed / cancelled
   admin_note text,
+  payment_due_at timestamptz,
   created_at timestamptz DEFAULT now()
 );
 

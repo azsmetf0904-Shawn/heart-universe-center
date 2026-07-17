@@ -89,6 +89,7 @@ export interface RentalRequest {
   payment_date: string | null
   payment_amount: number | null
   payment_reported_at: string | null
+  payment_due_at: string | null
   created_at: string
   venue?: Venue
   rental_addons?: RentalAddon[]

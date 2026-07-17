@@ -1,7 +1,7 @@
 import { createHmac } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { linePush, linePushFlex, lineReply, lineReplyFlex, buildConfirmedFlex, buildCancelledFlex, buildAdminSetWaitlistFlex, buildWaitlistToPayFlex, getLineGroupMemberName, buildCalendarButtonFlex } from '@/lib/line'
+import { linePush, linePushFlex, lineReply, lineReplyFlex, buildConfirmedFlex, buildCancelledFlex, buildAdminSetWaitlistFlex, buildWaitlistToPayFlex, buildCustomerBookingConfirmFlex, getLineGroupMemberName, buildCalendarButtonFlex } from '@/lib/line'
 import { TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus } from '@/lib/types'
 
@@ -40,9 +40,12 @@ export async function POST(req: NextRequest) {
       if (!action || !bookingId) continue
 
       const statusMap: Record<string, RentalStatus> = {
-        confirm: 'confirmed',
+        // 「核可」只代表進入付款流程；確認入帳後才是 confirmed。
+        confirm: 'pending',
         waitlist: 'waitlist',
         cancel: 'cancelled',
+        payment_confirm: 'confirmed',
+        payment_return: 'pending',
       }
       const intendedStatus = statusMap[action]
       if (!intendedStatus) continue
@@ -54,20 +57,33 @@ export async function POST(req: NextRequest) {
         .eq('id', bookingId)
         .single()
 
+      const allowed = action === 'confirm'
+        ? ['pending', 'waitlist'].includes(current?.status ?? '')
+        : action === 'payment_confirm' || action === 'payment_return'
+          ? current?.status === 'payment_pending'
+          : ['pending', 'waitlist'].includes(current?.status ?? '')
+      if (!allowed) {
+        if (event.replyToken) await lineReply(event.replyToken, 'ℹ️ 這筆申請已處理，按鈕已失效。請以最新狀態為準。')
+        continue
+      }
+
       const isWaitlistConvert = current?.status === 'waitlist' && action === 'confirm'
       const newStatus: RentalStatus = isWaitlistConvert ? 'pending' : intendedStatus
+      const paymentDueAt = action === 'confirm' && newStatus === 'pending'
+        ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+        : undefined
 
       const { data: req } = await supabase
         .from('rental_requests')
-        .update({ status: newStatus })
+        .update({ status: newStatus, ...(paymentDueAt ? { payment_due_at: paymentDueAt } : {}) })
         .eq('id', bookingId)
         .select('name, phone, event_title, booking_date, time_slot, line_user_id')
         .single()
 
       // 回覆管理員（含操作者名稱）
       const labelMap: Record<string, string> = {
-        confirmed: '✅ 已核可',
-        pending: '🔔 候補已轉正式，等待客戶匯款',
+        confirmed: '✅ 已確認入帳，預約成立',
+        pending: action === 'payment_return' ? '↩️ 已退回，請客戶補充匯款資料' : action === 'confirm' ? '🟡 已核可，等待客戶付款' : '🟡 等待付款',
         waitlist: '🕐 已設為候補',
         cancelled: '❌ 已取消',
       }
@@ -86,8 +102,12 @@ export async function POST(req: NextRequest) {
       if (req?.line_user_id) {
         const slotLabel = req.time_slot ? (TIME_SLOT_LABEL[req.time_slot as keyof typeof TIME_SLOT_LABEL] ?? req.time_slot) : ''
         const phone = req.phone ?? ''
-        if (newStatus === 'confirmed') {
+        if (action === 'payment_confirm') {
           await linePushFlex(req.line_user_id, `${req.name}，場地租借已確認！`, buildConfirmedFlex(req.name, req.event_title, req.booking_date ?? '', slotLabel, phone))
+        } else if (action === 'payment_return') {
+          await linePushFlex(req.line_user_id, `${req.name}，請補充或修正匯款資料`, buildCustomerBookingConfirmFlex(req.name, req.event_title, req.booking_date ?? '', slotLabel, '', null, phone, false, true, null))
+        } else if (action === 'confirm' && newStatus === 'pending') {
+          await linePushFlex(req.line_user_id, `${req.name}，申請已核可，請完成付款`, buildCustomerBookingConfirmFlex(req.name, req.event_title, req.booking_date ?? '', slotLabel, '', null, phone, false, true, paymentDueAt))
         } else if (newStatus === 'pending' && isWaitlistConvert) {
           await linePushFlex(req.line_user_id, `${req.name}，候補已確認，請完成匯款！`, buildWaitlistToPayFlex(req.name, req.event_title, req.booking_date ?? '', slotLabel, phone))
         } else if (newStatus === 'cancelled') {

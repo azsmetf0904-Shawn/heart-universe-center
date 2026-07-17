@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
   const supabase = await createAdminClient()
   const { data, error } = await supabase
     .from('rental_requests')
-    .select('id, name, event_title, booking_date, time_slot, status, payment_last5, payment_date, payment_amount, payment_reported_at, phone')
+    .select('id, name, event_title, booking_date, time_slot, status, payment_last5, payment_date, payment_amount, payment_reported_at, payment_due_at, phone')
     .eq('line_user_id', lineUserId)
     .in('status', ['pending', 'payment_pending'])
     .order('created_at', { ascending: false })

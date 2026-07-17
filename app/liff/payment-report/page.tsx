@@ -15,6 +15,7 @@ type Booking = {
   payment_date: string | null
   payment_amount: number | null
   payment_reported_at: string | null
+  payment_due_at: string | null
 }
 
 type FormState = { last5: string; date: string; amount: string }
@@ -135,6 +136,7 @@ export default function LiffPaymentReportPage() {
               <p className="text-xs" style={{ color: 'var(--gray)' }}>預約活動</p>
               <p className="mt-1 text-lg font-medium" style={{ color: 'var(--charcoal)' }}>{selected.event_title}</p>
               <p className="mt-2 text-xs" style={{ color: 'var(--gray)' }}>{selected.booking_date ?? '日期待確認'}　{selected.time_slot ?? ''}</p>
+              {selected.payment_due_at && <p className="mt-2 text-xs" style={{ color: 'var(--gold)' }}>付款期限：{new Date(selected.payment_due_at).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>}
             </div>
             <form onSubmit={submit} className="space-y-5">
               <label className="block text-sm" style={{ color: 'var(--charcoal)' }}>匯款帳號末 5 碼<input required inputMode="numeric" pattern="[0-9]{5}" maxLength={5} value={form.last5} onChange={e => setForm(p => ({ ...p, last5: e.target.value.replace(/\D/g, '').slice(0, 5) }))} className="mt-2 w-full border bg-transparent px-3 py-3 font-mono text-base" style={{ borderColor: 'var(--border-color)' }} placeholder="12345" /></label>
