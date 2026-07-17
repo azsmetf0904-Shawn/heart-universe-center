@@ -1,6 +1,6 @@
 import { createHmac } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { linePush, lineReply, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg } from '@/lib/line'
 import { TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus } from '@/lib/types'
@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
   }
 
   const { events } = JSON.parse(body) as { events: LineEvent[] }
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   for (const event of events ?? []) {
     // ── Join：OA 被加入群組，自動回報 group ID ──
