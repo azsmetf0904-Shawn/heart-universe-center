@@ -707,3 +707,70 @@ button, a, [role="button"], label[for] {
     transition-duration: .01ms !important;
   }
 }
+
+/* Charity page: let landscape photography breathe on narrow screens. */
+@media (max-width: 767px) {
+  .hu-charity-hero {
+    height: 590px !important;
+    min-height: 590px;
+    background: var(--charcoal);
+    overflow: hidden;
+  }
+  .hu-charity-hero-image {
+    inset: 0 0 auto !important;
+    width: 100% !important;
+    height: 270px !important;
+    object-fit: contain !important;
+    object-position: center center !important;
+    background: #2a1b10;
+  }
+  .hu-charity-hero-shade {
+    inset: 0 0 auto !important;
+    height: 270px !important;
+    background: linear-gradient(to bottom, rgba(28,16,8,.08), rgba(28,16,8,.72)) !important;
+  }
+  .hu-charity-hero-copy {
+    inset: 270px 0 0 !important;
+    justify-content: flex-start;
+    padding: 30px 22px 34px !important;
+    background:
+      radial-gradient(ellipse 90% 55% at 15% 0%, rgba(196,160,56,.12), transparent 70%),
+      var(--charcoal);
+  }
+  .hu-charity-hero-copy > p:first-child {
+    font-size: 11px !important;
+    letter-spacing: .34em !important;
+    margin-bottom: 16px !important;
+  }
+  .hu-charity-hero-copy h1 {
+    font-size: clamp(32px, 9vw, 40px) !important;
+    line-height: 1.28 !important;
+    letter-spacing: .04em;
+    margin-bottom: 12px !important;
+  }
+  .hu-charity-hero-copy > p:not(:first-child) {
+    font-size: 16px !important;
+    line-height: 1.7;
+    letter-spacing: .14em !important;
+    color: rgba(237,228,212,.78) !important;
+  }
+  .hu-charity-location {
+    margin-top: 22px !important;
+    gap: 7px !important;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 320px;
+    font-size: 13px !important;
+    line-height: 1.8;
+    color: rgba(237,228,212,.62) !important;
+  }
+  .hu-charity-location span:nth-of-type(2) { display: none; }
+  .hu-charity-location span:last-child { flex-basis: 100%; }
+
+  .hu-charity-page .container-narrow p { font-size: .95rem !important; line-height: 1.95 !important; }
+  .hu-charity-page .container-narrow h2 { font-size: 1.5rem !important; line-height: 1.45 !important; }
+  .hu-charity-page .container-narrow h3 { font-size: 1.05rem !important; line-height: 1.55 !important; }
+  .hu-charity-page .container-narrow .text-xs { font-size: .82rem !important; line-height: 1.8 !important; }
+  .hu-charity-page .container-narrow .text-sm { font-size: .95rem !important; }
+  .hu-charity-page section { scroll-margin-top: 64px; }
+}

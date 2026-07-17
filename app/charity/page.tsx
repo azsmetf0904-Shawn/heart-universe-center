@@ -155,25 +155,25 @@ function IgIcon({ size = 16 }: { size?: number }) {
 
 export default function CharityPage() {
   return (
-    <div>
+    <div className="hu-charity-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
 
       {/* ── HERO ── */}
-      <section className="relative w-full" style={{ height: 'min(90vh, 680px)' }}>
+      <section className="hu-charity-hero relative w-full" style={{ height: 'min(90vh, 680px)' }}>
         <Image
           src="/charity/hero.jpg"
           alt="愛物王斷捨離二手公益商店入口"
           fill
           priority
-          className="object-cover"
+          className="hu-charity-hero-image object-cover"
           sizes="100vw"
         />
         <div
-          className="absolute inset-0"
+          className="hu-charity-hero-shade absolute inset-0"
           style={{ background: 'linear-gradient(to bottom, rgba(28,16,8,0.35) 0%, rgba(28,16,8,0.65) 100%)' }}
         />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-6">
+        <div className="hu-charity-hero-copy absolute inset-0 flex flex-col items-center justify-center text-center px-6">
           <p className="text-[10px] tracking-[0.5em] uppercase mb-5" style={{ color: 'rgba(196,160,56,0.9)' }}>
             Heart Universe · Charity
           </p>
@@ -183,7 +183,7 @@ export default function CharityPage() {
           <p className="text-base md:text-lg tracking-widest" style={{ color: 'rgba(255,255,255,0.75)' }}>
             斷捨離，讓愛傳下去
           </p>
-          <div className="mt-8 flex items-center gap-3 text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>
+          <div className="hu-charity-location mt-8 flex items-center gap-3 text-xs" style={{ color: 'rgba(255,255,255,0.55)' }}>
             <MapPin size={12} />
             <span>台北松山・八德路三段 223 號 B1</span>
             <span>｜</span>
