@@ -270,8 +270,17 @@
 }
 .hu-nav-charity .hu-nav-charity-identity { order: 1; }
 .hu-nav-charity .hu-nav-main-brand { order: 2; }
+.hu-nav-charity .hu-nav-main-brand > img {
+  filter: drop-shadow(0 0 1px rgba(25,18,12,.72));
+}
 .hu-nav-home .hu-nav-main-brand { order: 1; }
 .hu-nav-home .hu-nav-charity-identity { order: 2; }
+.hu-home-nav .hu-nav-charity-title p:first-child {
+  color: rgba(237,228,212,.92) !important;
+}
+.hu-home-nav .hu-nav-charity-title p:last-child {
+  color: rgba(214,180,82,.9) !important;
+}
 .hu-nav-home .hu-nav-charity-identity .hu-nav-charity-logo,
 .hu-nav-charity .hu-nav-main-brand > img { width: 38px; height: 38px; }
 .hu-nav-home .hu-nav-charity-identity .hu-nav-charity-title p:first-child,
@@ -376,7 +385,7 @@
     filter: saturate(.72) brightness(.96);
   }
   .hu-nav-charity .hu-nav-main-brand > img {
-    filter: saturate(.65) brightness(.92);
+    filter: saturate(.65) brightness(.92) drop-shadow(0 0 1px rgba(25,18,12,.72));
   }
 }
 
