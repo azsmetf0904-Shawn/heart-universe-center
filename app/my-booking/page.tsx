@@ -225,7 +225,7 @@ export default function MyBookingPage() {
                         </div>
                       ) : reportingId === r.id ? (
                         <div className="border border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3">
-                          <div className="grid grid-cols-2 gap-3">
+                          <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
                             <div>
                               <p className="text-[10px] text-[var(--gray)] mb-1">帳號末5碼</p>
                               <input type="text" maxLength={5} placeholder="12345" value={paymentForm.last5}
@@ -258,7 +258,7 @@ export default function MyBookingPage() {
                         </div>
                       ) : (
                         <button onClick={() => { setReportingId(r.id); setPaymentError('') }}
-                          className="px-3 py-1.5 text-[11px] border border-[var(--gold)] tracking-widest hover:bg-[var(--gold)] hover:text-white transition-colors"
+                          className="w-full py-3 text-xs border border-[var(--gold)] tracking-widest hover:bg-[var(--gold)] hover:text-white transition-colors"
                           style={{ color: 'var(--gold)' }}>
                           我已完成匯款 → 點此回報
                         </button>

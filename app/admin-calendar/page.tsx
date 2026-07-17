@@ -90,7 +90,7 @@ export default async function AdminCalendarPage({
   return (
     <div style={{
       fontFamily: '-apple-system, BlinkMacSystemFont, "Noto Sans TC", sans-serif',
-      maxWidth: 480, margin: '0 auto', padding: '16px 14px',
+      maxWidth: 480, margin: '0 auto', padding: '12px 10px',
       background: '#FFFCFA', minHeight: '100vh', color: '#2C1E12',
     }}>
       {/* Month nav */}
@@ -207,17 +207,32 @@ export default async function AdminCalendarPage({
                   const c = STATUS_COLOR[b.status] ?? '#999'
                   return (
                     <div key={b.id} style={{ padding: '10px 14px', borderTop: '1px solid #F5EDE4' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
-                        <span style={{ fontSize: 13, fontWeight: 500 }}>{b.event_title}</span>
+                      {/* Title + badge row：minWidth:0 讓 title 可以截斷 */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
                         <span style={{
-                          fontSize: 10, padding: '2px 8px', borderRadius: 10, flexShrink: 0, marginLeft: 8,
+                          fontSize: 13, fontWeight: 500,
+                          flex: 1, minWidth: 0,
+                          overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
+                        }}>
+                          {b.event_title}
+                        </span>
+                        <span style={{
+                          fontSize: 10, padding: '2px 8px', borderRadius: 10, flexShrink: 0,
                           background: c + '22', color: c, fontWeight: 600,
                         }}>
                           {RENTAL_STATUS_LABEL[b.status]}
                         </span>
                       </div>
+                      {/* 時段獨立一行 */}
+                      <div style={{ fontSize: 11, color: '#B09880', marginBottom: 2 }}>
+                        {slotLabel}
+                      </div>
+                      {/* 姓名 + 可撥號電話 */}
                       <div style={{ fontSize: 11, color: '#B09880' }}>
-                        {slotLabel}・{b.name}・{b.phone}
+                        {b.name}・
+                        <a href={`tel:${b.phone}`} style={{ color: '#B09880', textDecoration: 'none' }}>
+                          {b.phone}
+                        </a>
                       </div>
                     </div>
                   )

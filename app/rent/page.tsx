@@ -585,9 +585,9 @@ function RentForm() {
             <p className="text-xs tracking-widest" style={{ color: 'var(--gold)' }}>匯款帳號</p>
           </div>
           <div className="px-5 py-4 flex flex-col gap-2">
-            <div className="flex justify-between text-xs">
-              <span style={{ color: 'var(--gray)' }}>銀行</span>
-              <span style={{ color: 'var(--charcoal)' }}>中國信託銀行（822）北投分行</span>
+            <div className="flex justify-between gap-2 text-xs">
+              <span className="shrink-0" style={{ color: 'var(--gray)' }}>銀行</span>
+              <span className="text-right" style={{ color: 'var(--charcoal)' }}>中國信託銀行（822）北投分行</span>
             </div>
             <div className="flex justify-between text-xs">
               <span style={{ color: 'var(--gray)' }}>帳號</span>
@@ -1029,7 +1029,7 @@ function RentForm() {
                 ].map(([k, v]) => (
                   <>
                     <span key={`k-${k}`} className="text-[var(--gray)]">{k}</span>
-                    <span key={`v-${k}`}>{v}</span>
+                    <span key={`v-${k}`} className="break-words min-w-0">{v}</span>
                   </>
                 ))}
               </div>
@@ -1045,9 +1045,9 @@ function RentForm() {
               <p className="label-tag mb-4">費用確認</p>
               <div className="space-y-3 text-sm">
                 {estimatedPrice !== null && (
-                  <div className="flex justify-between">
-                    <span className="text-[var(--gray)]">場地費用預估（未稅）</span>
-                    <span className="font-medium text-[var(--gold)]">NT$ {estimatedPrice.toLocaleString()}</span>
+                  <div className="flex justify-between gap-3">
+                    <span className="text-[var(--gray)] shrink-0">場地費用預估（未稅）</span>
+                    <span className="font-medium text-[var(--gold)] text-right">NT$ {estimatedPrice.toLocaleString()}</span>
                   </div>
                 )}
                 {Object.keys(selected).length > 0 && (
