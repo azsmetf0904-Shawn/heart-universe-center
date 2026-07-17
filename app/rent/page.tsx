@@ -539,13 +539,24 @@ function RentForm() {
       )}
 
       {/* LINE 通知狀態 */}
-          {lineProfile ? (
-        <div className="w-full max-w-sm mb-8 border border-[#06C755] p-4 flex items-center gap-3" style={{ background: 'rgba(6,199,85,0.05)' }}>
-          {lineProfile.pictureUrl && <img src={lineProfile.pictureUrl} alt="" className="w-9 h-9 rounded-full flex-shrink-0" />}
-          <div>
-                    <p className="text-xs font-medium" style={{ color: '#06C755' }}>{CTA.rental.noticeConnected}</p>
-            <p className="text-xs" style={{ color: 'var(--gray)' }}>{lineProfile.displayName}，審核結果將直接推播給您</p>
+      {lineProfile ? (
+        <div className="w-full max-w-sm mb-8 flex flex-col gap-2">
+          <div className="border border-[#06C755] p-4 flex items-center gap-3" style={{ background: 'rgba(6,199,85,0.05)' }}>
+            {lineProfile.pictureUrl && <img src={lineProfile.pictureUrl} alt="" className="w-9 h-9 rounded-full flex-shrink-0" />}
+            <div>
+              <p className="text-xs font-medium" style={{ color: '#06C755' }}>{CTA.rental.noticeConnected}</p>
+              <p className="text-xs" style={{ color: 'var(--gray)' }}>{lineProfile.displayName}，審核結果將直接推播給您</p>
+            </div>
           </div>
+          <a
+            href="https://lin.ee/wMS5gQU"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 py-3 text-xs tracking-widest text-white font-medium"
+            style={{ background: '#06C755' }}
+          >
+            ＋ 尚未加入？點此加入官方帳號確保收到通知
+          </a>
         </div>
       ) : lineCode ? (
         <div className="w-full max-w-sm mb-8 border border-[var(--gold)] p-5" style={{ background: 'rgba(196,160,56,0.04)' }}>
@@ -555,7 +566,7 @@ function RentForm() {
             <span className="font-mono text-lg tracking-widest font-bold" style={{ color: 'var(--charcoal)' }}>{lineCode}</span>
           </div>
           <ol className="text-xs leading-relaxed space-y-1.5" style={{ color: 'var(--gray)' }}>
-            <li>1. <a href="https://lin.ee/RlmKDmn" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--gold)' }}>點此加入心宇宙官方帳號</a></li>
+            <li>1. <a href="https://lin.ee/wMS5gQU" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--gold)' }}>點此加入心宇宙官方帳號</a></li>
             <li>2. 傳送驗證碼 <strong style={{ color: 'var(--charcoal)' }}>{lineCode}</strong> 給官方帳號</li>
             <li>3. 收到確認訊息後即完成綁定 ✅</li>
           </ol>
