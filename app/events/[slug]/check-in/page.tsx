@@ -2,7 +2,6 @@
 import { useState } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
-import { createClient } from '@/lib/supabase/client'
 import { CheckCircle2, XCircle } from 'lucide-react'
 import { CTA } from '@/lib/cta'
 
@@ -20,32 +19,18 @@ export default function CheckInPage() {
     e.preventDefault()
     setSubmitting(true)
     setState('idle')
-    const supabase = createClient()
 
-    // find event
-    const { data: event } = await supabase
-      .from('events').select('id').eq('slug', slug).single()
-    if (!event) { setState('notfound'); setSubmitting(false); return }
+    const res = await fetch('/api/event-check-in', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ eventSlug: slug, query }),
+    })
+    const json = await res.json() as { result: string; name?: string }
 
-    // find registration by phone or email
-    const { data: reg } = await supabase
-      .from('event_registrations')
-      .select('id, name, checked_in, status')
-      .eq('event_id', event.id)
-      .eq('status', 'registered')
-      .or(`phone.eq.${query},email.eq.${query}`)
-      .single()
+    if (json.result === 'success') { setName(json.name ?? ''); setState('success') }
+    else if (json.result === 'already') { setName(json.name ?? ''); setState('already') }
+    else setState('notfound')
 
-    if (!reg) { setState('notfound'); setSubmitting(false); return }
-    if (reg.checked_in) { setName(reg.name); setState('already'); setSubmitting(false); return }
-
-    await supabase
-      .from('event_registrations')
-      .update({ checked_in: true, checked_in_at: new Date().toISOString() })
-      .eq('id', reg.id)
-
-    setName(reg.name)
-    setState('success')
     setSubmitting(false)
   }
 

@@ -14,7 +14,7 @@ function exportCsv(requests: RentalRequest[]) {
     r.name,
     r.phone,
     r.email,
-    (r as unknown as { venues?: { name: string } }).venues?.name ?? '',
+    r.venue?.name ?? '',
     r.booking_date ?? '',
     r.time_slot ? TIME_SLOT_LABEL[r.time_slot as keyof typeof TIME_SLOT_LABEL] : '',
     r.guest_count ?? '',
@@ -57,11 +57,10 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
 
     const r = prev
     if (!r?.email) return
-    const venue = (r as unknown as { venues?: { name: string } }).venues
     const slotLabel = r.time_slot ? TIME_SLOT_LABEL[r.time_slot as keyof typeof TIME_SLOT_LABEL] : ''
-    const base = { to: r.email, name: r.name, eventTitle: r.event_title, bookingDate: r.booking_date ?? '', timeSlot: slotLabel, venueName: venue?.name ?? '' }
+    const base = { to: r.email, name: r.name, eventTitle: r.event_title, bookingDate: r.booking_date ?? '', timeSlot: slotLabel, venueName: r.venue?.name ?? '' }
 
-    const lineId = (prev as unknown as { line_user_id?: string }).line_user_id
+    const lineId = prev?.line_user_id
 
     if (status === 'confirmed') {
       fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -84,7 +83,7 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
           .eq('booking_date', r.booking_date).eq('time_slot', r.time_slot)
           .eq('status', 'waitlist').order('created_at').limit(1).single()
         if (waitlist?.email) {
-          const wlBase = { to: waitlist.email, name: waitlist.name, eventTitle: waitlist.event_title, bookingDate: waitlist.booking_date ?? '', timeSlot: slotLabel, venueName: venue?.name ?? '' }
+          const wlBase = { to: waitlist.email, name: waitlist.name, eventTitle: waitlist.event_title, bookingDate: waitlist.booking_date ?? '', timeSlot: slotLabel, venueName: r.venue?.name ?? '' }
           fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ type: 'waitlist_promoted', ...wlBase }) }).catch(() => {})
           if (waitlist.line_user_id) fetch('/api/line/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -145,7 +144,7 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
               <div>
                 <p className="text-sm font-medium flex items-center gap-2">
                   {r.event_title}
-                  {(r as unknown as { payment_reported_at?: string }).payment_reported_at && (
+                  {r.payment_reported_at && (
                     <span className="text-[9px] px-1.5 py-0.5 font-normal" style={{ background: 'rgba(196,160,56,0.12)', color: 'var(--gold)', border: '1px solid rgba(196,160,56,0.3)' }}>已回報匯款</span>
                   )}
                 </p>
@@ -174,15 +173,15 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
                   </div>
                 )}
                 {/* 匯款回報 */}
-                {(r as unknown as { payment_reported_at?: string }).payment_reported_at && (
+                {r.payment_reported_at && (
                   <div className="mt-3 pt-3 border-t border-[var(--border-color)]">
                     <p className="text-xs text-[var(--gray)] mb-2">💰 客戶匯款回報</p>
                     <div className="grid grid-cols-2 gap-y-1.5 text-xs px-3 py-2.5" style={{ background: 'rgba(196,160,56,0.06)', border: '1px solid rgba(196,160,56,0.2)' }}>
                       {[
-                        ['帳號末5碼', (r as unknown as { payment_last5?: string }).payment_last5 ?? '—'],
-                        ['匯款日期', (r as unknown as { payment_date?: string }).payment_date ?? '—'],
-                        ['匯款金額', (r as unknown as { payment_amount?: number }).payment_amount ? `NT$ ${((r as unknown as { payment_amount?: number }).payment_amount ?? 0).toLocaleString()}` : '—'],
-                        ['回報時間', new Date((r as unknown as { payment_reported_at?: string }).payment_reported_at ?? '').toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })],
+                        ['帳號末5碼', r.payment_last5 ?? '—'],
+                        ['匯款日期', r.payment_date ?? '—'],
+                        ['匯款金額', r.payment_amount ? `NT$ ${r.payment_amount.toLocaleString()}` : '—'],
+                        ['回報時間', new Date(r.payment_reported_at).toLocaleString('zh-TW', { month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })],
                       ].map(([k, v]) => (
                         <>
                           <span key={`pk-${k}`} style={{ color: 'var(--gray)' }}>{k}</span>

@@ -1,4 +1,5 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
+import { revalidatePath } from 'next/cache'
 import Link from 'next/link'
 import { CheckCircle2, XCircle, AlertCircle } from 'lucide-react'
 
@@ -19,7 +20,7 @@ export default async function CheckInPage({ searchParams }: Props) {
     )
   }
 
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { data: reg } = await supabase
     .from('event_registrations')
     .select('id, name, checked_in, checked_in_at, status, events(title, start_time)')
@@ -63,15 +64,16 @@ export default async function CheckInPage({ searchParams }: Props) {
     )
   }
 
-  // 執行簽到（Server Action）
+  // 執行簽到（Server Action）— 用 adminClient 確保繞過 RLS SELECT 限制
   async function doCheckIn() {
     'use server'
-    const sb = await createClient()
+    const sb = await createAdminClient()
     await sb
       .from('event_registrations')
       .update({ checked_in: true, checked_in_at: new Date().toISOString() })
       .eq('check_in_token', token!)
       .eq('checked_in', false) // race condition guard
+    revalidatePath('/check-in')
   }
 
   const event = reg.events as { title?: string; start_time?: string } | null

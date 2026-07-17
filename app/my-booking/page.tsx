@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client'
+import { createClient } from '@/lib/supabase/client' // still used for doSearch SELECT
 import { CTA } from '@/lib/cta'
 import type { RentalRequest } from '@/lib/types'
 import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
@@ -81,15 +81,20 @@ export default function MyBookingPage() {
     }
     setPaymentSubmitting(true)
     setPaymentError('')
-    const supabase = createClient()
-    const { error } = await supabase.from('rental_requests').update({
-      payment_last5: paymentForm.last5,
-      payment_date: paymentForm.date,
-      payment_amount: parseInt(paymentForm.amount),
-      payment_reported_at: new Date().toISOString(),
-      status: 'payment_pending',
-    }).eq('id', bookingId)
-    if (error) {
+
+    const res = await fetch('/api/payment-report', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        bookingId,
+        last5: paymentForm.last5,
+        date: paymentForm.date,
+        amount: paymentForm.amount,
+      }),
+    })
+    const json = await res.json() as { ok: boolean }
+
+    if (!json.ok) {
       setPaymentError('送出失敗，請稍後再試。')
     } else {
       setPaymentDoneIds(s => new Set([...s, bookingId]))

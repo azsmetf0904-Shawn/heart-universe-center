@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, CalendarDays, ExternalLink, Users } from 'lucide-react'
@@ -29,7 +29,7 @@ export default async function EventsPage({
 }) {
   const { tab } = await searchParams
   const isEnded = tab === 'ended'
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
 
   const now = new Date().toISOString()
   let query = supabase

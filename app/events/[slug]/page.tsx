@@ -1,4 +1,4 @@
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/server'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
@@ -11,7 +11,7 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { data } = await supabase.from('events').select('title, description, cover_image_url').eq('slug', slug).single()
   return {
     title: data?.title ?? '活動詳情',
@@ -35,7 +35,7 @@ function formatDateTime(s: string) {
 
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const supabase = await createClient()
+  const supabase = await createAdminClient()
   const { data: event } = await supabase
     .from('events')
     .select('*, venue:venues(name, slug), event_registrations(id, status)')
