@@ -1016,6 +1016,35 @@ button, a, [role="button"], label[for] {
 }
 
 /* Charity page: let landscape photography breathe on narrow screens. */
+@media (min-width: 1024px) {
+  .hu-charity-about {
+    padding-top: 92px !important;
+    padding-bottom: 92px !important;
+  }
+  .hu-charity-about > .container-narrow {
+    max-width: 1080px !important;
+    display: grid;
+    grid-template-columns: 180px minmax(0, 1fr);
+    align-items: center;
+    gap: 64px;
+    text-align: left !important;
+  }
+  .hu-charity-about > .container-narrow > .flex {
+    margin: 0 !important;
+    justify-content: flex-start !important;
+  }
+  .hu-charity-about > .container-narrow > .flex .relative {
+    width: 150px !important;
+    height: 150px !important;
+  }
+  .hu-charity-about .gold-divider {
+    margin-left: 0 !important;
+  }
+  .hu-charity-philosophy > .container-narrow {
+    max-width: 1080px !important;
+  }
+}
+
 @media (max-width: 767px) {
   .hu-charity-hero {
     height: 590px !important;
