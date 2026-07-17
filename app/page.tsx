@@ -169,12 +169,12 @@ export default async function HomePage() {
           </div>
 
           {/* CTA — mobile */}
-          <Link data-hp="text" href="/rent" className="relative z-10 md:hidden btn-gold-fill text-xs tracking-widest px-7 py-2.5 mb-6">
+          <Link data-hp="text" href="/rent" className="hu-hero-mobile-cta relative z-10 md:hidden btn-gold-fill text-xs tracking-widest px-7 py-2.5 mb-6">
             {CTA.home.startRental}
           </Link>
 
           {/* CTA — desktop */}
-          <div data-hp="text" className="relative z-10 hidden md:flex gap-3">
+          <div data-hp="text" className="hu-hero-desktop-ctas relative z-10 hidden md:flex gap-3">
             <Link href="/rent" className="btn-gold-fill text-xs tracking-widest px-8 py-3">
               {CTA.home.startRental}
             </Link>

@@ -358,7 +358,7 @@ button, a, [role="button"], label[for] {
 .hu-home-nav > div > a:first-child img { filter: drop-shadow(0 0 1px rgba(196,160,56,.55)); }
 
 /* Perfect desktop direction recovered from /private/tmp/heart-v-perfect.html. */
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .hu-perfect-hero {
     grid-template-columns: 42fr 58fr !important;
     min-height: calc(100vh - 64px) !important;
@@ -499,6 +499,62 @@ button, a, [role="button"], label[for] {
     background: var(--gold);
     animation: hu-lineBreath 4.5s ease-in-out infinite;
   }
+}
+
+/* Tablet and mobile: keep the Hero whole, calm, and readable. */
+@media (max-width: 1023px) {
+  .hu-perfect-hero {
+    display: block !important;
+    min-height: auto !important;
+    background: #1C1008;
+  }
+  .hu-perfect-hero > #hero-left {
+    min-height: calc(100svh - 64px) !important;
+    margin: 0 !important;
+    clip-path: none !important;
+    align-items: center;
+    text-align: center;
+    padding: 116px 28px 72px !important;
+  }
+  .hu-perfect-hero > #hero-left::before,
+  .hu-perfect-hero > #hero-left::after { display: none; }
+  .hu-perfect-hero .hu-hero-logo {
+    display: block !important;
+    width: clamp(132px, 34vw, 180px) !important;
+    margin: 0 auto 22px !important;
+  }
+  .hu-perfect-hero .hu-hero-brand,
+  .hu-perfect-hero .hu-hero-eyebrow { display: block !important; }
+  .hu-perfect-hero .hu-hero-eyebrow {
+    font-size: 9px !important;
+    letter-spacing: .35em !important;
+    margin-bottom: 26px !important;
+  }
+  .hu-perfect-hero .hu-hero-eyebrow::before { display: none; }
+  .hu-perfect-hero #hero-left h1 {
+    max-width: 100%;
+    font-size: clamp(38px, 8.5vw, 62px) !important;
+    line-height: 1.2 !important;
+    letter-spacing: .03em !important;
+    margin-bottom: 20px !important;
+  }
+  .hu-perfect-hero .hu-hero-sub {
+    max-width: 330px;
+    font-size: 11px !important;
+    line-height: 1.9 !important;
+    letter-spacing: .06em !important;
+    margin: 0 auto 28px !important;
+    text-align: center;
+  }
+  .hu-perfect-hero .hu-hero-tags { display: none !important; }
+  .hu-perfect-hero .hu-hero-mobile-cta { display: inline-flex !important; margin: 0 !important; }
+  .hu-perfect-hero .hu-hero-desktop-ctas { display: none !important; }
+  .hu-perfect-hero > [data-hp="photo"] { display: none !important; }
+}
+
+@media (min-width: 1024px) {
+  .hu-perfect-hero .hu-hero-mobile-cta { display: none !important; }
+  .hu-perfect-hero .hu-hero-desktop-ctas { display: flex !important; }
 }
 
 @media (prefers-reduced-motion: reduce) {
