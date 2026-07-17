@@ -174,6 +174,9 @@ export default function CharityPage() {
           style={{ background: 'linear-gradient(to bottom, rgba(28,16,8,0.35) 0%, rgba(28,16,8,0.65) 100%)' }}
         />
         <div className="hu-charity-organic-orb" aria-hidden="true" />
+        <div className="hu-charity-spirit-field" aria-hidden="true">
+          {Array.from({ length: 18 }, (_, i) => <i key={i} />)}
+        </div>
         <div className="hu-charity-hero-copy absolute inset-0 flex flex-col items-center justify-center text-center px-6">
           <p className="text-[10px] tracking-[0.5em] uppercase mb-5" style={{ color: 'rgba(196,160,56,0.9)' }}>
             Heart Universe · Charity
