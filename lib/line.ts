@@ -237,9 +237,9 @@ export function buildCustomerBookingConfirmFlex(
     header: {
       type: 'box', layout: 'vertical', backgroundColor: headerColor, paddingAll: '16px',
       contents: [
-        { type: 'text', text: '心宇宙商務中心', color: 'rgba(255,255,255,0.7)', size: 'xs' },
+        { type: 'text', text: '心宇宙商務中心', color: '#F0D9B0', size: 'xs' },
         { type: 'text', text: `${name}，${isWaitlist ? '已列入候補' : '申請已收到'}！`, color: '#FFFFFF', weight: 'bold', size: 'md' },
-        { type: 'text', text: eventTitle, color: 'rgba(255,255,255,0.85)', size: 'sm', wrap: true },
+        { type: 'text', text: eventTitle, color: '#FFFFFF', size: 'sm', wrap: true },
       ],
     },
     body: {
