@@ -87,6 +87,7 @@ export function buildConfirmedFlex(
   name: string, eventTitle: string, bookingDate: string, timeSlot: string, phone: string,
 ) {
   const myBookingUrl = `${SITE_URL}/my-booking?phone=${encodeURIComponent(phone)}`
+  const paymentUrl = getPaymentLiffUrl(myBookingUrl)
   return {
     type: 'bubble',
     header: {
@@ -144,6 +145,7 @@ export function buildWaitlistToPayFlex(
   name: string, eventTitle: string, bookingDate: string, timeSlot: string, phone: string,
 ) {
   const myBookingUrl = `${SITE_URL}/my-booking?phone=${encodeURIComponent(phone)}`
+  const paymentUrl = getPaymentLiffUrl(myBookingUrl)
   return {
     type: 'bubble',
     header: {
@@ -170,7 +172,7 @@ export function buildWaitlistToPayFlex(
       type: 'box', layout: 'vertical', paddingAll: '12px',
       contents: [
         { type: 'button', style: 'primary', color: '#C4A038', height: 'sm',
-          action: { type: 'uri', label: '查詢申請 / 回報匯款', uri: myBookingUrl } },
+          action: { type: 'uri', label: 'LINE 內回報匯款', uri: paymentUrl } },
       ],
     },
   }
@@ -422,6 +424,7 @@ export function buildCustomerBookingConfirmFlex(
   }
 
   const myBookingUrl = `${SITE_URL}/my-booking?phone=${encodeURIComponent(phone)}`
+  const paymentUrl = getPaymentLiffUrl(myBookingUrl)
 
   return {
     type: 'bubble',
@@ -441,8 +444,13 @@ export function buildCustomerBookingConfirmFlex(
       type: 'box', layout: 'vertical', paddingAll: '12px',
       contents: [
         { type: 'button', style: 'primary', color: '#C4A038', height: 'sm',
-          action: { type: 'uri', label: '查詢申請 / 回報匯款', uri: myBookingUrl } },
+          action: { type: 'uri', label: 'LINE 內回報匯款', uri: paymentUrl } },
       ],
     },
   }
+}
+
+function getPaymentLiffUrl(fallback: string) {
+  const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID
+  return liffId ? `https://liff.line.me/${liffId}` : fallback
 }
