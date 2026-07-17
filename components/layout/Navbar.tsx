@@ -82,7 +82,7 @@ export default function Navbar() {
           </div>
         </Link>
         {showCharityIdentity && (
-          <div className="hu-nav-charity-identity flex items-center gap-2" aria-label="愛物王斷捨離二手公益">
+          <Link href="/charity" className="hu-nav-charity-identity flex items-center gap-2" aria-label="前往愛物王斷捨離二手公益">
             <span className="hu-nav-charity-divider" aria-hidden="true" />
             <Image
               src="/charity/logo.jpg"
@@ -95,7 +95,7 @@ export default function Navbar() {
               <p>愛物王斷捨離二手公益</p>
               <p>LOVE SECONDHAND · CHARITY</p>
             </div>
-          </div>
+          </Link>
         )}
         </div>
 
