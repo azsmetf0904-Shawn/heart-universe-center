@@ -347,8 +347,18 @@ button, a, [role="button"], label[for] {
 
 .hu-home-nav {
   background: rgba(20,12,4,.78) !important;
-  border-color: rgba(196,160,56,.1) !important;
-  box-shadow: none !important;
+  border-color: rgba(196,160,56,.16) !important;
+  box-shadow: 0 1px 0 rgba(196,160,56,.08), 0 8px 28px rgba(10,6,2,.12) !important;
+}
+.hu-home-nav::after {
+  content: '';
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196,160,56,.34), transparent);
+  opacity: .55;
 }
 .hu-home-nav a,
 .hu-home-nav button { color: rgba(237,228,212,.62) !important; }
@@ -385,7 +395,7 @@ button, a, [role="button"], label[for] {
   right: -22vw;
   bottom: 8vh;
   background: radial-gradient(circle, rgba(122,106,80,.32), transparent 68%);
-  animation-delay: -9s;
+  display: none;
 }
 @keyframes hu-ambientDrift {
   0% { transform: translate3d(0, 0, 0) scale(.92); }
@@ -414,6 +424,9 @@ button, a, [role="button"], label[for] {
 .hu-home-page > section:not(.hu-perfect-hero) {
   position: relative;
   overflow: hidden;
+  background-image: linear-gradient(180deg, rgba(255,255,255,.08), transparent 24%, rgba(196,160,56,.025)) !important;
+  background-blend-mode: soft-light;
+  border-color: rgba(196,160,56,.18) !important;
 }
 .hu-home-page > section:not(.hu-perfect-hero)::after {
   content: '';
@@ -424,7 +437,7 @@ button, a, [role="button"], label[for] {
   height: 1px;
   background: linear-gradient(90deg, transparent, rgba(196,160,56,.5), transparent);
   opacity: .35;
-  animation: hu-sectionSweep 12s ease-in-out infinite;
+  animation: hu-sectionSweep 18s ease-in-out infinite;
   pointer-events: none;
 }
 @keyframes hu-sectionSweep {
@@ -482,9 +495,9 @@ button, a, [role="button"], label[for] {
   }
   .hu-perfect-hero .hu-hero-logo {
     display: block;
-    width: 148px !important;
+    width: 132px !important;
     height: auto !important;
-    margin: 0 0 24px !important;
+    margin: 0 0 20px !important;
     opacity: .86 !important;
     filter: drop-shadow(0 0 4px rgba(196,160,56,.42)) !important;
   }
@@ -543,7 +556,9 @@ button, a, [role="button"], label[for] {
     animation: hu-photoDrift 18s ease-in-out infinite;
   }
   .hu-perfect-hero > [data-hp="photo"] > div:first-child > div {
-    background: linear-gradient(to top, rgba(10,6,2,.55), transparent 42%) !important;
+    background:
+      linear-gradient(90deg, rgba(10,6,2,.4) 0%, rgba(10,6,2,.12) 48%, transparent 78%),
+      linear-gradient(to top, rgba(10,6,2,.62), transparent 48%) !important;
   }
   .hu-perfect-hero > [data-hp="photo"] > div:not(:first-child) { display: none; }
   .hu-perfect-hero > [data-hp="photo"]::before {
