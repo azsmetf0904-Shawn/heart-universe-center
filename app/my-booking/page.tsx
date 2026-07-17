@@ -238,20 +238,20 @@ export default function MyBookingPage() {
                         <div className="border border-[var(--border-color)] p-4 bg-[var(--card-bg)] flex flex-col gap-3">
                           <div className="flex flex-col gap-3 sm:grid sm:grid-cols-2">
                             <div>
-                              <p className="text-[10px] text-[var(--gray)] mb-1">帳號末5碼</p>
+                              <p className="form-label mb-1 text-[var(--gray)]">帳號末5碼</p>
                               <input type="text" maxLength={5} placeholder="12345" value={paymentForm.last5}
                                 onChange={e => setPaymentForm(p => ({ ...p, last5: e.target.value.replace(/\D/g, '').slice(0, 5) }))}
                                 className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2 text-xs focus:outline-none focus:border-[var(--gold)] font-mono" />
                             </div>
                             <div>
-                              <p className="text-[10px] text-[var(--gray)] mb-1">匯款日期</p>
+                              <p className="form-label mb-1 text-[var(--gray)]">匯款日期</p>
                               <input type="date" value={paymentForm.date}
                                 onChange={e => setPaymentForm(p => ({ ...p, date: e.target.value }))}
                                 className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2 text-xs focus:outline-none focus:border-[var(--gold)]" />
                             </div>
                           </div>
                           <div>
-                            <p className="text-[10px] text-[var(--gray)] mb-1">匯款金額（NT$）</p>
+                            <p className="form-label mb-1 text-[var(--gray)]">匯款金額（NT$）</p>
                             <input type="number" placeholder="請輸入" value={paymentForm.amount}
                               onChange={e => setPaymentForm(p => ({ ...p, amount: e.target.value }))}
                               className="w-full border border-[var(--border-color)] bg-transparent px-3 py-2 text-xs focus:outline-none focus:border-[var(--gold)]" />

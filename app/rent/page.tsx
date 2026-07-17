@@ -792,7 +792,7 @@ function RentForm() {
                 { key: 'event_title', label: '活動名稱', type: 'text' },
               ].map(f => (
                 <div key={f.key}>
-                  <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>{f.label}</label>
+                  <label className="form-label mb-2">{f.label}</label>
                   <input
                     type={f.type}
                     value={form[f.key as keyof RentFormState] as string}
@@ -816,7 +816,7 @@ function RentForm() {
             {/* Venue selector */}
             {venues.length > 0 && (
               <div>
-                <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>選擇場地</label>
+                <label className="form-label mb-2">選擇場地</label>
                 <select
                   value={form.venue_id}
                   onChange={e => handleVenueChange(e.target.value)}
@@ -838,7 +838,7 @@ function RentForm() {
 
             {/* Booking Calendar */}
             <div>
-              <label className="label-tag mb-3 block" style={{ color: 'var(--charcoal)' }}>選擇日期與時段</label>
+              <label className="form-label mb-3">選擇日期與時段</label>
               {errors.booking_date && <p className="text-xs text-red-500 mb-1">{errors.booking_date}</p>}
               {errors.time_slot && <p className="text-xs text-red-500 mb-2">{errors.time_slot}</p>}
               <div className="border border-[var(--border-color)] p-4 bg-[var(--card-bg)]">
@@ -860,14 +860,14 @@ function RentForm() {
             {/* Sessions */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>租借時段數</label>
+                <label className="form-label mb-2">租借時段數</label>
                 <select value={form.session_count} onChange={e => setForm(p => ({ ...p, session_count: e.target.value }))}
                   className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)]">
                   {[1, 2, 3].map(n => <option key={n} value={n}>{n} 個時段{n > 1 ? '（連租）' : ''}</option>)}
                 </select>
               </div>
               <div>
-                <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>座位配置</label>
+                <label className="form-label mb-2">座位配置</label>
                 <select
                   value={form.layout_config}
                   onChange={e => setForm(p => ({ ...p, layout_config: e.target.value as LayoutType | '' }))}
@@ -896,7 +896,7 @@ function RentForm() {
               {showOptional && (
                 <div className="py-4 flex flex-col gap-6">
                   <div>
-                    <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>活動類型</label>
+                    <label className="form-label mb-2">活動類型</label>
                     <select value={form.event_type} onChange={e => setForm(p => ({ ...p, event_type: e.target.value }))}
                       className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)]">
                       <option value="">請選擇</option>
@@ -905,7 +905,7 @@ function RentForm() {
                   </div>
 
                   <div>
-                    <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>預計人數</label>
+                    <label className="form-label mb-2">預計人數</label>
                     <input type="number" min="1" value={form.guest_count}
                       onChange={e => setForm(p => ({ ...p, guest_count: e.target.value }))}
                       className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)]"
@@ -913,7 +913,7 @@ function RentForm() {
                   </div>
 
                   <div>
-                    <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>備註需求</label>
+                    <label className="form-label mb-2">備註需求</label>
                     <textarea rows={3} value={form.note} onChange={e => setForm(p => ({ ...p, note: e.target.value }))}
                       className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)] resize-none"
                     />

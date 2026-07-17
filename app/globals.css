@@ -163,9 +163,9 @@
   body {
     @apply text-foreground;
     font-family: 'Noto Sans TC', sans-serif;
-    font-weight: 300;
+    font-weight: 400;            /* was 300: Light 在石材底色上易讀性不足 */
+    line-height: 1.65;           /* 中文正文黃金行高 */
     -webkit-font-smoothing: antialiased;
-    /* 石材牆底色：多層 radial-gradient 模擬打光 */
     background-color: #EDE4D4;
     background-image:
       radial-gradient(ellipse 70% 55% at 15% 10%, rgba(245,236,218,0.7) 0%, transparent 55%),
@@ -175,7 +175,13 @@
   }
   h1, h2, h3, h4 {
     font-family: 'Noto Serif TC', serif;
+    line-height: 1.25;           /* 標題緊湊行高，防止多行標題過散 */
+    letter-spacing: -0.01em;
+    font-weight: 700;
   }
+  h2 { line-height: 1.3; font-weight: 600; }
+  h3 { line-height: 1.4; font-weight: 600; letter-spacing: 0; }
+  p  { line-height: 1.65; }
   html {
     scroll-behavior: smooth;
   }
@@ -250,11 +256,23 @@ button, a, [role="button"], label[for] {
 
 .label-tag {
   display: inline-block;
-  font-size: 0.65rem;
-  letter-spacing: 0.15em;
+  font-size: 0.6875rem;          /* 11px（was 10.4px — 英文 tag，uppercase，字距適中） */
+  letter-spacing: 0.1em;         /* was 0.15em — 略縮，英文全大寫看起來更精緻 */
   text-transform: uppercase;
   color: var(--gold);
   font-weight: 500;
+  line-height: 1.4;
+}
+
+/* 中文表單欄位標籤 — 不拉字距、不全大寫 */
+.form-label {
+  display: block;
+  font-size: 0.75rem;             /* 12px — 比 label-tag 大，更易閱讀 */
+  font-weight: 500;
+  letter-spacing: 0;              /* 中文不拉字距 */
+  text-transform: none;
+  color: var(--text-primary);
+  line-height: 1.4;
 }
 
 .container-wide {
