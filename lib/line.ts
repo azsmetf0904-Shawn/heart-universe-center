@@ -394,6 +394,7 @@ export function buildAdminPaymentFlex(
 }
 
 const SITE_URL = 'https://heart-universe-center.vercel.app'
+const DEFAULT_PAYMENT_LIFF_ID = '2010632211-TAiLlAYX'
 
 export function buildCustomerBookingConfirmFlex(
   name: string, eventTitle: string, bookingDate: string, timeSlot: string,
@@ -451,6 +452,6 @@ export function buildCustomerBookingConfirmFlex(
 }
 
 function getPaymentLiffUrl(fallback: string) {
-  const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID
+  const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID ?? DEFAULT_PAYMENT_LIFF_ID
   return liffId ? `https://liff.line.me/${liffId}` : fallback
 }

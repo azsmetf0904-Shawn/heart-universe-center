@@ -18,6 +18,7 @@ type Booking = {
 }
 
 type FormState = { last5: string; date: string; amount: string }
+const DEFAULT_LIFF_ID = '2010632211-TAiLlAYX'
 
 const initialForm: FormState = {
   last5: '',
@@ -38,7 +39,7 @@ export default function LiffPaymentReportPage() {
   const selected = useMemo(() => bookings.find(b => b.id === selectedId) ?? null, [bookings, selectedId])
 
   useEffect(() => {
-    const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID
+    const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID ?? DEFAULT_LIFF_ID
     if (!liffId) {
       setError('LINE 表單尚未完成設定')
       setLoading(false)
