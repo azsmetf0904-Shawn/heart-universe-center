@@ -278,6 +278,12 @@
 .hu-nav-charity .hu-nav-main-brand > div p:first-child { font-size: 11px; }
 .hu-nav-home .hu-nav-charity-identity .hu-nav-charity-title p:last-child,
 .hu-nav-charity .hu-nav-main-brand > div p:last-child { font-size: 8px; }
+.hu-nav-charity .hu-nav-brand-group {
+  flex-direction: row !important;
+  justify-content: flex-end;
+}
+.hu-nav-charity .hu-nav-charity-identity { order: 1 !important; }
+.hu-nav-charity .hu-nav-main-brand { order: 2 !important; }
 @media (max-width: 767px) {
   .hu-nav-brand-group { gap: 8px !important; }
   .hu-nav-brand-group > a { gap: 7px !important; }
