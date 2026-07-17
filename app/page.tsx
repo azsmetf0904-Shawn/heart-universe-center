@@ -109,7 +109,7 @@ async function HomePageContent() {
   }
 
   return (
-    <>
+    <div className="hu-home-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }} />
 
       {/* ═══════════════════════════════════════════════════════════
@@ -245,7 +245,7 @@ async function HomePageContent() {
       {/* ═══════════════════════════════════════════════════════════
           STATS RIBBON — 4 stats, animated gradient
       ═══════════════════════════════════════════════════════════ */}
-      <div className="grid grid-cols-2 md:grid-cols-4" style={{
+      <div className="hu-stats-ribbon grid grid-cols-2 md:grid-cols-4" style={{
         background: `linear-gradient(90deg, ${W}, #F8F2EA, ${W})`,
         backgroundSize: '200% 100%',
         animation: 'hu-gradShift 8s ease-in-out infinite',
@@ -271,7 +271,7 @@ async function HomePageContent() {
       {/* ═══════════════════════════════════════════════════════════
           FEATURE STRIP — 3 cols, hover gold top-line
       ═══════════════════════════════════════════════════════════ */}
-      <div className="grid" style={{ background: BD, gap: 1, gridTemplateColumns: 'repeat(1,1fr)' }}
+      <div className="hu-feature-ribbon grid" style={{ background: BD, gap: 1, gridTemplateColumns: 'repeat(1,1fr)' }}
            // on md: 3 cols via inline override applied below
       >
         <div className="grid grid-cols-1 md:grid-cols-3" style={{ background: BD, gap: 1 }}>
@@ -697,6 +697,6 @@ async function HomePageContent() {
       {/* Mobile spacer for bottom CTA */}
       <div className="md:hidden" style={{ height: 170 }} />
       <MobileBottomCTA />
-    </>
+    </div>
   )
 }

@@ -357,6 +357,82 @@ button, a, [role="button"], label[for] {
 .hu-home-nav .btn-gold-fill { color: #1C1008 !important; }
 .hu-home-nav > div > a:first-child img { filter: drop-shadow(0 0 1px rgba(196,160,56,.55)); }
 
+.hu-home-page {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+.hu-home-page::before,
+.hu-home-page::after {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  width: 48vw;
+  height: 48vw;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(34px);
+  opacity: .17;
+  mix-blend-mode: multiply;
+  animation: hu-ambientDrift 22s ease-in-out infinite alternate;
+}
+.hu-home-page::before {
+  top: 12vh;
+  left: -24vw;
+  background: radial-gradient(circle, rgba(196,160,56,.38), transparent 68%);
+}
+.hu-home-page::after {
+  right: -22vw;
+  bottom: 8vh;
+  background: radial-gradient(circle, rgba(122,106,80,.32), transparent 68%);
+  animation-delay: -9s;
+}
+@keyframes hu-ambientDrift {
+  0% { transform: translate3d(0, 0, 0) scale(.92); }
+  50% { transform: translate3d(5vw, 3vh, 0) scale(1.08); }
+  100% { transform: translate3d(-2vw, -4vh, 0) scale(.98); }
+}
+.hu-stats-ribbon > div:nth-child(2n) { animation: hu-softLift 7s ease-in-out infinite; }
+.hu-stats-ribbon > div:nth-child(3n) { animation: hu-softLift 8s ease-in-out -2s infinite; }
+@keyframes hu-softLift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-3px); }
+}
+.hu-feature-ribbon .hu-f-cell { overflow: hidden; }
+.hu-feature-ribbon .hu-f-cell::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border: 1px solid rgba(196,160,56,0);
+  transition: border-color .5s ease, inset .5s ease;
+  pointer-events: none;
+}
+.hu-feature-ribbon .hu-f-cell:hover::before {
+  inset: 7px;
+  border-color: rgba(196,160,56,.18);
+}
+.hu-home-page > section:not(.hu-perfect-hero) {
+  position: relative;
+  overflow: hidden;
+}
+.hu-home-page > section:not(.hu-perfect-hero)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -35%;
+  width: 28%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196,160,56,.5), transparent);
+  opacity: .35;
+  animation: hu-sectionSweep 12s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes hu-sectionSweep {
+  0%, 30% { transform: translateX(0); opacity: 0; }
+  45% { opacity: .55; }
+  70%, 100% { transform: translateX(500%); opacity: 0; }
+}
+
 /* Perfect desktop direction recovered from /private/tmp/heart-v-perfect.html. */
 @media (min-width: 1024px) {
   .hu-perfect-hero {
