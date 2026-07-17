@@ -14,7 +14,7 @@ function formatDate(s: string) {
 export default async function HomePage() {
   const supabase = await createClient()
 
-  const [{ data: venues }, { data: events }, { data: showcaseEvents }] = await Promise.all([
+  const [{ data: venues }, { data: events }, { data: showcaseEvents }, { data: pastEvents }] = await Promise.all([
     supabase
       .from('venues')
       .select('id, name, slug, capacity, area_ping, venue_photos(image_url, sort_order)')
@@ -35,6 +35,13 @@ export default async function HomePage() {
       .lt('start_time', new Date().toISOString())
       .order('start_time', { ascending: false })
       .limit(6),
+    supabase
+      .from('events')
+      .select('id, title, slug, start_time, cover_image_url, organizer_name')
+      .eq('status', 'ended')
+      .not('cover_image_url', 'is', null)
+      .order('start_time', { ascending: false })
+      .limit(3),
   ])
 
   type VenuePhoto = { image_url: string; sort_order: number }
@@ -519,6 +526,56 @@ export default async function HomePage() {
         </div>
       </section>
       </ScrollRevealSection>
+
+      {/* ─── Past Events ─── */}
+      {pastEvents && pastEvents.length > 0 && (
+        <ScrollRevealSection>
+        <section className="py-10 md:py-20" style={{ background: 'var(--cream)', borderBottom: '1px solid var(--border-color)' }}>
+          <div className="container-wide">
+            <div className="flex items-end justify-between mb-8 md:mb-12">
+              <div>
+                <p className="text-[10px] tracking-[0.5em] uppercase mb-2" style={{ color: 'var(--gold)' }}>Past Events</p>
+                <h2 className="font-serif text-2xl md:text-4xl" style={{ color: 'var(--charcoal)' }}>精彩活動回顧</h2>
+              </div>
+              <Link
+                href="/events"
+                className="flex items-center gap-2 text-xs tracking-widest pb-1 border-b transition-colors hover:border-[var(--gold)] hover:text-[var(--gold)]"
+                style={{ color: 'var(--gray)', borderColor: 'var(--border-color)' }}
+              >
+                {CTA.home.viewAll} <ArrowRight size={12} />
+              </Link>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+              {pastEvents.map(ev => (
+                <Link
+                  key={ev.id}
+                  href={`/events/${ev.slug}`}
+                  className="group block border border-[var(--border-color)] bg-[var(--card-bg)] overflow-hidden shadow-[0_8px_24px_rgba(26,16,8,0.04)] hover:shadow-[0_16px_40px_rgba(26,16,8,0.10)] hover:-translate-y-0.5 transition-[border-color,box-shadow,transform] duration-300 hover:border-[var(--gold)]"
+                >
+                  <div className="relative overflow-hidden" style={{ aspectRatio: '16/9' }}>
+                    <Image
+                      src={ev.cover_image_url!}
+                      alt={ev.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform duration-700"
+                      sizes="(max-width: 768px) 100vw, 33vw"
+                    />
+                    <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(26,16,8,0.55) 0%, transparent 50%)' }} />
+                  </div>
+                  <div className="px-5 py-4">
+                    <h3 className="font-serif text-base leading-snug mb-2 line-clamp-2" style={{ color: 'var(--charcoal)' }}>{ev.title}</h3>
+                    <p className="text-[11px]" style={{ color: 'var(--gray)' }}>
+                      {new Date(ev.start_time).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}
+                      {ev.organizer_name && <> · {ev.organizer_name}</>}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+        </ScrollRevealSection>
+      )}
 
       {/* ─── Charity Banner ─── */}
       <ScrollRevealSection>
