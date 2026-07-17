@@ -809,6 +809,43 @@ button, a, [role="button"], label[for] {
   0%, 100% { box-shadow: 0 0 0 0 rgba(196,160,56,.18); }
   50% { box-shadow: 0 0 0 9px rgba(196,160,56,0); }
 }
+@keyframes hu-charityHeroSweep {
+  0%, 28% { transform: translateX(-120%) skewX(-18deg); opacity: 0; }
+  42% { opacity: .28; }
+  68%, 100% { transform: translateX(480%) skewX(-18deg); opacity: 0; }
+}
+@keyframes hu-charityHeroPulse {
+  0%, 100% { opacity: .18; transform: scale(.92) translate3d(0,0,0); }
+  50% { opacity: .42; transform: scale(1.12) translate3d(2%, -2%, 0); }
+}
+.hu-charity-hero::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  width: 48vw;
+  height: 78vh;
+  left: 34%;
+  top: 8%;
+  border-radius: 58% 42% 46% 54% / 42% 54% 46% 58%;
+  background: radial-gradient(ellipse, rgba(196,160,56,.16), transparent 67%);
+  filter: blur(22px);
+  pointer-events: none;
+  mix-blend-mode: screen;
+  animation: hu-charityHeroPulse 13s ease-in-out infinite;
+}
+.hu-charity-hero::after {
+  content: '';
+  position: absolute;
+  z-index: 5;
+  top: -12%;
+  bottom: -12%;
+  left: 0;
+  width: 11%;
+  background: linear-gradient(90deg, transparent, rgba(255,239,185,.16), transparent);
+  filter: blur(12px);
+  pointer-events: none;
+  animation: hu-charityHeroSweep 15s ease-in-out infinite;
+}
 .hu-charity-page > section:not(.hu-charity-hero) {
   background-image:
     radial-gradient(ellipse 55% 80% at 0% 0%, rgba(196,160,56,.07), transparent 70%),
@@ -1030,7 +1067,7 @@ button, a, [role="button"], label[for] {
     object-fit: cover !important;
     object-position: center center !important;
     filter: saturate(.88) contrast(1.04) brightness(.82);
-    animation: hu-photoDrift 18s ease-in-out infinite;
+    animation: hu-photoDrift 14s ease-in-out infinite;
     will-change: transform;
     backface-visibility: hidden;
   }
@@ -1051,6 +1088,7 @@ button, a, [role="button"], label[for] {
       radial-gradient(ellipse 90% 70% at 15% 48%, rgba(196,160,56,.12), transparent 70%),
       #1C1008;
   }
+  .hu-charity-hero-copy > * { position: relative; z-index: 1; }
   .hu-charity-hero-copy > p:first-child::before {
     content: '';
     display: inline-block;
