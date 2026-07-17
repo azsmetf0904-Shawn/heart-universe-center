@@ -194,7 +194,7 @@ export default function CharityPage() {
       </section>
 
       {/* ── ABOUT ── */}
-      <section className="py-20">
+      <section className="hu-charity-about py-20">
         <div className="container-narrow text-center max-w-2xl mx-auto px-6">
           <div className="flex justify-center mb-6">
             <div className="relative w-28 h-28 rounded-full overflow-hidden" style={{ background: '#f5ede4' }}>
@@ -214,7 +214,7 @@ export default function CharityPage() {
       </section>
 
       {/* ── GALLERY ── */}
-      <section className="pb-20">
+      <section className="hu-charity-gallery pb-20">
         <div className="container-wide px-4 md:px-8">
           <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
             {gallery.map((img, i) => (
@@ -258,7 +258,7 @@ export default function CharityPage() {
       </section>
 
       {/* ── 捐贈流程 ── */}
-      <section className="py-16">
+      <section className="hu-charity-process py-16">
         <div className="container-narrow px-6">
           <p className="text-xs tracking-[0.35em] uppercase mb-10" style={{ color: 'var(--gold)' }}>
             物資捐贈流程
@@ -307,7 +307,7 @@ export default function CharityPage() {
       </section>
 
       {/* ── 地址 / 時間 ── */}
-      <section className="py-16" style={{ background: 'var(--bg-surface, #f5f0eb)' }}>
+      <section className="hu-charity-details py-16" style={{ background: 'var(--bg-surface, #f5f0eb)' }}>
         <div className="container-narrow px-6 grid grid-cols-1 md:grid-cols-3 gap-10">
           <div>
             <p className="text-xs tracking-[0.3em] uppercase mb-4" style={{ color: 'var(--gold)' }}>地址</p>
@@ -345,7 +345,7 @@ export default function CharityPage() {
       </section>
 
       {/* ── CTA ── */}
-      <section className="py-20">
+      <section className="hu-charity-cta py-20">
         <div className="container-narrow px-6">
           <div
             className="rounded-3xl p-8 md:p-12 text-center border"
@@ -385,7 +385,7 @@ export default function CharityPage() {
       </section>
 
       {/* ── FAQ ── */}
-      <section className="pb-16">
+      <section className="hu-charity-faq pb-16">
         <div className="container-narrow px-6">
           <p className="text-xs tracking-[0.35em] uppercase mb-8" style={{ color: 'var(--gold)' }}>
             常見問題

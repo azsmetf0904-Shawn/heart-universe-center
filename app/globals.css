@@ -923,3 +923,107 @@ button, a, [role="button"], label[for] {
     opacity: .45;
   }
 }
+
+/* Layered motion language for the charity sub-home. */
+@keyframes hu-charityReveal {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes hu-charityHalo {
+  0%, 100% { transform: translate3d(-5%, -3%, 0) scale(.96); opacity: .35; }
+  50% { transform: translate3d(4%, 3%, 0) scale(1.06); opacity: .62; }
+}
+@keyframes hu-charityCardFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-5px) rotate(.25deg); }
+}
+.hu-charity-page::before,
+.hu-charity-page::after {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  width: min(52vw, 680px);
+  aspect-ratio: 1;
+  border-radius: 60% 40% 58% 42% / 48% 56% 44% 52%;
+  pointer-events: none;
+  filter: blur(30px);
+  opacity: .28;
+  animation: hu-charityHalo 20s ease-in-out infinite alternate;
+}
+.hu-charity-page::before {
+  top: 12%;
+  left: -28%;
+  background: radial-gradient(circle, rgba(196,160,56,.25), transparent 68%);
+}
+.hu-charity-page::after {
+  top: 54%;
+  right: -30%;
+  background: radial-gradient(circle, rgba(58,80,32,.13), transparent 68%);
+  animation-delay: -8s;
+}
+.hu-charity-hero-copy > * {
+  animation: hu-charityReveal .9s cubic-bezier(.2,.7,.2,1) both;
+}
+.hu-charity-hero-copy > *:nth-child(2) { animation-delay: .12s; }
+.hu-charity-hero-copy > *:nth-child(3) { animation-delay: .22s; }
+.hu-charity-hero-copy > *:nth-child(4) { animation-delay: .34s; }
+.hu-charity-about .relative.w-28 {
+  border: 1px solid rgba(196,160,56,.22);
+  box-shadow: 0 16px 36px rgba(44,30,18,.1), 0 0 0 10px rgba(196,160,56,.035);
+  animation: hu-organicMorph 16s ease-in-out infinite alternate, hu-charityCardFloat 7s ease-in-out infinite;
+}
+.hu-charity-gallery .relative.overflow-hidden {
+  border-radius: 34% 66% 58% 42% / 48% 42% 58% 52% !important;
+  box-shadow: 0 10px 24px rgba(44,30,18,.08);
+  transition: border-radius .8s ease, transform .6s cubic-bezier(.2,.7,.2,1), box-shadow .6s ease;
+}
+.hu-charity-gallery .relative.overflow-hidden:nth-child(2n) { animation: hu-charityCardFloat 8s ease-in-out -2s infinite; }
+.hu-charity-gallery .relative.overflow-hidden:nth-child(3n) { animation: hu-charityCardFloat 9s ease-in-out -5s infinite; }
+.hu-charity-gallery .relative.overflow-hidden:hover {
+  border-radius: 58% 42% 38% 62% / 44% 58% 42% 56% !important;
+  transform: translateY(-6px) rotate(-.4deg);
+  box-shadow: 0 18px 34px rgba(44,30,18,.14);
+}
+.hu-charity-process .flex.flex-col.gap-10 > div { position: relative; }
+.hu-charity-process .flex.flex-col.gap-10 > div::before {
+  content: '';
+  position: absolute;
+  left: 17px;
+  top: 38px;
+  bottom: -38px;
+  width: 1px;
+  background: linear-gradient(to bottom, rgba(196,160,56,.35), transparent);
+  transform-origin: top;
+  animation: hu-lineBreath 5s ease-in-out infinite;
+}
+.hu-charity-process .flex.flex-col.gap-10 > div:last-child::before { display: none; }
+.hu-charity-process .rounded-full {
+  box-shadow: 0 0 0 7px rgba(196,160,56,.045);
+  animation: hu-breathe 5s ease-in-out infinite;
+}
+.hu-charity-cta > .container-narrow > div {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 18px 44px rgba(44,30,18,.08);
+}
+.hu-charity-cta > .container-narrow > div::before {
+  content: '';
+  position: absolute;
+  width: 260px;
+  aspect-ratio: 1;
+  right: -80px;
+  top: -130px;
+  border-radius: 44% 56% 62% 38% / 58% 38% 62% 42%;
+  background: radial-gradient(circle, rgba(196,160,56,.18), transparent 68%);
+  animation: hu-charityHalo 14s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+.hu-charity-cta > .container-narrow > div > * { position: relative; z-index: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hu-charity-page::before,
+  .hu-charity-page::after,
+  .hu-charity-page * {
+    animation: none !important;
+  }
+}
