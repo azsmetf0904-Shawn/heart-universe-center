@@ -1064,9 +1064,27 @@ button, a, [role="button"], label[for] {
 }
 
 @media (max-width: 767px) {
+  .hu-charity-about {
+    padding-top: 52px !important;
+    padding-bottom: 52px !important;
+  }
+  .hu-charity-hero-actions {
+    width: auto;
+    flex-direction: row !important;
+    gap: 10px !important;
+  }
+  .hu-charity-hero-actions > a {
+    width: auto;
+    min-width: 142px;
+    min-height: 46px;
+    padding-left: 18px !important;
+    padding-right: 18px !important;
+    white-space: nowrap;
+  }
+
   .hu-charity-hero {
-    height: 720px !important;
-    min-height: 720px;
+    height: 680px !important;
+    min-height: 680px;
     background: var(--charcoal);
     overflow: hidden;
   }
