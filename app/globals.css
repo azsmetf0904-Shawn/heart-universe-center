@@ -285,13 +285,47 @@
 .hu-nav-charity .hu-nav-charity-identity { order: 1 !important; }
 .hu-nav-charity .hu-nav-main-brand { order: 2 !important; }
 @media (max-width: 767px) {
-  .hu-nav-brand-group { gap: 8px !important; }
-  .hu-nav-brand-group > a { gap: 7px !important; }
-  .hu-nav-brand-group > a > img { width: 42px !important; height: 42px !important; }
-  .hu-nav-brand-group > a > div p:first-child { font-size: 12px !important; }
+  /* Dual-brand mobile header: keep both identities readable without clipping. */
+  .hu-nav-brand-group {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: calc(100% - 58px);
+    gap: 5px !important;
+    overflow: hidden;
+  }
+  .hu-nav-brand-group > a {
+    min-width: 0;
+    gap: 5px !important;
+  }
+  .hu-nav-main-brand > div,
+  .hu-nav-charity-title { min-width: 0; overflow: hidden; }
+  .hu-nav-brand-group > a > img,
+  .hu-nav-home .hu-nav-charity-identity .hu-nav-charity-logo,
+  .hu-nav-charity .hu-nav-main-brand > img {
+    width: 30px !important;
+    height: 30px !important;
+    flex: 0 0 30px;
+  }
+  .hu-nav-brand-group > a > div p:first-child,
+  .hu-nav-charity-title p:first-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 10px !important;
+    letter-spacing: .02em !important;
+  }
+  .hu-nav-brand-group > a > div p:last-child,
+  .hu-nav-charity-title p:last-child { display: none; }
+  .hu-nav-charity-identity { gap: 5px !important; }
+  .hu-nav-brand-group + .md\:hidden { flex: 0 0 auto; gap: 8px !important; }
+
+  .hu-nav-brand-group { gap: 5px !important; }
+  .hu-nav-brand-group > a { gap: 5px !important; }
+  .hu-nav-brand-group > a > img { width: 30px !important; height: 30px !important; }
+  .hu-nav-brand-group > a > div p:first-child { font-size: 10px !important; }
   .hu-nav-brand-group > a > div p:last-child { font-size: 8px !important; letter-spacing: .16em !important; }
   .hu-nav-charity-divider { display: none; }
-  .hu-nav-charity-logo { width: 38px; height: 38px; }
+  .hu-nav-charity-logo { width: 30px; height: 30px; }
   .hu-nav-charity-title p:first-child { font-size: 10px; letter-spacing: .04em; }
   .hu-nav-charity-title p:last-child { font-size: 7px; letter-spacing: .12em; }
   .hu-nav-home .hu-nav-charity-identity,
