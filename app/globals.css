@@ -309,6 +309,22 @@ button, a, [role="button"], label[for] {
   0%, 100% { opacity: 0.5; }
   50%      { opacity: 0.88; }
 }
+@keyframes hu-heroGlow {
+  0%, 100% { background-position: 12% 48%, 82% 72%, 0 0; }
+  50%      { background-position: 30% 42%, 68% 58%, 0 0; }
+}
+@keyframes hu-photoDrift {
+  0%, 100% { transform: scale(1.04) translate3d(0, 0, 0); }
+  50%      { transform: scale(1.08) translate3d(-1.2%, -0.7%, 0); }
+}
+@keyframes hu-captionFloat {
+  0%, 100% { transform: translateY(0); opacity: .72; }
+  50%      { transform: translateY(-5px); opacity: .94; }
+}
+@keyframes hu-lineBreath {
+  0%, 100% { opacity: .22; transform: scaleX(.7); transform-origin: left; }
+  50%      { opacity: .7; transform: scaleX(1); transform-origin: left; }
+}
 
 /* Feature strip hover — gold top-line reveal */
 .hu-f-cell {
@@ -326,6 +342,8 @@ button, a, [role="button"], label[for] {
 }
 .hu-f-cell:hover::after { width: 100%; }
 .hu-f-cell:hover { background: #EAE0D2; }
+.hu-f-cell h3 { transition: transform .45s cubic-bezier(.34,1.56,.64,1); }
+.hu-f-cell:hover h3 { transform: translateX(4px); }
 
 .hu-home-nav {
   background: rgba(20,12,4,.78) !important;
@@ -344,7 +362,12 @@ button, a, [role="button"], label[for] {
   .hu-perfect-hero {
     grid-template-columns: 42fr 58fr !important;
     min-height: calc(100vh - 64px) !important;
-    background: var(--dark-bg, #1C1008);
+    background:
+      radial-gradient(ellipse 72% 58% at 12% 48%, rgba(196,160,56,.12), transparent 66%),
+      radial-gradient(ellipse 55% 48% at 82% 72%, rgba(91,52,16,.2), transparent 68%),
+      #1C1008;
+    background-size: 160% 160%, 160% 160%, auto;
+    animation: hu-heroGlow 14s ease-in-out infinite;
   }
   .hu-perfect-hero > #hero-left {
     align-items: flex-start;
@@ -432,8 +455,9 @@ button, a, [role="button"], label[for] {
     display: block;
   }
   .hu-perfect-hero > [data-hp="photo"] > div:first-child > img {
-    transform: scale(1.03);
+    transform: scale(1.04);
     filter: saturate(.72) contrast(1.05) brightness(.72);
+    animation: hu-photoDrift 18s ease-in-out infinite;
   }
   .hu-perfect-hero > [data-hp="photo"] > div:first-child > div {
     background: linear-gradient(to top, rgba(10,6,2,.55), transparent 42%) !important;
@@ -457,5 +481,24 @@ button, a, [role="button"], label[for] {
     font-size: 8px;
     letter-spacing: .38em;
     writing-mode: vertical-rl;
+    animation: hu-captionFloat 6s ease-in-out infinite;
+  }
+  .hu-perfect-hero #hero-left h1::after {
+    content: '';
+    display: block;
+    width: 42px;
+    height: 1px;
+    margin-top: 24px;
+    background: var(--gold);
+    animation: hu-lineBreath 4.5s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
   }
 }
