@@ -774,3 +774,152 @@ button, a, [role="button"], label[for] {
   .hu-charity-page .container-narrow .text-sm { font-size: .95rem !important; }
   .hu-charity-page section { scroll-margin-top: 64px; }
 }
+
+/* Charity as a cultural sub-home: same editorial rhythm as the homepage. */
+.hu-charity-page {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+  background:
+    radial-gradient(ellipse 70% 32% at 0% 18%, rgba(196,160,56,.08), transparent 70%),
+    var(--cream);
+}
+.hu-charity-page > section:not(.hu-charity-hero) {
+  position: relative;
+  overflow: hidden;
+  border-color: rgba(196,160,56,.18) !important;
+  background-image: linear-gradient(180deg, rgba(255,255,255,.1), transparent 28%, rgba(196,160,56,.025)) !important;
+}
+.hu-charity-page > section:not(.hu-charity-hero)::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -30%;
+  width: 24%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(196,160,56,.5), transparent);
+  opacity: .32;
+  animation: hu-sectionSweep 18s ease-in-out infinite;
+  pointer-events: none;
+}
+.hu-charity-hero {
+  isolation: isolate;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 72% 58% at 12% 48%, rgba(196,160,56,.13), transparent 66%),
+    radial-gradient(ellipse 55% 48% at 82% 72%, rgba(91,52,16,.22), transparent 68%),
+    #1C1008;
+  background-size: 160% 160%, 160% 160%, auto;
+  animation: hu-heroGlow 14s ease-in-out infinite;
+}
+.hu-charity-hero-image {
+  z-index: 0;
+  transition: filter .8s ease;
+}
+.hu-charity-hero-shade {
+  z-index: 1;
+  pointer-events: none;
+}
+.hu-charity-hero-copy {
+  z-index: 4;
+}
+.hu-charity-hero-copy h1 {
+  text-shadow: 0 10px 30px rgba(10,6,2,.3);
+}
+.hu-charity-hero-copy h1::after {
+  content: '';
+  display: block;
+  width: 42px;
+  height: 1px;
+  margin-top: 24px;
+  background: var(--gold);
+  animation: hu-lineBreath 4.5s ease-in-out infinite;
+}
+.hu-charity-organic-orb {
+  position: absolute;
+  z-index: 3;
+  width: clamp(180px, 22vw, 340px);
+  aspect-ratio: 1.15;
+  right: -5%;
+  top: 12%;
+  pointer-events: none;
+  border: 1px solid rgba(245,224,164,.25);
+  border-radius: 62% 38% 44% 56% / 42% 55% 45% 58%;
+  background: radial-gradient(ellipse at 35% 35%, rgba(245,224,164,.15), rgba(196,160,56,.035) 48%, transparent 72%);
+  box-shadow: inset 0 0 34px rgba(255,244,207,.06), 0 0 42px rgba(196,160,56,.08);
+  mix-blend-mode: screen;
+  opacity: .72;
+  transform: rotate(-13deg);
+  animation: hu-organicMorph 16s ease-in-out infinite alternate;
+}
+.hu-charity-organic-orb::after {
+  content: '';
+  position: absolute;
+  width: 36%;
+  aspect-ratio: 1;
+  left: 18%;
+  bottom: -13%;
+  border-radius: 48% 52% 60% 40% / 55% 42% 58% 45%;
+  border: 1px solid rgba(245,224,164,.18);
+  background: rgba(245,224,164,.05);
+  animation: hu-organicOrbit 11s ease-in-out infinite;
+}
+.hu-charity-page .gold-divider { animation: divider-expand 1s ease-out both, hu-breathe 5s ease-in-out 1s infinite; }
+
+@media (min-width: 768px) {
+  .hu-charity-hero {
+    display: block;
+    min-height: calc(100vh - 64px);
+    height: calc(100vh - 64px) !important;
+  }
+  .hu-charity-hero-image {
+    inset: 0 0 0 42% !important;
+    width: 58% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center center !important;
+    filter: saturate(.88) contrast(1.04) brightness(.82);
+    animation: hu-photoDrift 18s ease-in-out infinite;
+    will-change: transform;
+    backface-visibility: hidden;
+  }
+  .hu-charity-hero-shade {
+    inset: 0 !important;
+    background:
+      linear-gradient(90deg, rgba(10,6,2,.98) 0%, rgba(20,12,4,.94) 36%, rgba(10,6,2,.34) 57%, rgba(10,6,2,.08) 100%),
+      linear-gradient(to top, rgba(10,6,2,.55), transparent 52%) !important;
+  }
+  .hu-charity-hero-copy {
+    inset: 0 58% 0 0 !important;
+    align-items: flex-start;
+    justify-content: center;
+    text-align: left;
+    padding: 120px 56px 80px 64px !important;
+    clip-path: polygon(0 0, 100% 0, 88% 100%, 0 100%);
+    background:
+      radial-gradient(ellipse 90% 70% at 15% 48%, rgba(196,160,56,.12), transparent 70%),
+      #1C1008;
+  }
+  .hu-charity-hero-copy > p:first-child::before {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 1px;
+    margin-right: 14px;
+    vertical-align: middle;
+    background: rgba(196,160,56,.55);
+  }
+  .hu-charity-hero-copy h1 { font-size: clamp(48px, 5vw, 76px) !important; line-height: 1.2 !important; letter-spacing: .02em; }
+  .hu-charity-hero-copy > p:not(:first-child) { font-size: 16px !important; letter-spacing: .12em !important; }
+  .hu-charity-location { justify-content: flex-start; font-size: 12px !important; margin-top: 34px !important; }
+}
+
+@media (max-width: 767px) {
+  .hu-charity-organic-orb {
+    z-index: 2;
+    width: 180px;
+    right: -14%;
+    top: 5%;
+    opacity: .45;
+  }
+}
