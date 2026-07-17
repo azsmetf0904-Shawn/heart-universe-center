@@ -400,10 +400,17 @@ button, a, [role="button"], label[for] {
     border-bottom: 1px solid rgba(196,160,56,.16);
     border-left: 1px solid rgba(196,160,56,.16);
   }
-  .hu-perfect-hero .hu-hero-logo,
   .hu-perfect-hero .hu-hero-brand,
   .hu-perfect-hero .hu-hero-tags {
     display: none;
+  }
+  .hu-perfect-hero .hu-hero-logo {
+    display: block;
+    width: 148px !important;
+    height: auto !important;
+    margin: 0 0 24px !important;
+    opacity: .86 !important;
+    filter: drop-shadow(0 0 4px rgba(196,160,56,.42)) !important;
   }
   .hu-perfect-hero .hu-hero-eyebrow {
     display: block;
