@@ -525,7 +525,12 @@ function RentForm() {
   // LIFF 載入中（短暫 spinner，不擋主頁面）
   // liffLoading 只影響 lineProfile 是否有值，表單可直接顯示
 
-  if (done) return (
+  if (done) {
+    const deadlineDate = new Date()
+    deadlineDate.setDate(deadlineDate.getDate() + 3)
+    const deadlineStr = `${deadlineDate.getMonth() + 1}/${deadlineDate.getDate()}（${'日一二三四五六'[deadlineDate.getDay()]}）`
+
+  return (
     <div className="py-40 flex flex-col items-center text-center container-narrow">
       <CheckCircle2 size={48} className={isWaitlistDone ? 'text-orange-400 mb-6' : 'text-[var(--gold)] mb-6'} />
       <h2 className="text-2xl mb-4">{isWaitlistDone ? '申請已列入候補' : '申請已送出'}</h2>
@@ -549,7 +554,7 @@ function RentForm() {
       </p>
       {!isWaitlistDone && (
         <p className="text-xs mb-4 font-medium" style={{ color: '#f87171' }}>
-          ⚠️ 請於 <strong>3 天內</strong>完成匯款，逾期時段保留自動取消
+          ⚠️ 請於 <strong>{deadlineStr} 前</strong>完成匯款，逾期時段保留自動取消
         </p>
       )}
 
@@ -615,7 +620,7 @@ function RentForm() {
           </div>
       <div className="px-5 py-3 border-t border-[var(--border-color)]">
             <p className="text-[11px] leading-relaxed" style={{ color: 'var(--gray)' }}>
-              請於 3 天內完成匯款。
+              請於 <strong style={{ color: 'var(--charcoal)' }}>{deadlineStr} 前</strong>完成匯款。
             </p>
           </div>
         </div>
@@ -662,6 +667,7 @@ function RentForm() {
       </div>
     </div>
   )
+  } // end if (done)
 
   // 可用佈置類型（依選定場地）
   const availableLayouts = selectedVenue?.layout_capacities

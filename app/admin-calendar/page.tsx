@@ -6,11 +6,11 @@ import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus, TimeSlot } from '@/lib/types'
 
 const STATUS_COLOR: Record<string, string> = {
-  pending: '#F59E0B',
+  pending:         '#F59E0B',
   payment_pending: '#3B82F6',
-  confirmed: '#22C55E',
-  waitlist: '#A855F7',
-  completed: '#15803D',
+  confirmed:       '#22C55E',
+  waitlist:        '#A855F7',
+  completed:       '#15803D',
 }
 
 const MONTH_ZH = ['', '一', '二', '三', '四', '五', '六', '七', '八', '九', '十', '十一', '十二']
@@ -96,14 +96,20 @@ export default async function AdminCalendarPage({
       {/* Month nav */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <Link href={`${base}&year=${prevM.year}&month=${prevM.month}`}
-          style={{ textDecoration: 'none', color: '#C4A038', fontSize: 14, fontWeight: 500 }}>
+          style={{
+            textDecoration: 'none', color: '#C4A038', fontSize: 14, fontWeight: 500,
+            minWidth: 48, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
+          }}>
           ‹ {MONTH_ZH[prevM.month]}月
         </Link>
         <span style={{ fontSize: 16, fontWeight: 700 }}>
           {year} 年 {MONTH_ZH[month]} 月
         </span>
         <Link href={`${base}&year=${nextM.year}&month=${nextM.month}`}
-          style={{ textDecoration: 'none', color: '#C4A038', fontSize: 14, fontWeight: 500 }}>
+          style={{
+            textDecoration: 'none', color: '#C4A038', fontSize: 14, fontWeight: 500,
+            minWidth: 48, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'flex-end',
+          }}>
           {MONTH_ZH[nextM.month]}月 ›
         </Link>
       </div>
@@ -206,7 +212,7 @@ export default async function AdminCalendarPage({
                     : (TIME_SLOT_LABEL[b.time_slot as TimeSlot] ?? b.time_slot ?? '—')
                   const c = STATUS_COLOR[b.status] ?? '#999'
                   return (
-                    <div key={b.id} style={{ padding: '10px 14px', borderTop: '1px solid #F5EDE4' }}>
+                    <div key={b.id} style={{ padding: '10px 14px', borderTop: '1px solid #F5EDE4', borderLeft: `3px solid ${STATUS_COLOR[b.status] ?? '#ccc'}` }}>
                       {/* Title + badge row：minWidth:0 讓 title 可以截斷 */}
                       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 3 }}>
                         <span style={{

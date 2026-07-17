@@ -199,7 +199,43 @@
   --dark-muted:  #8A7252;   /* 輔助文字 */
 }
 
-/* Utility classes */
+/* ── Mobile UX Critical Fixes ───────────────────────────────────────── */
+
+/* iOS auto-zoom prevention: font-size < 16px triggers zoom on input focus */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* Safe area support for bottom CTA on notched iPhones */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Interactive element cursors */
+button, a, [role="button"], label[for] {
+  cursor: pointer;
+}
+
+/* Smooth card hover lift */
+.card-hover {
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+.card-hover:hover {
+  box-shadow: 0 4px 16px rgba(44, 30, 18, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Focus visible improvements for keyboard nav */
+:focus-visible {
+  outline: 2px solid var(--gold);
+  outline-offset: 2px;
+}
+
+/* ── Utility classes ─────────────────────────────────────────────────── */
 .gold-divider {
   width: 40px;
   height: 1px;

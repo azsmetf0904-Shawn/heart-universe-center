@@ -10,6 +10,15 @@ import { Search, CheckCircle2 } from 'lucide-react'
 
 type PaymentForm = { last5: string; date: string; amount: string }
 
+const STATUS_LEFT_BORDER: Record<string, string> = {
+  pending:         '#F59E0B',
+  payment_pending: '#3B82F6',
+  confirmed:       '#22C55E',
+  waitlist:        '#A855F7',
+  cancelled:       '#9CA3AF',
+  completed:       '#15803D',
+}
+
 function buildQueryFilters(input: string) {
   const trimmed = input.trim()
   const filters: string[] = []
@@ -161,13 +170,14 @@ export default function MyBookingPage() {
         )}
 
         {results !== null && results.length === 0 && (
-          <div className="py-10 border border-[var(--border-color)] px-6 bg-[var(--card-bg)]">
-            <p className="text-sm font-medium mb-3" style={{ color: 'var(--charcoal)' }}>查詢不到結果</p>
-            <p className="text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
-              請確認：
-              <br />• 手機號碼格式（例：0912345678）
+          <div className="py-10 border border-[var(--border-color)] px-6 bg-[var(--card-bg)] text-center">
+            <Search size={28} className="mx-auto mb-3 opacity-30" style={{ color: 'var(--gray)' }} />
+            <p className="text-sm font-medium mb-3" style={{ color: 'var(--charcoal)' }}>查無申請記錄</p>
+            <p className="text-xs leading-loose text-left" style={{ color: 'var(--gray)' }}>
+              請確認以下資訊：
+              <br />• 手機格式（例：0912345678，不含空格）
               <br />• Email 與申請時填寫的完全一致
-              <br />• 如仍無法查詢，請重新填寫申請或聯絡我們
+              <br />• 如確認填寫無誤，請直接<a href="tel:" className="underline" style={{ color: 'var(--gold)' }}>來電洽詢</a>
             </p>
           </div>
         )}
@@ -175,7 +185,8 @@ export default function MyBookingPage() {
         {results && results.length > 0 && (
           <div className="flex flex-col gap-4">
             {results.map(r => (
-              <div key={r.id} className="bg-[var(--card-bg)] border border-[var(--border-color)] p-5">
+              <div key={r.id} className="bg-[var(--card-bg)] border border-[var(--border-color)] p-5 card-hover"
+                style={{ borderLeftWidth: 4, borderLeftColor: STATUS_LEFT_BORDER[r.status] ?? 'var(--border-color)' }}>
                 <div className="flex items-start justify-between gap-4 mb-3">
                   <div>
                     <p className="text-sm font-medium">{r.event_title}</p>
