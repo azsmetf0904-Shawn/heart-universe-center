@@ -216,6 +216,57 @@
   }
 }
 
+/* Persistent sub-brand cue on the charity page. */
+.hu-nav-brand-group { min-width: 0; }
+.hu-nav-charity-identity {
+  min-width: 0;
+  color: var(--charcoal);
+  animation: hu-charityReveal .7s cubic-bezier(.2,.7,.2,1) both;
+}
+.hu-nav-charity-divider {
+  width: 1px;
+  height: 26px;
+  background: rgba(196,160,56,.42);
+}
+.hu-nav-charity-logo {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(196,160,56,.35);
+  box-shadow: 0 0 0 3px rgba(196,160,56,.06);
+}
+.hu-nav-charity-title {
+  white-space: nowrap;
+  font-family: 'Noto Serif TC', serif;
+  color: var(--charcoal);
+}
+.hu-nav-charity-title p:first-child {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.25;
+  letter-spacing: .08em;
+}
+.hu-nav-charity-title p:last-child {
+  margin: 3px 0 0;
+  font-family: 'Noto Sans TC', sans-serif;
+  font-size: 9px;
+  line-height: 1.15;
+  letter-spacing: .22em;
+  color: var(--gray);
+}
+@media (max-width: 767px) {
+  .hu-nav-brand-group { gap: 8px !important; }
+  .hu-nav-brand-group > a { gap: 7px !important; }
+  .hu-nav-brand-group > a > img { width: 42px !important; height: 42px !important; }
+  .hu-nav-brand-group > a > div p:first-child { font-size: 12px !important; }
+  .hu-nav-brand-group > a > div p:last-child { font-size: 8px !important; letter-spacing: .16em !important; }
+  .hu-nav-charity-divider { display: none; }
+  .hu-nav-charity-logo { width: 38px; height: 38px; }
+  .hu-nav-charity-title p:first-child { font-size: 10px; letter-spacing: .04em; }
+  .hu-nav-charity-title p:last-child { font-size: 7px; letter-spacing: .12em; }
+}
+
 /* Safe area support for bottom CTA on notched iPhones */
 .safe-bottom {
   padding-bottom: env(safe-area-inset-bottom, 0px);

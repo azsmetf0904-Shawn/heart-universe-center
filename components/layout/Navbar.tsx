@@ -28,6 +28,7 @@ export default function Navbar() {
   const desktopMoreRef = useRef<HTMLDivElement | null>(null)
   const mobileMoreRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
+  const isCharity = pathname === '/charity'
 
   useEffect(() => {
     function onDocumentClick(e: MouseEvent) {
@@ -59,6 +60,7 @@ export default function Navbar() {
     >
       <div className="container-wide flex items-center justify-between h-16">
 
+        <div className="hu-nav-brand-group flex items-center gap-3 shrink-0">
         <Link href="/" className="flex items-center gap-3 shrink-0">
           <Image
             src="/logo-new.png"
@@ -77,6 +79,23 @@ export default function Navbar() {
             </p>
           </div>
         </Link>
+        {isCharity && (
+          <div className="hu-nav-charity-identity flex items-center gap-2" aria-label="愛物王斷捨離二手公益">
+            <span className="hu-nav-charity-divider" aria-hidden="true" />
+            <Image
+              src="/charity/logo.jpg"
+              alt="愛物王公益 Logo"
+              width={52}
+              height={52}
+              className="hu-nav-charity-logo"
+            />
+            <div className="hu-nav-charity-title">
+              <p>愛物王斷捨離二手公益</p>
+              <p>LOVE SECONDHAND · CHARITY</p>
+            </div>
+          </div>
+        )}
+        </div>
 
         {/* Desktop nav */}
         <nav className="hidden md:flex items-center gap-10">
