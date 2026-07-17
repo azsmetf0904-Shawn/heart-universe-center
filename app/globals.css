@@ -1150,8 +1150,9 @@ button, a, [role="button"], label[for] {
     top: 5%;
     opacity: .45;
   }
-  .hu-charity-spirit-field i:nth-child(n+16) { display: none; }
-  .hu-charity-spirit-field i { box-shadow: none; }
+  .hu-charity-spirit-field { opacity: .96; }
+  .hu-charity-spirit-field i:nth-child(n+16) { display: block; }
+  .hu-charity-spirit-field i { box-shadow: none; transform: scale(1.18); }
 }
 
 /* Layered motion language for the charity sub-home. */
