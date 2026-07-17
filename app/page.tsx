@@ -27,7 +27,31 @@ function formatDate(s: string) {
 type VenuePhoto = { image_url: string; sort_order: number }
 type EventPhoto  = { image_url: string; sort_order: number }
 
+export const dynamic = 'force-dynamic'
+
 export default async function HomePage() {
+  try {
+    return await HomePageContent()
+  } catch (error) {
+    console.error('Homepage data initialization failed:', error)
+    return <HomeFallback />
+  }
+}
+
+function HomeFallback() {
+  return (
+    <section className="hu-perfect-hero" style={{ minHeight: 'calc(100vh - 64px)' }}>
+      <div className="hu-perfect-left" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '120px 8vw 80px', background: '#1C1008', color: '#fff' }}>
+        <p className="hu-perfect-eyebrow" style={{ color: 'rgba(196,160,56,.75)', letterSpacing: '.35em', fontSize: 10, marginBottom: 28 }}>Heart Universe · Taipei</p>
+        <h1 className="hu-perfect-h1" style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 400, lineHeight: 1.2, marginBottom: 24 }}>文化生態圈<br /><span style={{ color: '#C4A038' }}>質感活動</span>場地</h1>
+        <p style={{ color: 'rgba(237,228,212,.62)', fontSize: 13, lineHeight: 1.9, marginBottom: 36 }}>二手公益 × 文創教室，獨一無二</p>
+        <Link href="/rent" className="btn-gold-fill" style={{ alignSelf: 'flex-start', padding: '14px 30px', letterSpacing: '.18em', fontSize: 12 }}>{CTA.home.startRental} <ArrowRight size={14} /></Link>
+      </div>
+    </section>
+  )
+}
+
+async function HomePageContent() {
   const supabase = await createClient()
 
   const [{ data: venues }, { data: events }, { data: showcaseEvents }, { data: pastEvents }] = await Promise.all([
