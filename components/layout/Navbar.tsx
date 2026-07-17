@@ -29,6 +29,8 @@ export default function Navbar() {
   const mobileMoreRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
   const isCharity = pathname === '/charity'
+  const isHome = pathname === '/'
+  const showCharityIdentity = isCharity || isHome
 
   useEffect(() => {
     function onDocumentClick(e: MouseEvent) {
@@ -50,7 +52,7 @@ export default function Navbar() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-[background,box-shadow] duration-300 ${pathname === '/' ? 'hu-home-nav' : ''}`}
+      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-[background,box-shadow] duration-300 ${isHome ? 'hu-home-nav hu-nav-home' : ''} ${isCharity ? 'hu-nav-charity' : ''}`}
       style={{
         background: scrolled ? 'rgba(218,208,190,0.99)' : 'rgba(237,228,212,0.97)',
         borderColor: 'var(--border-color)',
@@ -61,7 +63,7 @@ export default function Navbar() {
       <div className="container-wide flex items-center justify-between h-16">
 
         <div className="hu-nav-brand-group flex items-center gap-3 shrink-0">
-        <Link href="/" className="flex items-center gap-3 shrink-0">
+        <Link href="/" className="hu-nav-main-brand flex items-center gap-3 shrink-0">
           <Image
             src="/logo-new.png"
             alt="心宇宙商務中心"
@@ -79,7 +81,7 @@ export default function Navbar() {
             </p>
           </div>
         </Link>
-        {isCharity && (
+        {showCharityIdentity && (
           <div className="hu-nav-charity-identity flex items-center gap-2" aria-label="愛物王斷捨離二手公益">
             <span className="hu-nav-charity-divider" aria-hidden="true" />
             <Image
