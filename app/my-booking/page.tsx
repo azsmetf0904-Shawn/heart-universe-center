@@ -95,6 +95,7 @@ export default function MyBookingPage() {
       setPaymentDoneIds(s => new Set([...s, bookingId]))
       setReportingId(null)
       setPaymentForm({ last5: '', date: '', amount: '' })
+      doSearch(query)
       fetch('/api/line/notify', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'payment_reported', bookingId, name, eventTitle, bookingDate, timeSlot, last5: paymentForm.last5, paymentDate: paymentForm.date, amount: parseInt(paymentForm.amount) }),

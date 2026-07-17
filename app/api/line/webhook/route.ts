@@ -1,7 +1,7 @@
 import { createHmac } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { linePush, lineReply, lineReplyFlex, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg, lineWaitlistToPayMsg, getLineGroupMemberName, buildCalendarButtonFlex } from '@/lib/line'
+import { linePush, lineReply, lineReplyFlex, lineConfirmedMsg, lineCancelledMsg, lineAdminSetWaitlistMsg, lineWaitlistToPayMsg, getLineGroupMemberName, buildCalendarButtonFlex } from '@/lib/line'
 import { TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus } from '@/lib/types'
 
@@ -89,7 +89,7 @@ export async function POST(req: NextRequest) {
         if (newStatus === 'confirmed') customerMsg = lineConfirmedMsg(req.name, req.event_title, req.booking_date ?? '', slotLabel)
         else if (newStatus === 'pending' && isWaitlistConvert) customerMsg = lineWaitlistToPayMsg(req.name, req.event_title, req.booking_date ?? '', slotLabel)
         else if (newStatus === 'cancelled') customerMsg = lineCancelledMsg(req.name, req.event_title)
-        else if (newStatus === 'waitlist') customerMsg = lineWaitlistMsg(req.name, req.event_title, req.booking_date ?? '', slotLabel)
+        else if (newStatus === 'waitlist') customerMsg = lineAdminSetWaitlistMsg(req.name, req.event_title, req.booking_date ?? '', slotLabel)
         if (customerMsg) await linePush(req.line_user_id, customerMsg)
       }
       continue

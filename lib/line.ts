@@ -119,6 +119,18 @@ export function lineWaitlistMsg(name: string, eventTitle: string, bookingDate: s
 請於 24 小時內回覆確認是否仍有意租借，逾時將保留給下一位候補者。`
 }
 
+export function lineAdminSetWaitlistMsg(name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
+  return `🕐 申請已列為候補
+
+親愛的 ${name}，感謝您的場地租借申請。
+
+由於 ${bookingDate}（${timeSlot}）目前已有其他預約申請，您的申請暫時列為候補。
+
+📋 活動：${eventTitle}
+
+若原預約取消，我們將第一時間聯繫您確認。如有任何問題，請直接聯繫心宇宙商務中心。`
+}
+
 export function buildAdminNewBookingFlex(
   bookingId: string,
   name: string, phone: string, email: string, eventTitle: string,

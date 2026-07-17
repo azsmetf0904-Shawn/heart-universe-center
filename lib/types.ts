@@ -153,9 +153,9 @@ export const ADDON_CATEGORY_LABEL: Record<AddonCategory, string> = {
 }
 
 export const RENTAL_STATUS_LABEL: Record<RentalStatus, string> = {
-  pending: '待確認',
+  pending: '待付款',
   confirmed: '已確認',
-  payment_pending: '待付款',
+  payment_pending: '匯款審核中',
   completed: '已完成',
   cancelled: '已取消',
   waitlist: '候補',
