@@ -115,13 +115,8 @@ export function buildAdminNewBookingFlex(
           ],
         },
         {
-          type: 'box', layout: 'horizontal', spacing: 'sm',
-          contents: [
-            { type: 'button', style: 'secondary', height: 'sm',
-              action: { type: 'uri', label: '撥打電話', uri: `tel:${phone}` } },
-            ...(lineUserId ? [{ type: 'button', style: 'secondary', height: 'sm',
-              action: { type: 'uri', label: 'LINE 聯絡', uri: `https://line.me/ti/p/${lineUserId}` } }] : []),
-          ],
+          type: 'button', style: 'secondary', height: 'sm',
+          action: { type: 'uri', label: `撥打電話 ${phone}`, uri: `tel:${phone}` },
         },
       ],
     },
