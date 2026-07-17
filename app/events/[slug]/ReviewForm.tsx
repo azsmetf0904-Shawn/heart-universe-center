@@ -48,9 +48,7 @@ export default function ReviewForm({ eventId }: ReviewFormProps) {
     <form onSubmit={handleSubmit} className="mt-8 border border-[var(--border-color)] p-6 bg-[var(--card-bg)]">
       <div className="grid grid-cols-1 gap-5">
         <div>
-          <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>
-            姓名
-          </label>
+          <label className="form-label mb-2">姓名</label>
           <input
             type="text"
             value={name}
@@ -63,9 +61,7 @@ export default function ReviewForm({ eventId }: ReviewFormProps) {
         </div>
 
         <div>
-          <label className="label-tag mb-2 block" style={{ color: 'var(--charcoal)' }}>
-            一句話回饋
-          </label>
+          <label className="form-label mb-2">一句話回饋</label>
           <textarea
             rows={4}
             value={content}
