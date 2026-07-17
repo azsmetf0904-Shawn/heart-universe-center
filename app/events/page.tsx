@@ -7,7 +7,15 @@ import { CTA } from '@/lib/cta'
 import PageTabs from '@/components/layout/PageTabs'
 import type { EventRegistration } from '@/lib/types'
 
-export const metadata: Metadata = { title: '活動課程' }
+export const metadata: Metadata = {
+  title: '活動課程',
+  description: '心宇宙商務中心舉辦的課程、講座、工作坊與社群活動，品牌培訓、身心靈成長、女性創業一覽。',
+  openGraph: {
+    title: '活動課程｜心宇宙商務中心',
+    description: '課程、講座、工作坊與社群活動，台北八德路精品場地。',
+    type: 'website',
+  },
+}
 
 function formatDate(s: string) {
   const d = new Date(s)

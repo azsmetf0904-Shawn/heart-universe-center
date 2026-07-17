@@ -14,12 +14,22 @@ export const metadata: Metadata = {
 export default async function ShowcasePage() {
   const supabase = await createClient()
 
-  const { data: rawEvents } = await supabase
-    .from('events')
-    .select('id, title, slug, start_time, organizer_name, cover_image_url, category, event_photos(image_url, caption, sort_order), venue:venues(name)')
-    .eq('status', 'published')
-    .lt('start_time', new Date().toISOString())
-    .order('start_time', { ascending: false })
+  const now = new Date().toISOString()
+  const [{ data: publishedPast }, { data: endedEvents }] = await Promise.all([
+    supabase
+      .from('events')
+      .select('id, title, slug, start_time, organizer_name, cover_image_url, category, event_photos(image_url, caption, sort_order), venue:venues(name)')
+      .eq('status', 'published')
+      .lt('start_time', now)
+      .order('start_time', { ascending: false }),
+    supabase
+      .from('events')
+      .select('id, title, slug, start_time, organizer_name, cover_image_url, category, event_photos(image_url, caption, sort_order), venue:venues(name)')
+      .eq('status', 'ended')
+      .order('start_time', { ascending: false }),
+  ])
+  const rawEvents = [...(publishedPast ?? []), ...(endedEvents ?? [])]
+    .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
 
   type Photo = { image_url: string; caption: string | null; sort_order: number }
 

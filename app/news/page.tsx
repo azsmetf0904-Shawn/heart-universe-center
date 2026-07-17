@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
+import Image from 'next/image'
 import { ExternalLink, CalendarDays, ArrowRight } from 'lucide-react'
 import type { Metadata } from 'next'
 import PageTabs from '@/components/layout/PageTabs'
@@ -45,7 +46,18 @@ export default async function NewsPage() {
       ) : (
         <div className="container-narrow flex flex-col divide-y divide-[var(--border-color)]">
           {withLinks.map(ev => (
-            <div key={ev.id} className="py-6 flex items-start gap-6 group">
+            <div key={ev.id} className="py-6 flex items-start gap-5 group">
+              {ev.cover_image_url && (
+                <div className="relative shrink-0 overflow-hidden" style={{ width: 80, height: 56 }}>
+                  <Image
+                    src={ev.cover_image_url}
+                    alt={ev.title}
+                    fill
+                    className="object-cover"
+                    sizes="80px"
+                  />
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="text-[var(--gold)] text-xs mb-1 flex items-center gap-1">
                   <CalendarDays size={11} /> {formatDate(ev.start_time)}
