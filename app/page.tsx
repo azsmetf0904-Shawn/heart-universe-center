@@ -151,11 +151,11 @@ export default async function HomePage() {
 
           {/* Tagline H1 */}
           <h1 data-hp="text" className="relative z-10 font-serif leading-snug mb-4" style={{ fontSize: 'clamp(24px,2.8vw,38px)', fontWeight: 600, color: '#fff', letterSpacing: '.06em' }}>
-            臺灣最具<br /><span style={{ color: GOLD }}>質感活動</span><br />的場地
+            文化生態圈<br /><span style={{ color: GOLD }}>質感活動</span>場地
           </h1>
 
           <p data-hp="text" className="hu-hero-sub relative z-10 text-[11px] leading-loose mb-5" style={{ color: 'rgba(244,239,230,.75)', letterSpacing: '.1em' }}>
-            二手公益 × 文創教室，獨一無二的「文化生態圈」
+            二手公益 × 文創教室，獨一無二
           </p>
 
           {/* Activity tags */}
