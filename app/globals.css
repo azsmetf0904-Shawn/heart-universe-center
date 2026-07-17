@@ -1016,6 +1016,44 @@ button, a, [role="button"], label[for] {
   box-shadow: 0 10px 20px rgba(44,30,18,.12);
 }
 
+/* Desktop spirit field: denser, layered movement without glossy overlays. */
+@keyframes hu-spiritConstellation {
+  0%, 100% { transform: translate3d(-1%, 0, 0) rotate(0deg); opacity: .28; }
+  50% { transform: translate3d(1.5%, -2%, 0) rotate(1deg); opacity: .62; }
+}
+@media (min-width: 1024px) {
+  .hu-charity-spirit-field { opacity: 1; }
+  .hu-charity-spirit-field i {
+    background: rgba(231,202,126,.9);
+    animation-duration: 7s;
+  }
+  .hu-charity-spirit-field::before,
+  .hu-charity-spirit-field::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-repeat: no-repeat;
+    background-image:
+      radial-gradient(circle at 8% 16%, rgba(231,202,126,.8) 0 2px, transparent 3px),
+      radial-gradient(circle at 21% 42%, rgba(231,202,126,.62) 0 1.5px, transparent 2.5px),
+      radial-gradient(circle at 34% 12%, rgba(231,202,126,.72) 0 2px, transparent 3px),
+      radial-gradient(circle at 47% 68%, rgba(231,202,126,.65) 0 1.5px, transparent 2.5px),
+      radial-gradient(circle at 59% 27%, rgba(231,202,126,.78) 0 2px, transparent 3px),
+      radial-gradient(circle at 73% 54%, rgba(231,202,126,.6) 0 1.5px, transparent 2.5px),
+      radial-gradient(circle at 86% 19%, rgba(231,202,126,.72) 0 2px, transparent 3px),
+      radial-gradient(circle at 94% 78%, rgba(231,202,126,.58) 0 1.5px, transparent 2.5px);
+    animation: hu-spiritConstellation 18s ease-in-out infinite;
+  }
+  .hu-charity-spirit-field::after {
+    opacity: .65;
+    transform: scale(1.03);
+    animation-delay: -8s;
+    animation-duration: 24s;
+    background-position: 4% 8%, -6% 10%, 8% -4%, -5% 6%, 3% 5%, -4% -3%, 5% 7%, -3% 4%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .hu-charity-page > section:not(.hu-charity-hero),
   .hu-charity-page .hu-charity-gallery img,
