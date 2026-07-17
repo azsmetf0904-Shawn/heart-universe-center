@@ -271,7 +271,11 @@
 .hu-nav-charity .hu-nav-charity-identity { order: 1; }
 .hu-nav-charity .hu-nav-main-brand { order: 2; }
 .hu-nav-charity .hu-nav-main-brand > img {
-  filter: drop-shadow(0 0 1px rgba(25,18,12,.72));
+  filter:
+    drop-shadow(1px 0 0 rgba(25,18,12,.72))
+    drop-shadow(-1px 0 0 rgba(25,18,12,.72))
+    drop-shadow(0 1px 0 rgba(25,18,12,.72))
+    drop-shadow(0 -1px 0 rgba(25,18,12,.72));
 }
 .hu-nav-home .hu-nav-main-brand { order: 1; }
 .hu-nav-home .hu-nav-charity-identity { order: 2; }
