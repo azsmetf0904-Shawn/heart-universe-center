@@ -73,62 +73,198 @@ export function buildCalendarButtonFlex(calUrl: string, year: number, month: num
   }
 }
 
-export function lineConfirmedMsg(name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
-  return `✅ 場地租借確認！
+const OA_URL = 'https://lin.ee/RlmKDmn'
 
-親愛的 ${name}，您的匯款已確認入帳，場地租借正式核可。
+const row = (label: string, value: string) => ({
+  type: 'box', layout: 'horizontal',
+  contents: [
+    { type: 'text', text: label, color: '#888888', size: 'sm', flex: 2 },
+    { type: 'text', text: value || '—', size: 'sm', flex: 3, wrap: true },
+  ],
+})
 
-📋 活動：${eventTitle}
-📅 日期：${bookingDate}
-🕐 時段：${timeSlot}
-
-期待您的到來！如有任何問題請直接聯繫心宇宙商務中心。`
+export function buildConfirmedFlex(
+  name: string, eventTitle: string, bookingDate: string, timeSlot: string, phone: string,
+) {
+  const myBookingUrl = `${SITE_URL}/my-booking?phone=${encodeURIComponent(phone)}`
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#22C55E', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#D1FAE5', size: 'xs' },
+        { type: 'text', text: '✅ 場地租借確認', color: '#FFFFFF', weight: 'bold', size: 'lg' },
+        { type: 'text', text: `${name}，匯款已確認入帳！`, color: '#FFFFFF', size: 'sm', wrap: true },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [row('活動', eventTitle), row('日期', bookingDate), row('時段', timeSlot)],
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'primary', color: '#22C55E', height: 'sm',
+          action: { type: 'uri', label: '查看預約詳情', uri: myBookingUrl } },
+      ],
+    },
+  }
 }
 
-export function lineCancelledMsg(name: string, eventTitle: string) {
-  return `😔 場地租借申請取消
-
-親愛的 ${name}，您申請的《${eventTitle}》場地租借申請已被取消。
-
-如有疑問請直接聯繫心宇宙商務中心，我們很樂意為您重新安排。`
+export function buildCancelledFlex(name: string, eventTitle: string) {
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#EF4444', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#FEE2E2', size: 'xs' },
+        { type: 'text', text: '申請已取消', color: '#FFFFFF', weight: 'bold', size: 'lg' },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: `${name}，您的場地申請已取消。`, size: 'sm', wrap: true },
+        { type: 'text', text: `《${eventTitle}》`, size: 'sm', color: '#888888', wrap: true },
+        { type: 'separator', margin: 'md' },
+        { type: 'text', text: '如需重新申請或有任何疑問，請直接聯繫我們。', size: 'xs', color: '#888888', wrap: true, margin: 'md' },
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'secondary', height: 'sm',
+          action: { type: 'uri', label: '聯繫心宇宙', uri: OA_URL } },
+      ],
+    },
+  }
 }
 
-export function lineWaitlistToPayMsg(name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
-  return `🎉 候補已確認！
-
-親愛的 ${name}，好消息！您候補的場地時段已有空缺，申請正式受理。
-
-📋 活動：${eventTitle}
-📅 日期：${bookingDate}
-🕐 時段：${timeSlot}
-
-請於 3 天內完成匯款，並至官網回報匯款資訊，我們確認入帳後將正式核可。
-
-如有疑問請直接聯繫心宇宙商務中心。`
+export function buildWaitlistToPayFlex(
+  name: string, eventTitle: string, bookingDate: string, timeSlot: string, phone: string,
+) {
+  const myBookingUrl = `${SITE_URL}/my-booking?phone=${encodeURIComponent(phone)}`
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#C4A038', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#F0D9B0', size: 'xs' },
+        { type: 'text', text: '🎉 候補已確認！', color: '#FFFFFF', weight: 'bold', size: 'lg' },
+        { type: 'text', text: `${name}，您的候補申請已正式受理。`, color: '#FFFFFF', size: 'sm', wrap: true },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [
+        row('活動', eventTitle), row('日期', bookingDate), row('時段', timeSlot),
+        { type: 'separator', margin: 'md' },
+        { type: 'text', text: '匯款資訊', weight: 'bold', size: 'sm', margin: 'md', color: '#C4A038' },
+        row('銀行', '中國信託 822 北投'),
+        row('帳號', '680541314031'),
+        row('戶名', '財富女神股份有限公司'),
+        { type: 'text', text: '請於 3 天內完成匯款，並點下方按鈕回報。', size: 'xs', color: '#888888', margin: 'sm', wrap: true },
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'primary', color: '#C4A038', height: 'sm',
+          action: { type: 'uri', label: '查詢申請 / 回報匯款', uri: myBookingUrl } },
+      ],
+    },
+  }
 }
 
-export function lineWaitlistMsg(name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
-  return `🔔 候補時段已釋出！
-
-親愛的 ${name}，您候補的時段現有空缺：
-
-📋 活動：${eventTitle}
-📅 日期：${bookingDate}
-🕐 時段：${timeSlot}
-
-請於 24 小時內回覆確認是否仍有意租借，逾時將保留給下一位候補者。`
+export function buildAdminSetWaitlistFlex(
+  name: string, eventTitle: string, bookingDate: string, timeSlot: string,
+) {
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#8B5CF6', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#EDE9FE', size: 'xs' },
+        { type: 'text', text: '申請已列為候補', color: '#FFFFFF', weight: 'bold', size: 'lg' },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: `感謝 ${name} 的場地申請。`, size: 'sm', wrap: true },
+        { type: 'separator', margin: 'md' },
+        row('活動', eventTitle), row('日期', bookingDate), row('時段', timeSlot),
+        { type: 'separator', margin: 'md' },
+        { type: 'text', text: '若原預約取消，我們將第一時間聯繫您確認。', size: 'xs', color: '#888888', wrap: true, margin: 'md' },
+      ],
+    },
+  }
 }
 
-export function lineAdminSetWaitlistMsg(name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
-  return `🕐 申請已列為候補
+export function buildWaitlistFlex(
+  name: string, eventTitle: string, bookingDate: string, timeSlot: string,
+) {
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#F97316', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#FFF7ED', size: 'xs' },
+        { type: 'text', text: '🔔 候補時段釋出！', color: '#FFFFFF', weight: 'bold', size: 'lg' },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: `${name}，您候補的時段現有空缺！`, size: 'sm', wrap: true, weight: 'bold' },
+        { type: 'separator', margin: 'md' },
+        row('活動', eventTitle), row('日期', bookingDate), row('時段', timeSlot),
+        { type: 'separator', margin: 'md' },
+        { type: 'text', text: '請於 24 小時內回覆是否確認，逾時將保留給下一位候補者。', size: 'xs', color: '#EF4444', wrap: true, margin: 'md' },
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'primary', color: '#F97316', height: 'sm',
+          action: { type: 'uri', label: '立即聯繫確認', uri: OA_URL } },
+      ],
+    },
+  }
+}
 
-親愛的 ${name}，感謝您的場地租借申請。
-
-由於 ${bookingDate}（${timeSlot}）目前已有其他預約申請，您的申請暫時列為候補。
-
-📋 活動：${eventTitle}
-
-若原預約取消，我們將第一時間聯繫您確認。如有任何問題，請直接聯繫心宇宙商務中心。`
+export function buildReminderFlex(
+  name: string, eventTitle: string, bookingDate: string, timeSlot: string, venueName: string,
+) {
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#C4A038', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#F0D9B0', size: 'xs' },
+        { type: 'text', text: '📅 明日場地提醒', color: '#FFFFFF', weight: 'bold', size: 'lg' },
+        { type: 'text', text: `${name}，您明天有場地預約！`, color: '#FFFFFF', size: 'sm', wrap: true },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [
+        row('活動', eventTitle),
+        ...(venueName ? [row('場地', venueName)] : []),
+        row('日期', bookingDate),
+        row('時段', timeSlot),
+        { type: 'separator', margin: 'md' },
+        { type: 'text', text: '地址：台北市北投區文林北路 81 號 5 樓', size: 'xs', color: '#888888', wrap: true, margin: 'md' },
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'secondary', height: 'sm',
+          action: { type: 'uri', label: '心宇宙官網', uri: SITE_URL } },
+      ],
+    },
+  }
 }
 
 export function buildAdminNewBookingFlex(
@@ -141,14 +277,6 @@ export function buildAdminNewBookingFlex(
   const postback = (action: string) => `action=${action}&bookingId=${bookingId}`
   const headerColor = isWaitlist ? '#8B5CF6' : '#C4A038'
   const headerText = isWaitlist ? '🔔 新候補申請' : '📋 新預約申請'
-
-  const row = (label: string, value: string) => ({
-    type: 'box', layout: 'horizontal',
-    contents: [
-      { type: 'text', text: label, color: '#888888', size: 'sm', flex: 2 },
-      { type: 'text', text: value || '—', size: 'sm', flex: 3, wrap: true },
-    ],
-  })
 
   return {
     type: 'bubble',
@@ -270,14 +398,6 @@ export function buildCustomerBookingConfirmFlex(
   venueName: string, totalAmount: number | null, phone: string, isWaitlist: boolean,
 ) {
   const headerColor = isWaitlist ? '#8B5CF6' : '#C4A038'
-
-  const row = (label: string, value: string) => ({
-    type: 'box', layout: 'horizontal',
-    contents: [
-      { type: 'text', text: label, color: '#888888', size: 'sm', flex: 2 },
-      { type: 'text', text: value || '—', size: 'sm', flex: 3, wrap: true },
-    ],
-  })
 
   const bodyContents: unknown[] = [
     ...(venueName ? [row('場地', venueName)] : []),

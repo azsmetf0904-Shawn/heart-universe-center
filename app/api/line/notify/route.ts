@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { linePush, linePushFlex, lineConfirmedMsg, lineCancelledMsg, lineWaitlistMsg, buildAdminPaymentFlex, buildAdminNewBookingFlex, buildCustomerBookingConfirmFlex } from '@/lib/line'
+import { linePushFlex, buildConfirmedFlex, buildCancelledFlex, buildWaitlistFlex, buildAdminPaymentFlex, buildAdminNewBookingFlex, buildCustomerBookingConfirmFlex } from '@/lib/line'
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,12 +43,14 @@ export async function POST(req: NextRequest) {
     }
 
     if (!lineUserId) return NextResponse.json({ ok: false })
-    let text = ''
-    if (type === 'confirmed') text = lineConfirmedMsg(name, eventTitle, bookingDate, timeSlot)
-    else if (type === 'cancelled') text = lineCancelledMsg(name, eventTitle)
-    else if (type === 'waitlist') text = lineWaitlistMsg(name, eventTitle, bookingDate, timeSlot)
-
-    if (text) await linePush(lineUserId, text)
+    const { phone } = body
+    if (type === 'confirmed') {
+      await linePushFlex(lineUserId, `${name}，場地租借已確認！`, buildConfirmedFlex(name, eventTitle, bookingDate, timeSlot, phone ?? ''))
+    } else if (type === 'cancelled') {
+      await linePushFlex(lineUserId, `${name}，您的場地申請已取消`, buildCancelledFlex(name, eventTitle))
+    } else if (type === 'waitlist') {
+      await linePushFlex(lineUserId, `${name}，候補時段釋出！`, buildWaitlistFlex(name, eventTitle, bookingDate, timeSlot))
+    }
     return NextResponse.json({ ok: true })
   } catch {
     return NextResponse.json({ ok: false }, { status: 200 })

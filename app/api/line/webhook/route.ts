@@ -1,7 +1,7 @@
 import { createHmac } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { linePush, lineReply, lineReplyFlex, lineConfirmedMsg, lineCancelledMsg, lineAdminSetWaitlistMsg, lineWaitlistToPayMsg, getLineGroupMemberName, buildCalendarButtonFlex } from '@/lib/line'
+import { linePush, linePushFlex, lineReply, lineReplyFlex, buildConfirmedFlex, buildCancelledFlex, buildAdminSetWaitlistFlex, buildWaitlistToPayFlex, getLineGroupMemberName, buildCalendarButtonFlex } from '@/lib/line'
 import { TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus } from '@/lib/types'
 
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
         .from('rental_requests')
         .update({ status: newStatus })
         .eq('id', bookingId)
-        .select('name, event_title, booking_date, time_slot, line_user_id')
+        .select('name, phone, event_title, booking_date, time_slot, line_user_id')
         .single()
 
       // 回覆管理員（含操作者名稱）
@@ -85,12 +85,16 @@ export async function POST(req: NextRequest) {
       // 通知客戶
       if (req?.line_user_id) {
         const slotLabel = req.time_slot ? (TIME_SLOT_LABEL[req.time_slot as keyof typeof TIME_SLOT_LABEL] ?? req.time_slot) : ''
-        let customerMsg = ''
-        if (newStatus === 'confirmed') customerMsg = lineConfirmedMsg(req.name, req.event_title, req.booking_date ?? '', slotLabel)
-        else if (newStatus === 'pending' && isWaitlistConvert) customerMsg = lineWaitlistToPayMsg(req.name, req.event_title, req.booking_date ?? '', slotLabel)
-        else if (newStatus === 'cancelled') customerMsg = lineCancelledMsg(req.name, req.event_title)
-        else if (newStatus === 'waitlist') customerMsg = lineAdminSetWaitlistMsg(req.name, req.event_title, req.booking_date ?? '', slotLabel)
-        if (customerMsg) await linePush(req.line_user_id, customerMsg)
+        const phone = req.phone ?? ''
+        if (newStatus === 'confirmed') {
+          await linePushFlex(req.line_user_id, `${req.name}，場地租借已確認！`, buildConfirmedFlex(req.name, req.event_title, req.booking_date ?? '', slotLabel, phone))
+        } else if (newStatus === 'pending' && isWaitlistConvert) {
+          await linePushFlex(req.line_user_id, `${req.name}，候補已確認，請完成匯款！`, buildWaitlistToPayFlex(req.name, req.event_title, req.booking_date ?? '', slotLabel, phone))
+        } else if (newStatus === 'cancelled') {
+          await linePushFlex(req.line_user_id, `${req.name}，您的場地申請已取消`, buildCancelledFlex(req.name, req.event_title))
+        } else if (newStatus === 'waitlist') {
+          await linePushFlex(req.line_user_id, `${req.name}，您的申請已列為候補`, buildAdminSetWaitlistFlex(req.name, req.event_title, req.booking_date ?? '', slotLabel))
+        }
       }
       continue
     }
