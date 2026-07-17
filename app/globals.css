@@ -792,6 +792,73 @@ button, a, [role="button"], label[for] {
   }
 }
 
+/* Extended page-wide motion: slow, organic, and layered rather than flashy. */
+@keyframes hu-charitySectionBreathe {
+  0%, 100% { background-position: 0% 0%, 0 0; }
+  50% { background-position: 100% 18%, 0 0; }
+}
+@keyframes hu-charityImageFloat {
+  0%, 100% { transform: scale(1.01) translate3d(0, 0, 0); }
+  50% { transform: scale(1.045) translate3d(-.6%, -.8%, 0); }
+}
+@keyframes hu-charityTextDrift {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50% { transform: translate3d(0, -3px, 0); }
+}
+@keyframes hu-charityDotPulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(196,160,56,.18); }
+  50% { box-shadow: 0 0 0 9px rgba(196,160,56,0); }
+}
+.hu-charity-page > section:not(.hu-charity-hero) {
+  background-image:
+    radial-gradient(ellipse 55% 80% at 0% 0%, rgba(196,160,56,.07), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.1), transparent 28%, rgba(196,160,56,.025)) !important;
+  background-size: 160% 160%, auto;
+  animation: hu-charitySectionBreathe 18s ease-in-out infinite;
+}
+.hu-charity-about .relative.w-28 {
+  animation: hu-organicMorph 16s ease-in-out infinite alternate, hu-charityCardFloat 7s ease-in-out infinite;
+}
+.hu-charity-gallery .relative.overflow-hidden img {
+  animation: hu-charityImageFloat 15s ease-in-out infinite;
+  will-change: transform;
+}
+.hu-charity-gallery .relative.overflow-hidden:nth-child(2n) img { animation-delay: -4s; }
+.hu-charity-gallery .relative.overflow-hidden:nth-child(3n) img { animation-delay: -8s; }
+.hu-charity-process .flex.flex-col.gap-10 > div > div:last-child {
+  animation: hu-charityTextDrift 8s ease-in-out infinite;
+}
+.hu-charity-process .flex.flex-col.gap-10 > div:nth-child(2) > div:last-child { animation-delay: -2s; }
+.hu-charity-process .flex.flex-col.gap-10 > div:nth-child(3) > div:last-child { animation-delay: -5s; }
+.hu-charity-process .rounded-full { animation: hu-breathe 5s ease-in-out infinite, hu-charityDotPulse 5s ease-in-out infinite; }
+.hu-charity-details > .container-narrow > div > div {
+  animation: hu-charityTextDrift 9s ease-in-out infinite;
+}
+.hu-charity-details > .container-narrow > div > div:nth-child(2) { animation-delay: -3s; }
+.hu-charity-details > .container-narrow > div > div:nth-child(3) { animation-delay: -6s; }
+.hu-charity-faq .divide-y > div {
+  transition: background .45s ease, padding-left .45s ease;
+}
+.hu-charity-faq .divide-y > div:hover {
+  background: rgba(196,160,56,.055);
+  padding-left: 12px;
+}
+.hu-charity-cta .btn {
+  transition: transform .35s cubic-bezier(.2,.7,.2,1), box-shadow .35s ease;
+}
+.hu-charity-cta .btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 20px rgba(44,30,18,.12);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hu-charity-page > section:not(.hu-charity-hero),
+  .hu-charity-page .hu-charity-gallery img,
+  .hu-charity-page .hu-charity-process * {
+    animation: none !important;
+  }
+}
+
 /* Charity page: let landscape photography breathe on narrow screens. */
 @media (max-width: 767px) {
   .hu-charity-hero {
