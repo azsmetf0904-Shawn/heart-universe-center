@@ -14,6 +14,7 @@ const mainLinks = [
 ] as const
 
 const moreLinks = [
+  { href: '/community', label: '社群' },
   { href: '/availability', label: '可用時段' },
   { href: '/showcase', label: '活動回顧' },
   { href: '/news', label: '新聞連結' },
