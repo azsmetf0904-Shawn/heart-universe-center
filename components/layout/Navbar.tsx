@@ -49,7 +49,7 @@ export default function Navbar() {
 
   return (
     <header
-      className="fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-[background,box-shadow] duration-300"
+      className={`fixed top-0 left-0 right-0 z-50 backdrop-blur-sm border-b transition-[background,box-shadow] duration-300 ${pathname === '/' ? 'hu-home-nav' : ''}`}
       style={{
         background: scrolled ? 'rgba(218,208,190,0.99)' : 'rgba(237,228,212,0.97)',
         borderColor: 'var(--border-color)',

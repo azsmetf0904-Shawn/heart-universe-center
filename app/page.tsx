@@ -91,7 +91,7 @@ export default async function HomePage() {
       {/* ═══════════════════════════════════════════════════════════
           HERO — dark left panel + photo grid right
       ═══════════════════════════════════════════════════════════ */}
-      <section id="hero-section" className="grid md:grid-cols-2" style={{ minHeight: 'calc(100vh - 64px)' }}>
+      <section id="hero-section" className="hu-perfect-hero grid md:grid-cols-2" style={{ minHeight: 'calc(100vh - 64px)' }}>
         {/* Client: particles + parallax */}
         <HeroEffects heroId="hero-section" leftId="hero-left" />
 
@@ -129,20 +129,20 @@ export default async function HomePage() {
 
           {/* Logo */}
           <Image
+            className="hu-hero-logo relative z-10 w-[180px] md:w-[330px] h-auto"
             data-hp="text"
             src="/logo-new.png"
             alt="心宇宙商務中心"
             width={330} height={330}
             priority
-            className="relative z-10 w-[180px] md:w-[330px] h-auto"
             style={{ objectFit: 'contain', marginBottom: 16, filter: 'drop-shadow(0 0 2px rgba(196,160,56,.40))', opacity: 0.82 }}
           />
 
           {/* 品牌名 */}
-          <p data-hp="text" className="relative z-10 font-serif mb-1" style={{ fontSize: 'clamp(18px,2.2vw,28px)', color: 'rgba(244,239,230,.92)', letterSpacing: '.18em' }}>
+          <p data-hp="text" className="hu-hero-brand relative z-10 font-serif mb-1" style={{ fontSize: 'clamp(18px,2.2vw,28px)', color: 'rgba(244,239,230,.92)', letterSpacing: '.18em' }}>
             心宇宙商務中心
           </p>
-          <p data-hp="text" className="relative z-10 text-[10px] mb-4" style={{ letterSpacing: '.35em', color: 'rgba(196,160,56,.95)' }}>
+          <p data-hp="text" className="hu-hero-eyebrow relative z-10 text-[10px] mb-4" style={{ letterSpacing: '.35em', color: 'rgba(196,160,56,.95)' }}>
             HEART UNIVERSE · TAIPEI
           </p>
 
@@ -151,16 +151,16 @@ export default async function HomePage() {
 
           {/* Tagline H1 */}
           <h1 data-hp="text" className="relative z-10 font-serif leading-snug mb-4" style={{ fontSize: 'clamp(24px,2.8vw,38px)', fontWeight: 600, color: '#fff', letterSpacing: '.06em' }}>
-            台北最適合<span style={{ color: GOLD }}>質感活動</span>的場地
+            台北最適合<br /><span style={{ color: GOLD }}>質感活動</span><br />的場地
           </h1>
 
-          <p data-hp="text" className="relative z-10 text-[11px] leading-loose mb-5" style={{ color: 'rgba(244,239,230,.75)', letterSpacing: '.1em' }}>
+          <p data-hp="text" className="hu-hero-sub relative z-10 text-[11px] leading-loose mb-5" style={{ color: 'rgba(244,239,230,.75)', letterSpacing: '.1em' }}>
             台北八德路 · 100–150 人<br />
             捷運步行可達 · 高規格設備齊全
           </p>
 
           {/* Activity tags */}
-          <div data-hp="text" className="relative z-10 flex flex-wrap justify-center gap-2 mb-6 md:mb-8">
+          <div data-hp="text" className="hu-hero-tags relative z-10 flex flex-wrap justify-center gap-2 mb-6 md:mb-8">
             {['品牌講座', '女性成長課程', '企業培訓', '工作坊', '身心靈課程', '直播活動'].map(tag => (
               <span key={tag} className="text-[10px] px-3 py-1.5 tracking-wide"
                 style={{ border: '1px solid rgba(196,160,56,.75)', color: 'rgba(230,200,120,1)' }}>
