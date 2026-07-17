@@ -73,12 +73,24 @@ export async function POST(req: NextRequest) {
         ? new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
         : undefined
 
-      const { data: req } = await supabase
+      let { data: req, error: updateError } = await supabase
         .from('rental_requests')
         .update({ status: newStatus, ...(paymentDueAt ? { payment_due_at: paymentDueAt } : {}) })
         .eq('id', bookingId)
         .select('name, phone, event_title, booking_date, time_slot, line_user_id')
         .single()
+
+      // migration 尚未套用時，至少完成狀態切換，不阻斷核可流程。
+      if (updateError && paymentDueAt) {
+        const fallback = await supabase
+          .from('rental_requests')
+          .update({ status: newStatus })
+          .eq('id', bookingId)
+          .select('name, phone, event_title, booking_date, time_slot, line_user_id')
+          .single()
+        req = fallback.data
+        updateError = fallback.error
+      }
 
       // 回覆管理員（含操作者名稱）
       const labelMap: Record<string, string> = {

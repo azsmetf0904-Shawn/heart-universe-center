@@ -19,13 +19,24 @@ export async function GET(req: NextRequest) {
   if (!lineUserId) return NextResponse.json({ ok: false, error: 'line_user_required' }, { status: 400 })
 
   const supabase = await createAdminClient()
-  const { data, error } = await supabase
+  let { data, error } = await supabase
     .from('rental_requests')
     .select('id, name, event_title, booking_date, time_slot, status, payment_last5, payment_date, payment_amount, payment_reported_at, payment_due_at, phone')
     .eq('line_user_id', lineUserId)
     .in('status', ['pending', 'payment_pending'])
     .order('created_at', { ascending: false })
 
+  // 讓新欄位 migration 尚未套用時，LIFF 仍可正常使用。
+  if (error) {
+    const fallback = await supabase
+      .from('rental_requests')
+      .select('id, name, event_title, booking_date, time_slot, status, payment_last5, payment_date, payment_amount, payment_reported_at, phone')
+      .eq('line_user_id', lineUserId)
+      .in('status', ['pending', 'payment_pending'])
+      .order('created_at', { ascending: false })
+    data = (fallback.data ?? []).map(row => ({ ...row, payment_due_at: null }))
+    error = fallback.error
+  }
   if (error) return NextResponse.json({ ok: false, error: 'lookup_failed' }, { status: 500 })
   return NextResponse.json({ ok: true, bookings: data ?? [] })
 }
