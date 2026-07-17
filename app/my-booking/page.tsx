@@ -1,6 +1,5 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { createClient } from '@/lib/supabase/client' // still used for doSearch SELECT
 import { CTA } from '@/lib/cta'
 import type { RentalRequest } from '@/lib/types'
 import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
@@ -17,51 +16,6 @@ const STATUS_LEFT_BORDER: Record<string, string> = {
   waitlist:        '#A855F7',
   cancelled:       '#9CA3AF',
   completed:       '#15803D',
-}
-
-function buildQueryFilters(input: string) {
-  const trimmed = input.trim()
-  const filters: string[] = []
-  const phoneCandidates = new Set<string>()
-
-  const stripped = trimmed.replace(/[\s-]/g, '')
-  const digitsOnly = stripped.replace(/\D/g, '')
-
-  if (digitsOnly) {
-    phoneCandidates.add(digitsOnly)
-
-    if (digitsOnly.startsWith('886') && digitsOnly.length >= 11) {
-      const local = `0${digitsOnly.slice(3)}`
-      phoneCandidates.add(local)
-      if (local.startsWith('09') && local.length === 10) {
-        phoneCandidates.add(local.slice(1))
-      }
-    }
-
-    if (digitsOnly.startsWith('09') && digitsOnly.length === 10) {
-      phoneCandidates.add(digitsOnly.slice(1))
-    }
-
-    if (digitsOnly.startsWith('9') && digitsOnly.length === 9) {
-      phoneCandidates.add(`0${digitsOnly}`)
-    }
-  }
-
-  phoneCandidates.forEach(candidate => {
-    if (candidate) filters.push(`phone.eq.${candidate}`)
-  })
-
-  if (trimmed.includes('@')) {
-    filters.push(`email.eq.${trimmed}`)
-    const lowered = trimmed.toLowerCase()
-    if (lowered !== trimmed) filters.push(`email.eq.${lowered}`)
-  }
-
-  if (filters.length === 0 && trimmed) {
-    filters.push(`phone.eq.${trimmed}`, `email.eq.${trimmed}`)
-  }
-
-  return filters
 }
 
 export default function MyBookingPage() {
@@ -112,14 +66,13 @@ export default function MyBookingPage() {
   const doSearch = useCallback(async (q: string) => {
     if (!q.trim()) return
     setSearching(true)
-    const supabase = createClient()
-    const filters = buildQueryFilters(q)
-    const { data } = await supabase
-      .from('rental_requests')
-      .select('*, venue:venues(name)')
-      .or(filters.join(','))
-      .order('created_at', { ascending: false })
-    setResults(data ?? [])
+    const res = await fetch('/api/my-booking', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query: q }),
+    })
+    const json = await res.json() as { data: RentalRequest[] }
+    setResults(json.data ?? [])
     setSearching(false)
   }, [])
 
