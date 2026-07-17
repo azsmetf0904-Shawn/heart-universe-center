@@ -196,13 +196,13 @@ export default function CharityPage() {
           </div>
           <div className="hu-charity-hero-actions mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
             <a href="#donate-process" className="btn-gold-fill inline-flex min-h-12 items-center justify-center rounded-full px-7 text-xs tracking-[0.16em] shadow-lg">
-              我要捐物資 <span className="ml-2 text-base">↓</span>
+              我要捐物資
             </a>
             <a href="#donate-rules" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/50 bg-white/5 px-7 text-xs tracking-[0.14em] text-white transition-colors hover:bg-white/10">
               查看捐贈規範
             </a>
           </div>
-          <p className="mt-4 text-[11px] tracking-[0.08em]" style={{ color: 'rgba(255,255,255,0.52)' }}>
+          <p className="hu-charity-hero-hint mt-3 text-[9px] tracking-[0.06em]" style={{ color: 'rgba(255,255,255,0.52)' }}>
             先確認收件規範，再讓物品延續它的生命
           </p>
         </div>
