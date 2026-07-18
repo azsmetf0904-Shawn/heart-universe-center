@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { linePushFlex, buildAdminPaymentFlex } from '@/lib/line'
+import { verifyLineAccessToken } from '@/lib/line-auth'
 
 type PaymentPayload = {
   lineUserId?: string
@@ -15,8 +16,10 @@ function isValidDate(value: string) {
 }
 
 export async function GET(req: NextRequest) {
-  const lineUserId = req.nextUrl.searchParams.get('lineUserId')?.trim()
-  if (!lineUserId) return NextResponse.json({ ok: false, error: 'line_user_required' }, { status: 400 })
+  const accessToken = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '').trim() ?? ''
+  const identity = await verifyLineAccessToken(accessToken)
+  const lineUserId = identity?.userId
+  if (!lineUserId) return NextResponse.json({ ok: false, error: 'line_auth_required' }, { status: 401 })
 
   const supabase = await createAdminClient()
   let { data, error } = await supabase
@@ -43,7 +46,9 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   const body = await req.json() as PaymentPayload
-  const lineUserId = body.lineUserId?.trim()
+  const accessToken = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '').trim() ?? ''
+  const identity = await verifyLineAccessToken(accessToken)
+  const lineUserId = identity?.userId
   const bookingId = body.bookingId?.trim()
   const last5 = body.last5?.replace(/\D/g, '').slice(0, 5) ?? ''
   const date = body.date?.trim() ?? ''

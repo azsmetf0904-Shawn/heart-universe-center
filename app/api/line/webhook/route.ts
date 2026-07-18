@@ -34,6 +34,16 @@ export async function POST(req: NextRequest) {
 
     // ── Postback：管理員點按鈕審核 ──
     if (event.type === 'postback' && event.postback?.data) {
+      const configuredGroup = process.env.ADMIN_LINE_GROUP_ID
+      const configuredAdmin = process.env.ADMIN_LINE_USER_ID
+      const isAdminSource = Boolean(
+        (configuredGroup && event.source?.groupId === configuredGroup) ||
+        (configuredAdmin && event.source?.userId === configuredAdmin),
+      )
+      if (!isAdminSource) {
+        if (event.replyToken) await lineReply(event.replyToken, '此操作僅限管理員使用。')
+        continue
+      }
       const params = new URLSearchParams(event.postback.data)
       const action = params.get('action')
       const bookingId = params.get('bookingId')
@@ -140,9 +150,8 @@ export async function POST(req: NextRequest) {
 
     // 月曆關鍵字：回覆月曆連結
     if (['月曆', '行事曆', 'calendar', '查月曆', 'cal'].includes(text)) {
-      const token = process.env.ADMIN_CALENDAR_TOKEN ?? process.env.LINE_CHANNEL_SECRET?.slice(0, 12) ?? ''
       const now = new Date()
-      const calUrl = `https://heart-universe-center.vercel.app/admin-calendar?token=${encodeURIComponent(token)}&year=${now.getFullYear()}&month=${now.getMonth() + 1}`
+      const calUrl = `https://heart-universe-center.vercel.app/admin-calendar?year=${now.getFullYear()}&month=${now.getMonth() + 1}`
       if (event.replyToken) {
         await lineReplyFlex(event.replyToken, `📅 ${now.getFullYear()}年${now.getMonth() + 1}月 場地月曆`, buildCalendarButtonFlex(calUrl, now.getFullYear(), now.getMonth() + 1))
       }

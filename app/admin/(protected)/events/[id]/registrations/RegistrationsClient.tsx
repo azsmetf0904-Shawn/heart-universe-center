@@ -20,10 +20,7 @@ export default function RegistrationsClient({
 
   async function toggleCheckIn(id: string, val: boolean) {
     const supabase = createClient()
-    await supabase.from('event_registrations').update({
-      checked_in: val,
-      checked_in_at: val ? new Date().toISOString() : null,
-    }).eq('id', id)
+    await supabase.rpc('check_in_registration', { p_registration_id: id, p_checked_in: val })
     setRegs(r => r.map(reg => reg.id === id ? { ...reg, checked_in: val } : reg))
   }
 

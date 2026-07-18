@@ -75,7 +75,6 @@ function RentForm() {
   const [submitError, setSubmitError] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submittedTotal, setSubmittedTotal] = useState<number | null>(null)
-  const [selectedVenue, setSelectedVenue] = useState<Venue | null>(null)
   const [calSel, setCalSel] = useState<CalendarSelection | null>(null) // slots = multi-select
   const [draftReady, setDraftReady] = useState(false)
   const [draftRestored, setDraftRestored] = useState(false)
@@ -91,7 +90,7 @@ function RentForm() {
   // LIFF 初始化
   useEffect(() => {
     const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID
-    if (!liffId) { setLiffLoading(false); return }
+    if (!liffId) { queueMicrotask(() => setLiffLoading(false)); return }
     import('@line/liff').then(async ({ default: liff }) => {
       try {
         await liff.init({ liffId })
@@ -134,12 +133,12 @@ function RentForm() {
         const match = v.find((venue: Venue) => venue.slug === venueSlug)
         if (match) {
           setForm(p => ({ ...p, venue_id: match.id }))
-          setSelectedVenue(match)
         }
       }
     })
   }, [searchParams])
 
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (typeof window === 'undefined') return
     try {
@@ -147,14 +146,14 @@ function RentForm() {
       if (resumeStepRaw) {
         const resumeStep = Number(resumeStepRaw)
         if (Number.isInteger(resumeStep) && resumeStep >= 1 && resumeStep <= 3) {
-          setStep(resumeStep)
+          queueMicrotask(() => setStep(resumeStep))
         }
       }
 
       const prefilledDate = searchParams.get('date')
       const useUrlDate = !!prefilledDate && /^\d{4}-\d{2}-\d{2}$/.test(prefilledDate)
       if (useUrlDate && prefilledDate) {
-        setPrefilledDate(prefilledDate)
+        queueMicrotask(() => setPrefilledDate(prefilledDate))
       }
       const raw = window.localStorage.getItem(RENT_DRAFT_KEY)
       if (raw) {
@@ -215,12 +214,11 @@ function RentForm() {
       setDraftReady(true)
     }
   }, [])
+  /* eslint-enable react-hooks/set-state-in-effect */
 
-  useEffect(() => {
-    if (!venues.length) return
-    setSelectedVenue(venues.find(x => x.id === form.venue_id) ?? null)
-  }, [venues, form.venue_id])
+  const selectedVenue = venues.find(x => x.id === form.venue_id) ?? null
 
+  /* eslint-disable react-hooks/immutability, react-hooks/exhaustive-deps */
   useEffect(() => {
     if (!draftReady || done) return
 
@@ -267,11 +265,10 @@ function RentForm() {
     if (lineFriendStatus !== 'friend') return // 未加好友，顯示 gate 讓用戶手動送出
     void handleSubmit({ fromLineLogin: true })
   }, [draftReady, done, lineProfile, lineFriendStatus, step])
+  /* eslint-enable react-hooks/immutability, react-hooks/exhaustive-deps */
 
   function handleVenueChange(id: string) {
-    const v = venues.find(x => x.id === id) ?? null
     setForm(p => ({ ...p, venue_id: id, time_slot: '', layout_config: '' }))
-    setSelectedVenue(v)
     setCalSel(null)
   }
 
@@ -299,7 +296,6 @@ function RentForm() {
     }
     setForm({ ...initialForm, time_slots: [] })
     setCalSel(null)
-    setSelectedVenue(null)
     setDraftRestored(false)
     setPrefilledDate('')
     setShowOptional(false)
@@ -403,7 +399,7 @@ function RentForm() {
       if (conflicts && conflicts.length > 0) isWaitlist = true
     }
 
-    const generatedCode = Math.random().toString(36).substring(2, 8).toUpperCase()
+    const generatedCode = crypto.randomUUID().replace(/-/g, '').slice(0, 6).toUpperCase()
     const { data: req, error } = await supabase.from('rental_requests').insert({
       line_user_id: lineProfile?.userId ?? null,
       venue_id: form.venue_id || null,
@@ -465,33 +461,37 @@ function RentForm() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'admin_rental_notification', ...emailPayload }),
       }).catch(() => {})
-      // 通知管理員（LINE 群組 Flex Message）
-      fetch('/api/line/notify', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: 'new_booking',
-          bookingId: req.id,
-          name: form.name,
-          phone: form.phone,
-          email: form.email,
-          lineUserId: lineProfile?.userId ?? null,
-          eventTitle: form.event_title,
-          bookingDate: form.booking_date,
-          timeSlot: emailPayload.timeSlot ?? '',
-          venueName: selectedVenue?.name ?? '',
-          guestCount: form.guest_count || null,
-          note: form.note || null,
-          isWaitlist,
-        }),
+      // 通知管理員（LINE 群組 Flex Message）：先取得短效伺服器簽章，避免公開推播端點被濫用。
+      const notifyBooking = async (type: 'new_booking' | 'booking_received', payload: Record<string, unknown>) => {
+        const tokenRes = await fetch('/api/line/notify-token', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bookingId: req.id, contact: form.phone, type }),
+        })
+        const token = await tokenRes.json() as { ok: boolean; token?: string; expires?: number }
+        if (!token.ok || !token.token || !token.expires) return
+        await fetch('/api/line/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-notify-token': token.token, 'x-notify-expires': String(token.expires) },
+          body: JSON.stringify({ type, bookingId: req.id, ...payload }),
+        })
+      }
+      notifyBooking('new_booking', {
+        bookingId: req.id,
+        name: form.name,
+        phone: form.phone,
+        email: form.email,
+        lineUserId: lineProfile?.userId ?? null,
+        eventTitle: form.event_title,
+        bookingDate: form.booking_date,
+        timeSlot: emailPayload.timeSlot ?? '',
+        venueName: selectedVenue?.name ?? '',
+        guestCount: form.guest_count || null,
+        note: form.note || null,
+        isWaitlist,
       }).catch(() => {})
       // 通知預約者（LINE 推播，立即確認 + 匯款資訊）
       if (lineProfile?.userId) {
-        fetch('/api/line/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            type: 'booking_received',
+        notifyBooking('booking_received', {
             lineUserId: lineProfile.userId,
             name: form.name,
             eventTitle: form.event_title,
@@ -501,8 +501,7 @@ function RentForm() {
             totalAmount: totalAmount > 0 ? totalAmount : null,
             phone: form.phone,
             isWaitlist,
-          }),
-        }).catch(() => {})
+          }).catch(() => {})
       }
       if (typeof window !== 'undefined') {
         window.localStorage.removeItem(RENT_DRAFT_KEY)

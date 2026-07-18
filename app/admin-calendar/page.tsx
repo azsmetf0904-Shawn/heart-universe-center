@@ -1,6 +1,6 @@
 export const dynamic = 'force-dynamic'
 
-import { createAdminClient } from '@/lib/supabase/server'
+import { createAdminClient, createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus, TimeSlot } from '@/lib/types'
@@ -30,15 +30,13 @@ type Booking = {
 export default async function AdminCalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ token?: string; year?: string; month?: string }>
+  searchParams: Promise<{ year?: string; month?: string }>
 }) {
   const sp = await searchParams
 
-  const validToken =
-    process.env.ADMIN_CALENDAR_TOKEN ??
-    process.env.LINE_CHANNEL_SECRET?.slice(0, 12) ??
-    ''
-  if (!validToken || sp.token !== validToken) {
+  const auth = await createClient()
+  const { data: { user } } = await auth.auth.getUser()
+  if (!user) {
     return (
       <div style={{ padding: 32, fontFamily: 'sans-serif', color: '#888', textAlign: 'center', marginTop: 80 }}>
         🔒 無存取權限
@@ -76,8 +74,7 @@ export default async function AdminCalendarPage({
 
   const prevM = month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 }
   const nextM = month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 }
-  const tokenParam = encodeURIComponent(sp.token!)
-  const base = `/admin-calendar?token=${tokenParam}`
+  const base = '/admin-calendar'
 
   const firstDow = new Date(year, month - 1, 1).getDay()
   const cells: (number | null)[] = []
@@ -95,7 +92,7 @@ export default async function AdminCalendarPage({
     }}>
       {/* Month nav */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <Link href={`${base}&year=${prevM.year}&month=${prevM.month}`}
+        <Link href={`${base}?year=${prevM.year}&month=${prevM.month}`}
           style={{
             textDecoration: 'none', color: '#C4A038', fontSize: 14, fontWeight: 500,
             minWidth: 48, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
@@ -105,7 +102,7 @@ export default async function AdminCalendarPage({
         <span style={{ fontSize: 16, fontWeight: 700 }}>
           {year} 年 {MONTH_ZH[month]} 月
         </span>
-        <Link href={`${base}&year=${nextM.year}&month=${nextM.month}`}
+        <Link href={`${base}?year=${nextM.year}&month=${nextM.month}`}
           style={{
             textDecoration: 'none', color: '#C4A038', fontSize: 14, fontWeight: 500,
             minWidth: 48, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'flex-end',

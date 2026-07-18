@@ -32,9 +32,13 @@ export default async function ShowcasePage() {
     .sort((a, b) => new Date(b.start_time).getTime() - new Date(a.start_time).getTime())
 
   type Photo = { image_url: string; caption: string | null; sort_order: number }
+  type RawEvent = Omit<PastEvent, 'venue' | 'event_photos'> & {
+    venue: PastEvent['venue'] | PastEvent['venue'][]
+    event_photos: Photo[]
+  }
 
   const events: PastEvent[] = (rawEvents ?? [])
-    .map((e: any) => ({
+    .map((e: RawEvent) => ({
       ...e,
       event_photos: (e.event_photos ?? []).sort((a: Photo, b: Photo) => a.sort_order - b.sort_order),
       venue: Array.isArray(e.venue) ? (e.venue[0] ?? null) : (e.venue ?? null),

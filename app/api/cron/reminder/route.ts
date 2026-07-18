@@ -11,6 +11,31 @@ export async function GET(req: NextRequest) {
 
   const supabase = await createAdminClient()
 
+  // 付款期限到期後自動取消仍未付款的申請，避免場地長期被佔用。
+  const { data: expired } = await supabase
+    .from('rental_requests')
+    .select('id, name, event_title, line_user_id')
+    .eq('status', 'pending')
+    .not('payment_due_at', 'is', null)
+    .lt('payment_due_at', new Date().toISOString())
+
+  const expiredIds: string[] = []
+  for (const booking of expired ?? []) {
+    const { data: updated } = await supabase
+      .from('rental_requests')
+      .update({ status: 'cancelled', admin_note: '付款期限已到期，系統自動取消' })
+      .eq('id', booking.id)
+      .eq('status', 'pending')
+      .select('id')
+      .maybeSingle()
+    if (!updated) continue
+    expiredIds.push(booking.id)
+    if (booking.line_user_id) {
+      const { buildCancelledFlex } = await import('@/lib/line')
+      await linePushFlex(booking.line_user_id, `${booking.name}，您的場地申請已逾期取消`, buildCancelledFlex(booking.name, booking.event_title)).catch(() => {})
+    }
+  }
+
   // 台灣時間 (UTC+8) 明天日期
   const nowUtc = Date.now()
   const tomorrowTW = new Date(nowUtc + 8 * 60 * 60 * 1000)
@@ -35,5 +60,5 @@ export async function GET(req: NextRequest) {
     sent.push(r.id)
   }
 
-  return NextResponse.json({ ok: true, sent: sent.length, ids: sent })
+  return NextResponse.json({ ok: true, sent: sent.length, ids: sent, expired: expiredIds.length, expiredIds })
 }

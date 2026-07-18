@@ -1,32 +1,28 @@
-// Note: this Map is process-local. In Vercel serverless, each instance has its own
-// copy, so limits are per-instance rather than global. For the email endpoint,
-// booking-level validation in route.ts provides the real protection. This limiter
-// still catches burst abuse within a single warm instance (e.g. the availability API).
-const requests = new Map<string, { count: number; reset: number }>()
-let lastCleanup = Date.now()
+type Bucket = { count: number; resetAt: number }
 
-export function rateLimit(ip: string, limit = 10, windowMs = 60_000): { ok: boolean; remaining: number } {
+const buckets = new Map<string, Bucket>()
+
+/**
+ * Small in-process limiter for public endpoints. Vercel may run more than one
+ * instance, so this is intentionally a first line of defence; production can
+ * swap the implementation for a shared store without changing callers.
+ */
+export function rateLimit(key: string, limit: number, windowMs: number) {
   const now = Date.now()
-
-  // Purge expired entries every 5 minutes to prevent unbounded memory growth
-  if (now - lastCleanup > 300_000) {
-    for (const [key, entry] of requests) {
-      if (now > entry.reset) requests.delete(key)
-    }
-    lastCleanup = now
+  const current = buckets.get(key)
+  if (!current || current.resetAt <= now) {
+    buckets.set(key, { count: 1, resetAt: now + windowMs })
+    return { allowed: true, ok: true, remaining: limit - 1, retryAfter: 0 }
   }
-
-  const entry = requests.get(ip)
-
-  if (!entry || now > entry.reset) {
-    requests.set(ip, { count: 1, reset: now + windowMs })
-    return { ok: true, remaining: limit - 1 }
+  if (current.count >= limit) {
+    return { allowed: false, ok: false, remaining: 0, retryAfter: Math.ceil((current.resetAt - now) / 1000) }
   }
+  current.count += 1
+  return { allowed: true, ok: true, remaining: limit - current.count, retryAfter: 0 }
+}
 
-  if (entry.count >= limit) {
-    return { ok: false, remaining: 0 }
-  }
-
-  entry.count++
-  return { ok: true, remaining: limit - entry.count }
+export function requestIp(req: Request) {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim()
+    ?? req.headers.get('x-real-ip')
+    ?? 'unknown'
 }

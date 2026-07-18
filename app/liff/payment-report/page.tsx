@@ -28,7 +28,7 @@ const initialForm: FormState = {
 }
 
 export default function LiffPaymentReportPage() {
-  const [lineUserId, setLineUserId] = useState('')
+  const [accessToken, setAccessToken] = useState('')
   const [bookings, setBookings] = useState<Booking[]>([])
   const [selectedId, setSelectedId] = useState('')
   const [form, setForm] = useState<FormState>(initialForm)
@@ -41,12 +41,6 @@ export default function LiffPaymentReportPage() {
 
   useEffect(() => {
     const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID ?? DEFAULT_LIFF_ID
-    if (!liffId) {
-      setError('LINE 表單尚未完成設定')
-      setLoading(false)
-      return
-    }
-
     import('@line/liff').then(async ({ default: liff }) => {
       try {
         await liff.init({ liffId })
@@ -54,9 +48,10 @@ export default function LiffPaymentReportPage() {
           liff.login({ redirectUri: window.location.href })
           return
         }
-        const profile = await liff.getProfile()
-        setLineUserId(profile.userId)
-        const res = await fetch(`/api/liff/payment-report?lineUserId=${encodeURIComponent(profile.userId)}`)
+        const token = liff.getAccessToken()
+        if (!token) throw new Error('LINE access token unavailable')
+        setAccessToken(token)
+        const res = await fetch('/api/liff/payment-report', { headers: { Authorization: `Bearer ${token}` } })
         const json = await res.json() as { ok: boolean; bookings?: Booking[] }
         if (!json.ok || !json.bookings?.length) {
           setError('找不到可回報的預約，請改用網站查詢。')
@@ -81,13 +76,13 @@ export default function LiffPaymentReportPage() {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
-    if (!selected || !lineUserId) return
+    if (!selected || !accessToken) return
     setSubmitting(true)
     setError('')
     const res = await fetch('/api/liff/payment-report', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ lineUserId, bookingId: selected.id, ...form }),
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${accessToken}` },
+      body: JSON.stringify({ bookingId: selected.id, ...form }),
     })
     const json = await res.json() as { ok: boolean; error?: string }
     if (!json.ok) {

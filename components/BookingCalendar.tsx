@@ -69,7 +69,7 @@ export function BookingCalendar({ venueId, pricing, onSelect, selected }: Props)
     }
   }, [venueId])
 
-  useEffect(() => { loadMonth(year, month) }, [year, month, loadMonth])
+  useEffect(() => { queueMicrotask(() => { void loadMonth(year, month) }) }, [year, month, loadMonth])
 
   function prevMonth() {
     if (month === 0) { setYear(y => y - 1); setMonth(11) }

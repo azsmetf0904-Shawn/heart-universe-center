@@ -28,7 +28,7 @@ export default function MyBookingPage() {
   const [paymentDoneIds, setPaymentDoneIds] = useState<Set<string>>(new Set())
   const [paymentError, setPaymentError] = useState('')
 
-  async function handlePaymentReport(bookingId: string, name: string, eventTitle: string, bookingDate: string, timeSlot: string) {
+  async function handlePaymentReport(bookingId: string) {
     if (!paymentForm.last5 || !paymentForm.date || !paymentForm.amount) {
       setPaymentError('請填寫所有欄位')
       return
@@ -41,6 +41,7 @@ export default function MyBookingPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         bookingId,
+        contact: query,
         last5: paymentForm.last5,
         date: paymentForm.date,
         amount: paymentForm.amount,
@@ -55,10 +56,6 @@ export default function MyBookingPage() {
       setReportingId(null)
       setPaymentForm({ last5: '', date: '', amount: '' })
       doSearch(query)
-      fetch('/api/line/notify', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'payment_reported', bookingId, name, eventTitle, bookingDate, timeSlot, last5: paymentForm.last5, paymentDate: paymentForm.date, amount: parseInt(paymentForm.amount) }),
-      }).catch(() => {})
     }
     setPaymentSubmitting(false)
   }
@@ -81,7 +78,7 @@ export default function MyBookingPage() {
     const params = new URLSearchParams(window.location.search)
     const phone = params.get('phone')
     if (phone) {
-      setQuery(phone)
+      queueMicrotask(() => setQuery(phone))
       doSearch(phone)
     }
   }, [doSearch])
@@ -219,7 +216,7 @@ export default function MyBookingPage() {
                           <div className="flex gap-2">
                             <button onClick={() => { setReportingId(null); setPaymentError('') }}
                               className="flex-1 py-2 text-xs border border-[var(--border-color)] text-[var(--gray)]">取消</button>
-                            <button onClick={() => handlePaymentReport(r.id, r.name, r.event_title, r.booking_date ?? '', r.time_slot ? TIME_SLOT_LABEL[r.time_slot as TimeSlot] : '')}
+                            <button onClick={() => handlePaymentReport(r.id)}
                               disabled={paymentSubmitting}
                               className="flex-1 py-2 text-xs text-white disabled:opacity-50" style={{ background: 'var(--gold)' }}>
                               {paymentSubmitting ? '送出中…' : '確認送出'}
