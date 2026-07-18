@@ -14,10 +14,8 @@ const STATUS_COLORS: Record<EventStatus, string> = {
 
 export default function EventsAdminClient({
   initialData,
-  venues,
 }: {
   initialData: Event[]
-  venues: { id: string; name: string }[]
 }) {
   const [events, setEvents] = useState(initialData)
 

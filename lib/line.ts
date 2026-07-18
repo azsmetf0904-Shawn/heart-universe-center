@@ -87,7 +87,6 @@ export function buildConfirmedFlex(
   name: string, eventTitle: string, bookingDate: string, timeSlot: string, phone: string,
 ) {
   const myBookingUrl = `${SITE_URL}/my-booking?phone=${encodeURIComponent(phone)}`
-  const paymentUrl = getPaymentLiffUrl(myBookingUrl)
   return {
     type: 'bubble',
     header: {
@@ -274,7 +273,7 @@ export function buildAdminNewBookingFlex(
   name: string, phone: string, email: string, eventTitle: string,
   bookingDate: string, timeSlot: string,
   venueName: string, guestCount: string | null, note: string | null,
-  isWaitlist: boolean, lineUserId: string | null = null,
+  isWaitlist: boolean,
 ) {
   const postback = (action: string) => `action=${action}&bookingId=${bookingId}`
   const headerColor = isWaitlist ? '#8B5CF6' : '#C4A038'

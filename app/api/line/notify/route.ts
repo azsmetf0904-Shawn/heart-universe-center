@@ -59,10 +59,9 @@ export async function POST(req: NextRequest) {
       const guestCount = publicBooking?.guest_count ?? body.guestCount
       const note = publicBooking?.note ?? body.note
       const isWaitlist = publicBooking?.status === 'waitlist'
-      const customerLineUserId = publicBooking?.line_user_id ?? null
       const flex = buildAdminNewBookingFlex(
         bookingId, publicBooking?.name ?? name, phone, email ?? '', publicBooking?.event_title ?? eventTitle, publicBooking?.booking_date ?? bookingDate, publicBooking?.time_slot ?? timeSlot,
-        venueName ?? '', guestCount ?? null, note ?? null, !!isWaitlist, customerLineUserId ?? null,
+        venueName ?? '', guestCount ?? null, note ?? null, !!isWaitlist,
       )
       const altText = `${isWaitlist ? '🔔 候補' : '📋 新預約'}：${publicBooking?.name ?? name}・${publicBooking?.event_title ?? eventTitle}`
       await linePushFlex(adminId, altText, flex)

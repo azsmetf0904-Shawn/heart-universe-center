@@ -153,9 +153,6 @@ export function BookingCalendar({ venueId, pricing, onSelect, selected }: Props)
           const isHoliday = isHolidayDate(date)
           const isToday = toLocalDateStr(date) === toLocalDateStr(today)
           const isThisDateSelected = selectedDateStr === toLocalDateStr(date)
-          const dateKey = toLocalDateStr(date)
-          const slotStatuses = SLOTS.map(s => avail[dateKey]?.[s])
-          const hasAnyAvailable = !isPst && slotStatuses.some(s => !s || s === 'available')
 
           return (
             <button

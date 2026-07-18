@@ -25,8 +25,6 @@ function groupBy<T>(arr: T[], key: keyof T) {
   }, {} as Record<string, T[]>)
 }
 
-const TIME_SLOTS: TimeSlot[] = ['morning', 'afternoon', 'evening']
-
 const EVENT_TYPES = ['課程講座', '企業培訓', '讀書會', '工作坊', '展覽展示', '社群聚會', '其他']
 const RENT_DRAFT_KEY = 'rent_draft'
 const LINE_PENDING_SUBMIT_KEY = 'rent_line_pending_submit'
@@ -696,7 +694,7 @@ function RentForm() {
               { n: 1, label: '基本資料' },
               { n: 2, label: '加購選項' },
               { n: 3, label: '確認送出' },
-            ].map((item, index) => {
+            ].map((item) => {
               const isDone = step > item.n
               const isActive = step === item.n
               return (
@@ -860,10 +858,7 @@ function RentForm() {
                   className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)]"
                 >
                   <option value="">不指定</option>
-                  {(selectedVenue?.layout_capacities
-                    ? LAYOUT_TYPES.filter(l => (selectedVenue.layout_capacities?.[l] ?? 0) > 0)
-                    : LAYOUT_TYPES
-                  ).map(layout => (
+                  {availableLayouts.map(layout => (
                     <option key={layout} value={layout}>{layout}</option>
                   ))}
                 </select>
