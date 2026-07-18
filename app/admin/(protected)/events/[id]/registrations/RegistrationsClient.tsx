@@ -14,14 +14,30 @@ export default function RegistrationsClient({
   capacity: number | null
 }) {
   const [regs, setRegs] = useState(initialData)
+  const [pendingIds, setPendingIds] = useState<Set<string>>(new Set())
+  const [errorId, setErrorId] = useState<string | null>(null)
 
   const active = regs.filter(r => r.status === 'registered')
   const checkedIn = active.filter(r => r.checked_in).length
 
   async function toggleCheckIn(id: string, val: boolean) {
+    if (pendingIds.has(id)) return
+    setPendingIds(s => new Set(s).add(id))
+    setErrorId(null)
+
     const supabase = createClient()
-    await supabase.rpc('check_in_registration', { p_registration_id: id, p_checked_in: val })
-    setRegs(r => r.map(reg => reg.id === id ? { ...reg, checked_in: val } : reg))
+    const { data, error } = await supabase.rpc('check_in_registration', { p_registration_id: id, p_checked_in: val })
+
+    if (error || data === false) {
+      setErrorId(id)
+    } else {
+      setRegs(r => r.map(reg => reg.id === id ? { ...reg, checked_in: val } : reg))
+    }
+    setPendingIds(s => {
+      const next = new Set(s)
+      next.delete(id)
+      return next
+    })
   }
 
   function exportCSV() {
@@ -66,12 +82,19 @@ export default function RegistrationsClient({
             {active.map(r => (
               <tr key={r.id} className={`border-t border-[var(--border-color)] ${r.checked_in ? 'bg-green-50/30' : ''}`}>
                 <td className="py-3 px-4">
-                  <button onClick={() => toggleCheckIn(r.id, !r.checked_in)}>
+                  <button
+                    onClick={() => toggleCheckIn(r.id, !r.checked_in)}
+                    disabled={pendingIds.has(r.id)}
+                    className="disabled:opacity-40"
+                  >
                     {r.checked_in
                       ? <CheckCircle2 size={18} className="text-[var(--gold)]" />
                       : <Circle size={18} className="text-[var(--border-color)]" />
                     }
                   </button>
+                  {errorId === r.id && (
+                    <div className="text-[10px] text-red-600 mt-1">簽到失敗，請重試</div>
+                  )}
                 </td>
                 <td className="py-3 px-4 text-sm">{r.name}</td>
                 <td className="py-3 px-4 text-sm text-[var(--gray)]">{r.phone}</td>
