@@ -20,8 +20,13 @@ export default function AdminLoginPage() {
       setError('帳號或密碼錯誤')
       setLoading(false)
     } else {
-      const redirect = typeof window !== 'undefined'
-        ? new URLSearchParams(window.location.search).get('redirect') ?? '/admin'
+      const requested = typeof window !== 'undefined'
+        ? new URLSearchParams(window.location.search).get('redirect')
+        : null
+      // Only allow same-site relative paths — a raw query param is
+      // attacker-controlled and must never be used as an external redirect.
+      const redirect = requested && requested.startsWith('/') && !requested.startsWith('//')
+        ? requested
         : '/admin'
       router.push(redirect)
       router.refresh()

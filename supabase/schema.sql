@@ -1,5 +1,8 @@
 -- 心宇宙商務中心 — Supabase Schema
--- 在 Supabase SQL Editor 中執行此檔案
+-- 在 Supabase SQL Editor 中執行此檔案（全新專案時使用）
+--
+-- 這份檔案追蹤的是「從零重建應該長怎樣」，內容需與 supabase/migrations/*.sql
+-- 套用後的正式環境保持一致。上一次同步：2026-07-19（含 001~008）。
 
 -- 場地
 CREATE TABLE IF NOT EXISTS venues (
@@ -62,16 +65,23 @@ CREATE TABLE IF NOT EXISTS rental_requests (
   event_type text,
   guest_count int,
   booking_date date,                  -- 租借日期
-  time_slot text,                     -- morning / afternoon / evening
+  time_slot text,                     -- morning / afternoon / evening（單一時段，舊資料相容用）
+  time_slots text[],                  -- 多時段連租
   session_count int DEFAULT 1,        -- 幾個時段（連租）
   layout_config text,                 -- 座位配置：教室型/蜈蚣型/分組型/講座型/U型
   is_holiday boolean DEFAULT false,
   start_time timestamptz NOT NULL,
   end_time timestamptz NOT NULL,
   note text,
-  status text DEFAULT 'pending',     -- pending / confirmed / payment_pending / completed / cancelled
+  status text DEFAULT 'pending',      -- pending / payment_pending / confirmed / waitlist / completed / cancelled
   admin_note text,
-  payment_due_at timestamptz,
+  line_user_id text,                  -- 綁定的 LINE userId（推播通知用）
+  line_code text,                     -- 一次性驗證碼，客戶用來在 LINE OA 綁定此筆申請
+  payment_last5 varchar,              -- 客戶回報的匯款帳號末五碼
+  payment_date date,                  -- 客戶回報的匯款日期
+  payment_amount int,                 -- 客戶回報的匯款金額
+  payment_reported_at timestamptz,    -- 客戶回報匯款的時間
+  payment_due_at timestamptz,         -- 核可後的付款期限，逾期由 cron 自動取消
   created_at timestamptz DEFAULT now()
 );
 
@@ -102,6 +112,8 @@ CREATE TABLE IF NOT EXISTS events (
   is_paid boolean DEFAULT false,
   capacity int,
   status text DEFAULT 'draft',       -- draft / published / ended
+  category text,
+  external_url text,
   created_at timestamptz DEFAULT now()
 );
 
@@ -130,6 +142,93 @@ CREATE TABLE IF NOT EXISTS event_photos (
   created_at timestamptz DEFAULT now()
 );
 
+-- 活動回顧評論（結束後的活動才顯示）
+CREATE TABLE IF NOT EXISTS event_reviews (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id uuid REFERENCES events(id) ON DELETE CASCADE,
+  reviewer_name text NOT NULL,
+  content text NOT NULL,
+  created_at timestamptz DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS event_reviews_event_id_idx ON event_reviews (event_id);
+CREATE INDEX IF NOT EXISTS event_reviews_created_at_idx ON event_reviews (created_at DESC);
+
+-- 管理員操作日誌（RentalRequestsClient 核可/候補/取消時寫入）
+CREATE TABLE IF NOT EXISTS admin_action_logs (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  action text NOT NULL,
+  resource_type text NOT NULL,
+  resource_id text NOT NULL,
+  old_value text,
+  new_value text,
+  note text,
+  created_at timestamptz DEFAULT now()
+);
+
+-- 管理員身分白名單。取代舊版「任何 Supabase Auth 帳號 = 管理員」的作法
+-- （auth.role() = 'authenticated' 對所有 authenticated session 一視同仁，
+-- 任何未來新增的非管理員帳號都會意外拿到全站權限）。
+-- RLS 全部關閉、不開任何 policy，只能透過下面的 is_admin() 讀取。
+CREATE TABLE IF NOT EXISTS admin_users (
+  user_id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  role text NOT NULL DEFAULT 'admin',
+  created_at timestamptz NOT NULL DEFAULT now()
+);
+ALTER TABLE admin_users ENABLE ROW LEVEL SECURITY;
+
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM admin_users WHERE user_id = auth.uid()
+  );
+$$;
+REVOKE ALL ON FUNCTION public.is_admin() FROM public;
+GRANT EXECUTE ON FUNCTION public.is_admin() TO authenticated, anon;
+
+-- 活動簽到：只能透過這支 RPC 更新 checked_in / checked_in_at，
+-- 不開放前端直接 UPDATE event_registrations（見下方 RLS）。
+CREATE OR REPLACE FUNCTION public.check_in_registration(p_registration_id uuid, p_checked_in boolean DEFAULT true)
+RETURNS boolean
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF NOT is_admin() THEN
+    RAISE EXCEPTION 'not_authorized' USING errcode = '42501';
+  END IF;
+
+  UPDATE event_registrations
+  SET checked_in = p_checked_in,
+      checked_in_at = CASE WHEN p_checked_in THEN COALESCE(checked_in_at, now()) ELSE NULL END
+  WHERE id = p_registration_id
+    AND status = 'registered';
+
+  RETURN FOUND;
+END;
+$$;
+
+-- 索引：my-booking（phone/email）、admin-calendar（booking_date 區間）、
+-- LIFF 付款查詢（line_user_id）、cron 提醒與逾期取消（status + booking_date /
+-- payment_due_at）、LINE OA 綁定驗證碼（line_code）。
+CREATE UNIQUE INDEX IF NOT EXISTS rental_no_double_booking
+  ON rental_requests (venue_id, booking_date, time_slot)
+  WHERE status NOT IN ('cancelled');
+CREATE INDEX IF NOT EXISTS rental_requests_phone_idx ON rental_requests (phone);
+CREATE INDEX IF NOT EXISTS rental_requests_email_idx ON rental_requests (lower(email));
+CREATE INDEX IF NOT EXISTS rental_requests_line_user_id_idx ON rental_requests (line_user_id) WHERE line_user_id IS NOT NULL;
+CREATE INDEX IF NOT EXISTS rental_requests_booking_date_idx ON rental_requests (booking_date);
+CREATE INDEX IF NOT EXISTS rental_requests_status_idx ON rental_requests (status);
+CREATE INDEX IF NOT EXISTS idx_rental_requests_line_code ON rental_requests (line_code);
+CREATE INDEX IF NOT EXISTS rental_requests_payment_due_idx
+  ON rental_requests (status, payment_due_at)
+  WHERE status = 'pending' AND payment_due_at IS NOT NULL;
+
 -- RLS (Row Level Security)
 ALTER TABLE venue_pricing ENABLE ROW LEVEL SECURITY;
 ALTER TABLE venues ENABLE ROW LEVEL SECURITY;
@@ -140,33 +239,38 @@ ALTER TABLE rental_addons ENABLE ROW LEVEL SECURITY;
 ALTER TABLE events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE event_registrations ENABLE ROW LEVEL SECURITY;
 ALTER TABLE event_photos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE event_reviews ENABLE ROW LEVEL SECURITY;
+ALTER TABLE admin_action_logs ENABLE ROW LEVEL SECURITY;
 
--- 前台：公開讀取場地、定價、活動、加購、回顧照片
+-- 前台：公開讀取場地、定價、活動、加購、回顧照片、回顧評論
 CREATE POLICY "public read venue_pricing" ON venue_pricing FOR SELECT USING (true);
-CREATE POLICY "admin full access venue_pricing" ON venue_pricing FOR ALL USING (auth.role() = 'authenticated');
 CREATE POLICY "public read venues" ON venues FOR SELECT USING (is_active = true);
 CREATE POLICY "public read venue_photos" ON venue_photos FOR SELECT USING (true);
 CREATE POLICY "public read venue_addons" ON venue_addons FOR SELECT USING (is_available = true);
 CREATE POLICY "public read published events" ON events FOR SELECT USING (status IN ('published', 'ended'));
 CREATE POLICY "public read event_photos" ON event_photos FOR SELECT USING (true);
+CREATE POLICY "anyone can read" ON event_reviews FOR SELECT USING (true);
+CREATE POLICY "anyone can insert" ON event_reviews FOR INSERT WITH CHECK (true);
 
--- 前台：允許送出租借申請
+-- 前台：允許送出租借申請、活動報名（僅 INSERT，不可直接 UPDATE/DELETE）
 CREATE POLICY "public insert rental_requests" ON rental_requests FOR INSERT WITH CHECK (true);
 CREATE POLICY "public insert rental_addons" ON rental_addons FOR INSERT WITH CHECK (true);
-
--- 前台：允許報名與簽到
 CREATE POLICY "public insert registrations" ON event_registrations FOR INSERT WITH CHECK (true);
-CREATE POLICY "public update checkin" ON event_registrations FOR UPDATE USING (true) WITH CHECK (true);
+-- 簽到只能透過 check_in_registration() 這支 SECURITY DEFINER RPC，
+-- 刻意不開放任何 public UPDATE policy（避免任意改寫報名資料）。
 
--- 後台：已登入的 Supabase Auth 用戶可以做所有操作
-CREATE POLICY "admin full access venues" ON venues FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "admin full access venue_photos" ON venue_photos FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "admin full access venue_addons" ON venue_addons FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "admin full access rental_requests" ON rental_requests FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "admin full access rental_addons" ON rental_addons FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "admin full access events" ON events FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "admin full access event_registrations" ON event_registrations FOR ALL USING (auth.role() = 'authenticated');
-CREATE POLICY "admin full access event_photos" ON event_photos FOR ALL USING (auth.role() = 'authenticated');
+-- 後台：僅 admin_users 白名單內的帳號可以做所有操作
+CREATE POLICY "admin full access venues" ON venues FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "admin full access venue_photos" ON venue_photos FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "admin full access venue_addons" ON venue_addons FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "admin full access venue_pricing" ON venue_pricing FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "admin full access rental_requests" ON rental_requests FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "admin full access rental_addons" ON rental_addons FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "admin full access events" ON events FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "admin full access event_registrations" ON event_registrations FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "admin full access event_photos" ON event_photos FOR ALL USING (is_admin()) WITH CHECK (is_admin());
+CREATE POLICY "admin_select_logs" ON admin_action_logs FOR SELECT USING (is_admin());
+CREATE POLICY "admin_insert_logs" ON admin_action_logs FOR INSERT WITH CHECK (is_admin());
 
 -- Storage Buckets（在 Supabase Storage 手動建立或執行以下）
 -- INSERT INTO storage.buckets (id, name, public) VALUES ('venues-photos', 'venues-photos', true);
