@@ -6,6 +6,10 @@ import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
 import { RENTAL_STATUS_TAILWIND } from '@/lib/status-colors'
 import { ChevronDown, ChevronUp, Download } from 'lucide-react'
 
+function threeDaysFromNow() {
+  return new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+}
+
 function exportCsv(requests: RentalRequest[]) {
   const headers = ['申請日期', '活動名稱', '申請人', '手機', 'Email', '場地', '租借日期', '時段', '人數', '狀態', '備註']
   const rows = requests.map(r => [
@@ -38,13 +42,30 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
   const [expanded, setExpanded] = useState<string | null>(null)
   const [adminNotes, setAdminNotes] = useState<Record<string, string>>({})
   const [filterStatus, setFilterStatus] = useState<RentalStatus | 'all'>('all')
+  const [pendingStatusIds, setPendingStatusIds] = useState<Set<string>>(new Set())
+  const [statusErrorId, setStatusErrorId] = useState<string | null>(null)
 
   const filtered = filterStatus === 'all' ? requests : requests.filter(r => r.status === filterStatus)
 
   async function updateStatus(id: string, status: RentalStatus) {
+    if (pendingStatusIds.has(id)) return
+    setPendingStatusIds(s => new Set(s).add(id))
+    setStatusErrorId(null)
+
     const supabase = createClient()
     const prev = requests.find(r => r.id === id)
-    await supabase.from('rental_requests').update({ status }).eq('id', id)
+    const { error } = await supabase.from('rental_requests').update({ status }).eq('id', id)
+
+    setPendingStatusIds(s => {
+      const next = new Set(s)
+      next.delete(id)
+      return next
+    })
+
+    if (error) {
+      setStatusErrorId(id)
+      return
+    }
     setRequests(r => r.map(req => req.id === id ? { ...req, status } : req))
 
     supabase.from('admin_action_logs').insert({
@@ -76,18 +97,28 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
       if (lineId) fetch('/api/line/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ type: 'cancelled', lineUserId: lineId, ...base }) }).catch(() => {})
 
-      // 若有候補，通知候補者
+      // 若有候補，把候補轉為待付款並通知（用 .eq('status','waitlist') 當條件更新，
+      // 避免同一位候補被重複轉正；轉不成功就代表已經被處理過，不發通知）
       if (r.booking_date && r.time_slot) {
         const { data: waitlist } = await supabase
           .from('rental_requests').select('id, name, email, event_title, booking_date, time_slot, line_user_id')
           .eq('booking_date', r.booking_date).eq('time_slot', r.time_slot)
-          .eq('status', 'waitlist').order('created_at').limit(1).single()
+          .eq('status', 'waitlist').order('created_at').limit(1).maybeSingle()
         if (waitlist?.email) {
-          const wlBase = { to: waitlist.email, name: waitlist.name, eventTitle: waitlist.event_title, bookingDate: waitlist.booking_date ?? '', timeSlot: slotLabel, venueName: r.venue?.name ?? '' }
-          fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'waitlist_promoted', ...wlBase }) }).catch(() => {})
-          if (waitlist.line_user_id) fetch('/api/line/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ type: 'waitlist', lineUserId: waitlist.line_user_id, ...wlBase }) }).catch(() => {})
+          const paymentDueAt = threeDaysFromNow()
+          const { data: promoted } = await supabase
+            .from('rental_requests')
+            .update({ status: 'pending', payment_due_at: paymentDueAt })
+            .eq('id', waitlist.id).eq('status', 'waitlist')
+            .select('id').maybeSingle()
+          if (promoted) {
+            setRequests(rs => rs.map(req => req.id === waitlist.id ? { ...req, status: 'pending', payment_due_at: paymentDueAt } : req))
+            const wlBase = { to: waitlist.email, name: waitlist.name, eventTitle: waitlist.event_title, bookingDate: waitlist.booking_date ?? '', timeSlot: slotLabel, venueName: r.venue?.name ?? '' }
+            fetch('/api/send-email', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'waitlist_promoted', ...wlBase }) }).catch(() => {})
+            if (waitlist.line_user_id) fetch('/api/line/notify', { method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ type: 'waitlist', lineUserId: waitlist.line_user_id, ...wlBase }) }).catch(() => {})
+          }
         }
       }
     }
@@ -207,17 +238,21 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
               </div>
               <div>
                 <p className="label-tag mb-3">狀態管理</p>
-                <div className="flex flex-wrap gap-2 mb-4">
+                <div className="flex flex-wrap gap-2 mb-2">
                   {(Object.keys(RENTAL_STATUS_LABEL) as RentalStatus[]).map(s => (
                     <button
                       key={s}
                       onClick={() => updateStatus(r.id, s)}
-                      className={`text-xs px-3 py-1.5 border transition-colors ${r.status === s ? 'border-[var(--gold)] text-[var(--gold)]' : 'border-[var(--border-color)] text-[var(--gray)] hover:border-[var(--charcoal)]'}`}
+                      disabled={pendingStatusIds.has(r.id)}
+                      className={`text-xs px-3 py-1.5 border transition-colors disabled:opacity-40 ${r.status === s ? 'border-[var(--gold)] text-[var(--gold)]' : 'border-[var(--border-color)] text-[var(--gray)] hover:border-[var(--charcoal)]'}`}
                     >
                       {RENTAL_STATUS_LABEL[s]}
                     </button>
                   ))}
                 </div>
+                {statusErrorId === r.id && (
+                  <p className="text-xs text-red-600 mb-2">狀態更新失敗，請重試</p>
+                )}
                 <p className="label-tag mb-2">內部備註</p>
                 <textarea
                   rows={3}
