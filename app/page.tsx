@@ -58,7 +58,10 @@ function HomeFallback() {
     <section className="hu-perfect-hero" style={{ minHeight: 'calc(100vh - 64px)' }}>
       <div className="hu-perfect-left" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '120px 8vw 80px', background: '#1C1008', color: '#fff' }}>
         <p className="hu-perfect-eyebrow" style={{ color: 'rgba(196,160,56,.75)', letterSpacing: '.35em', fontSize: 10, marginBottom: 28 }}>Heart Universe · Taipei</p>
-        <h1 className="hu-perfect-h1" style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 400, lineHeight: 1.2, marginBottom: 24 }}>文化生態圈<br /><span style={{ color: '#C4A038' }}>質感活動</span><br />場地</h1>
+        <h1 className="hu-perfect-h1" style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 400, lineHeight: 1.2, marginBottom: 24 }}>
+          <span style={{ fontSize: '0.4em', fontWeight: 400, letterSpacing: '.25em', color: 'rgba(196,160,56,.85)', display: 'block', marginBottom: 10 }}>台北 · 松山</span>
+          文化生態圈<br /><span style={{ color: '#C4A038' }}>質感活動</span>場地租借
+        </h1>
         <p style={{ color: 'rgba(237,228,212,.62)', fontSize: 13, lineHeight: 1.9, marginBottom: 36 }}>二手公益 × 文創教室，獨一無二</p>
         <Link href="/rent" className="btn-gold-fill" style={{ alignSelf: 'flex-start', padding: '14px 30px', letterSpacing: '.18em', fontSize: 12 }}>{CTA.home.startRental} <ArrowRight size={14} /></Link>
       </div>
@@ -193,7 +196,8 @@ async function HomePageContent() {
 
           {/* Tagline H1 */}
           <h1 data-hp="text" className="relative z-10 font-serif leading-snug mb-4" style={{ fontSize: 'clamp(24px,2.8vw,38px)', fontWeight: 600, color: '#fff', letterSpacing: '.06em' }}>
-            文化生態圈<br /><span style={{ color: GOLD }}>質感活動</span><br />場地
+            <span style={{ fontSize: '0.45em', fontWeight: 400, letterSpacing: '.25em', color: 'rgba(196,160,56,.85)', display: 'block', marginBottom: 6 }}>台北 · 松山</span>
+            文化生態圈<br /><span style={{ color: GOLD }}>質感活動</span>場地租借
           </h1>
 
           <p data-hp="text" className="hu-hero-sub relative z-10 text-[11px] leading-loose mb-5" style={{ color: 'rgba(244,239,230,.75)', letterSpacing: '.1em' }}>
