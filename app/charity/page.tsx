@@ -2,12 +2,13 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, ExternalLink, CheckCircle2, XCircle, AlertTriangle, ArrowRight } from 'lucide-react'
+import CharityHeroSlideshow from '@/components/CharityHeroSlideshow'
 
 export const metadata: Metadata = {
-  title: '愛物王斷捨離二手公益 | 台北松山',
+  title: '愛物王斷捨離二手公益｜台北二手物資捐贈',
   description:
     '愛物王斷捨離二手公益商店位於台北松山八德路三段223號B1，每日12:00-20:00營運，接收高品質二手物資義賣，扣除管銷後全數捐出。捷運小巨蛋站或國父紀念館站步行10分鐘。',
-  keywords: ['愛物王', '斷捨離', '二手公益', '二手公益商店', '台北二手店', '松山二手公益'],
+  keywords: ['愛物王', '愛物王斷捨離二手公益', '台北二手公益', '松山二手公益', '二手物資捐贈', '二手物資捐贈規範', '捐物流程'],
   alternates: {
     canonical: '/charity',
   },
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
     follow: true,
   },
   openGraph: {
-    title: '愛物王斷捨離二手公益',
+    title: '愛物王斷捨離二手公益｜台北二手物資捐贈',
     description: '斷捨離，讓愛傳下去。台北松山二手公益——接收9成新物資義賣，全數捐出。每日 12:00-20:00，八德路三段223號B1。',
     url: '/charity',
     type: 'website',
@@ -52,7 +53,9 @@ const orgLd = {
       closes: '20:00',
     },
   ],
-  url: 'https://heart-universe-center.vercel.app/charity',
+    url: 'https://heart-universe-center.vercel.app/charity',
+  image: 'https://heart-universe-center.vercel.app/charity/hero.jpg',
+  logo: 'https://heart-universe-center.vercel.app/charity/logo.jpg',
   sameAs: ['https://www.instagram.com/love_secondhand_charity'],
 }
 
@@ -165,14 +168,7 @@ export default function CharityPage() {
 
       {/* ── HERO ── */}
       <section className="hu-charity-hero relative w-full" style={{ height: 'min(90vh, 680px)' }}>
-        <Image
-          src="/charity/hero.jpg"
-          alt="愛物王斷捨離二手公益商店入口"
-          fill
-          priority
-          className="hu-charity-hero-image object-cover"
-          sizes="100vw"
-        />
+        <CharityHeroSlideshow />
         <div
           className="hu-charity-hero-shade absolute inset-0"
           style={{ background: 'linear-gradient(to bottom, rgba(28,16,8,0.35) 0%, rgba(28,16,8,0.65) 100%)' }}
@@ -195,10 +191,10 @@ export default function CharityPage() {
             <span>每日 12:00–20:00</span>
           </div>
           <div className="hu-charity-hero-actions mt-8 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <a href="#donate-process" className="btn-gold-fill inline-flex min-h-12 items-center justify-center rounded-full px-7 text-xs tracking-[0.16em] shadow-lg">
+            <a href="/charity/donate#donate-process" className="btn-gold-fill inline-flex min-h-12 items-center justify-center rounded-full px-7 text-xs tracking-[0.16em] shadow-lg">
               我要捐物資
             </a>
-            <a href="#donate-rules" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/50 bg-white/5 px-7 text-xs tracking-[0.14em] text-white transition-colors hover:bg-white/10">
+            <a href="/charity/donate" className="inline-flex min-h-12 items-center justify-center rounded-full border border-white/50 bg-white/5 px-7 text-xs tracking-[0.14em] text-white transition-colors hover:bg-white/10">
               查看捐贈規範
             </a>
           </div>
@@ -414,6 +410,10 @@ export default function CharityPage() {
               </a>
             </div>
             <p className="text-xs mt-8" style={{ color: 'var(--gray)' }}>
+              <Link href="/charity/donate" className="hover:underline" style={{ color: 'var(--gold)' }}>
+                查看完整捐贈規範
+              </Link>{' '}
+              ・{' '}
               也歡迎{' '}
               <Link href="/rent" className="hover:underline" style={{ color: 'var(--gold)' }}>
                 租借場地

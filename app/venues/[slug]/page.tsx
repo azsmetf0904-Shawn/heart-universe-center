@@ -15,8 +15,9 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const supabase = await createClient()
   const { data } = await supabase.from('venues').select('name, description').eq('slug', slug).single()
   return {
-    title: data?.name ?? '場地詳情',
-    description: data?.description ?? `心宇宙商務中心 ${data?.name ?? '場地'} — 台北八德路精品場地租借`,
+    title: `台北松山場地租借｜${data?.name ?? '場地詳情'}`,
+    description: data?.description ?? `心宇宙商務中心 ${data?.name ?? '場地'} — 台北松山八德路企業培訓、講座與工作坊場地租借`,
+    keywords: ['台北松山場地租借', '八德路場地租借', '企業培訓場地', '講座場地', '工作坊場地', data?.name ?? ''].filter(Boolean),
     openGraph: {
       title: `${data?.name ?? '場地詳情'}｜心宇宙商務中心`,
       description: data?.description ?? '',
@@ -125,6 +126,14 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
     name: venue.name,
     description: venue.description ?? '',
     url: `${SITE}/venues/${slug}`,
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: '八德路三段223號',
+      addressLocality: '松山區',
+      addressRegion: '台北市',
+      postalCode: '105',
+      addressCountry: 'TW',
+    },
     ...(venue.capacity ? { maximumAttendeeCapacity: venue.capacity } : {}),
     ...(venue.area_ping ? { floorSize: { '@type': 'QuantitativeValue', value: venue.area_ping, unitCode: 'ping' } } : {}),
     ...(venue.equipment?.length ? {

@@ -678,7 +678,7 @@ function RentForm() {
     <div className="py-20">
       <div className="container-narrow max-w-2xl">
         <p className="label-tag mb-4">Reservation</p>
-        <h1 className="text-3xl mb-4">場地租借申請</h1>
+        <h1 className="text-3xl mb-4">台北企業培訓與活動場地租借</h1>
         <div className="gold-divider" />
 
         {draftRestored && (

@@ -28,7 +28,7 @@ export default function Navbar() {
   const desktopMoreRef = useRef<HTMLDivElement | null>(null)
   const mobileMoreRef = useRef<HTMLDivElement | null>(null)
   const pathname = usePathname()
-  const isCharity = pathname === '/charity'
+  const isCharity = pathname === '/charity' || pathname.startsWith('/charity/')
   const isHome = pathname === '/'
   const showCharityIdentity = isCharity || isHome
 

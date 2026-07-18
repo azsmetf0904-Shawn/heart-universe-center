@@ -1,3 +1,4 @@
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight } from 'lucide-react'
@@ -9,6 +10,20 @@ import { MobileAvailabilityStrip } from '@/components/MobileAvailabilityStrip'
 import { HeroEffects } from '@/components/HeroEffects'
 import { TiltCard } from '@/components/TiltCard'
 import { MagneticButton } from '@/components/MagneticButton'
+
+export const metadata: Metadata = {
+  title: '台北場地租借｜松山八德路質感活動場地',
+  description: '心宇宙商務中心位於台北松山八德路，提供企業培訓、講座、工作坊、課程與品牌活動場地租借，最多容納150人，歡迎預約看場地。',
+  keywords: ['台北場地租借', '台北活動場地', '松山區場地租借', '八德路場地租借', '企業培訓場地', '講座場地', '工作坊場地'],
+  alternates: { canonical: '/' },
+  openGraph: {
+    title: '台北場地租借｜松山八德路質感活動場地',
+    description: '企業培訓、講座、工作坊與品牌活動，在台北松山找到適合交流與發生的空間。',
+    url: '/',
+    type: 'website',
+    images: [{ url: '/home-hero/event-family-day-1.jpg' }],
+  },
+}
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
 const W    = '#FDFAF6'   // near-white warm
@@ -43,7 +58,7 @@ function HomeFallback() {
     <section className="hu-perfect-hero" style={{ minHeight: 'calc(100vh - 64px)' }}>
       <div className="hu-perfect-left" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '120px 8vw 80px', background: '#1C1008', color: '#fff' }}>
         <p className="hu-perfect-eyebrow" style={{ color: 'rgba(196,160,56,.75)', letterSpacing: '.35em', fontSize: 10, marginBottom: 28 }}>Heart Universe · Taipei</p>
-        <h1 className="hu-perfect-h1" style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 400, lineHeight: 1.2, marginBottom: 24 }}>文化生態圈<br /><span style={{ color: '#C4A038' }}>質感活動</span>場地</h1>
+        <h1 className="hu-perfect-h1" style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 400, lineHeight: 1.2, marginBottom: 24 }}>文化生態圈<br /><span style={{ color: '#C4A038' }}>質感活動</span><br />場地</h1>
         <p style={{ color: 'rgba(237,228,212,.62)', fontSize: 13, lineHeight: 1.9, marginBottom: 36 }}>二手公益 × 文創教室，獨一無二</p>
         <Link href="/rent" className="btn-gold-fill" style={{ alignSelf: 'flex-start', padding: '14px 30px', letterSpacing: '.18em', fontSize: 12 }}>{CTA.home.startRental} <ArrowRight size={14} /></Link>
       </div>
@@ -90,11 +105,14 @@ async function HomePageContent() {
     name: '心宇宙商務中心',
     alternateName: 'Heart Universe Business Center',
     url: 'https://heart-universe-center.vercel.app',
+    image: 'https://heart-universe-center.vercel.app/home-hero/event-family-day-1.jpg',
+    logo: 'https://heart-universe-center.vercel.app/logo-new.png',
     address: {
       '@type': 'PostalAddress',
-      streetAddress: '八德路三段',
-      addressLocality: '台北市松山區',
+      streetAddress: '八德路三段223號',
+      addressLocality: '松山區',
       addressRegion: '台北市',
+      postalCode: '105',
       addressCountry: 'TW',
     },
     openingHoursSpecification: [{
@@ -175,7 +193,7 @@ async function HomePageContent() {
 
           {/* Tagline H1 */}
           <h1 data-hp="text" className="relative z-10 font-serif leading-snug mb-4" style={{ fontSize: 'clamp(24px,2.8vw,38px)', fontWeight: 600, color: '#fff', letterSpacing: '.06em' }}>
-            文化生態圈<br /><span style={{ color: GOLD }}>質感活動</span>場地
+            文化生態圈<br /><span style={{ color: GOLD }}>質感活動</span><br />場地
           </h1>
 
           <p data-hp="text" className="hu-hero-sub relative z-10 text-[11px] leading-loose mb-5" style={{ color: 'rgba(244,239,230,.75)', letterSpacing: '.1em' }}>
@@ -239,9 +257,9 @@ async function HomePageContent() {
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          STATS RIBBON — 4 stats, animated gradient
+          STATS RIBBON — 3 stats, animated gradient
       ═══════════════════════════════════════════════════════════ */}
-      <div className="hu-stats-ribbon grid grid-cols-2 md:grid-cols-4" style={{
+      <div className="hu-stats-ribbon grid grid-cols-3" style={{
         background: `linear-gradient(90deg, ${W}, #F8F2EA, ${W})`,
         backgroundSize: '200% 100%',
         animation: 'hu-gradShift 8s ease-in-out infinite',
@@ -251,10 +269,9 @@ async function HomePageContent() {
           { n: '150', u: '人', l: '最大容納' },
           { n: '15K', u: '起', l: '平日場租' },
           { n: '3H',  u: '',   l: '每時段' },
-          { n: '5F',  u: '',   l: '電梯直達' },
         ] as const).map((s, i) => (
           <ScrollRevealSection key={s.l} delay={i * 80}>
-            <div className="py-8 md:py-10 text-center cursor-default" style={{ borderRight: i < 3 ? `1px solid ${BD}` : 'none' }}>
+            <div className="py-8 md:py-10 text-center cursor-default" style={{ borderRight: i < 2 ? `1px solid ${BD}` : 'none' }}>
               <div style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 'clamp(28px,3.5vw,44px)', fontWeight: 300, color: GOLD, lineHeight: 1 }}>
                 {s.n}<span style={{ fontSize: 13, color: GRAY, marginLeft: 2 }}>{s.u}</span>
               </div>

@@ -4,7 +4,18 @@ import Image from 'next/image'
 import { ArrowRight, Users } from 'lucide-react'
 import type { Metadata } from 'next'
 
-export const metadata: Metadata = { title: '場地介紹' }
+export const metadata: Metadata = {
+  title: '台北松山場地租借｜場地介紹與設備',
+  description: '查看心宇宙商務中心台北松山八德路場地，了解容納人數、設備、空間配置與活動用途，適合企業培訓、講座與工作坊。',
+  keywords: ['松山區場地租借', '八德路場地租借', '台北活動場地', '企業培訓場地', '講座場地', '工作坊場地'],
+  alternates: { canonical: '/venues' },
+  openGraph: {
+    title: '台北松山場地租借｜心宇宙商務中心',
+    description: '台北八德路多功能活動場地，查看容量、設備與空間配置。',
+    url: '/venues',
+    type: 'website',
+  },
+}
 
 export default async function VenuesPage() {
   const supabase = await createClient()
@@ -18,10 +29,10 @@ export default async function VenuesPage() {
     <div className="py-20">
       <div className="container-narrow mb-16">
         <p className="label-tag mb-4">Venue</p>
-        <h1 className="text-4xl md:text-5xl mb-4">場地介紹</h1>
+        <h1 className="text-4xl md:text-5xl mb-4">台北松山場地租借</h1>
         <div className="gold-divider" />
         <p className="text-[var(--gray)] text-sm mt-6 max-w-lg leading-relaxed">
-          多功能精品空間，適合各類活動需求。歡迎洽詢客製化佈置方案。
+          八德路多功能精品空間，適合企業培訓、課程講座、工作坊與品牌活動。歡迎洽詢客製化佈置方案。
         </p>
       </div>
 

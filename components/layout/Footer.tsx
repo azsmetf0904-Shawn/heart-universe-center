@@ -27,6 +27,7 @@ export default function Footer() {
                 { href: '/events', label: '活動課程' },
                 { href: '/community', label: '社群' },
                 { href: '/charity', label: '二手公益' },
+                { href: '/charity/donate', label: '捐物資規範' },
                 { href: '/news', label: '活動新聞' },
                 { href: '/rent', label: CTA.booking.applyRental },
                 { href: '/my-booking', label: CTA.rental.queryStatus },
