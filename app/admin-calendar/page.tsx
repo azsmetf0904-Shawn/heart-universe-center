@@ -4,6 +4,7 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
 import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus, TimeSlot } from '@/lib/types'
+import { verifyCalendarToken } from '@/lib/calendar-token'
 
 const STATUS_COLOR: Record<string, string> = {
   pending:         '#F59E0B',
@@ -30,14 +31,21 @@ type Booking = {
 export default async function AdminCalendarPage({
   searchParams,
 }: {
-  searchParams: Promise<{ year?: string; month?: string }>
+  searchParams: Promise<{ year?: string; month?: string; token?: string; expires?: string }>
 }) {
   const sp = await searchParams
 
-  const auth = await createClient()
-  const { data: { user } } = await auth.auth.getUser()
-  const { data: isAdmin } = user ? await auth.rpc('is_admin') : { data: false }
-  if (!user || !isAdmin) {
+  // 兩種存取路徑：Supabase 管理員登入（後台使用），或 LINE OA 審核群組取得的
+  // 短效簽章連結（沒有後台帳號的工作人員/志工用）。兩者擇一即可。
+  const hasValidToken = verifyCalendarToken(sp.token, sp.expires)
+  let isAdmin = hasValidToken
+  if (!isAdmin) {
+    const auth = await createClient()
+    const { data: { user } } = await auth.auth.getUser()
+    const { data } = user ? await auth.rpc('is_admin') : { data: false }
+    isAdmin = Boolean(user && data)
+  }
+  if (!isAdmin) {
     return (
       <div style={{ padding: 32, fontFamily: 'sans-serif', color: '#888', textAlign: 'center', marginTop: 80 }}>
         🔒 無存取權限
@@ -75,6 +83,7 @@ export default async function AdminCalendarPage({
 
   const prevM = month === 1 ? { year: year - 1, month: 12 } : { year, month: month - 1 }
   const nextM = month === 12 ? { year: year + 1, month: 1 } : { year, month: month + 1 }
+  const tokenQuery = hasValidToken ? `&token=${sp.token}&expires=${sp.expires}` : ''
   const base = '/admin-calendar'
 
   const firstDow = new Date(year, month - 1, 1).getDay()
@@ -93,7 +102,7 @@ export default async function AdminCalendarPage({
     }}>
       {/* Month nav */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-        <Link href={`${base}?year=${prevM.year}&month=${prevM.month}`}
+        <Link href={`${base}?year=${prevM.year}&month=${prevM.month}${tokenQuery}`}
           style={{
             textDecoration: 'none', color: '#C4A038', fontSize: 14, fontWeight: 500,
             minWidth: 48, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'flex-start',
@@ -103,7 +112,7 @@ export default async function AdminCalendarPage({
         <span style={{ fontSize: 16, fontWeight: 700 }}>
           {year} 年 {MONTH_ZH[month]} 月
         </span>
-        <Link href={`${base}?year=${nextM.year}&month=${nextM.month}`}
+        <Link href={`${base}?year=${nextM.year}&month=${nextM.month}${tokenQuery}`}
           style={{
             textDecoration: 'none', color: '#C4A038', fontSize: 14, fontWeight: 500,
             minWidth: 48, minHeight: 44, display: 'flex', alignItems: 'center', justifyContent: 'flex-end',

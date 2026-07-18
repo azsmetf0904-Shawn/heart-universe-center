@@ -2,6 +2,7 @@ import { createHmac } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { linePush, linePushFlex, lineReply, lineReplyFlex, buildConfirmedFlex, buildCancelledFlex, buildAdminSetWaitlistFlex, buildWaitlistToPayFlex, buildCustomerBookingConfirmFlex, getLineGroupMemberName, buildCalendarButtonFlex } from '@/lib/line'
+import { signCalendarToken } from '@/lib/calendar-token'
 import { TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus } from '@/lib/types'
 
@@ -148,10 +149,20 @@ export async function POST(req: NextRequest) {
 
     const text = event.message.text.trim()
 
-    // 月曆關鍵字：回覆月曆連結
+    // 月曆關鍵字：回覆月曆連結（僅審核群組／管理員本人，避免任何人 DM 都能拿到連結）
     if (['月曆', '行事曆', 'calendar', '查月曆', 'cal'].includes(text)) {
+      const configuredGroup = process.env.ADMIN_LINE_GROUP_ID
+      const configuredAdmin = process.env.ADMIN_LINE_USER_ID
+      const isAdminSource = Boolean(
+        (configuredGroup && event.source?.groupId === configuredGroup) ||
+        (configuredAdmin && event.source?.userId === configuredAdmin),
+      )
+      if (!isAdminSource) continue
+
       const now = new Date()
-      const calUrl = `https://heart-universe-center.vercel.app/admin-calendar?year=${now.getFullYear()}&month=${now.getMonth() + 1}`
+      const signed = signCalendarToken()
+      const tokenParams = signed ? `&token=${signed.token}&expires=${signed.expires}` : ''
+      const calUrl = `https://heart-universe-center.vercel.app/admin-calendar?year=${now.getFullYear()}&month=${now.getMonth() + 1}${tokenParams}`
       if (event.replyToken) {
         await lineReplyFlex(event.replyToken, `📅 ${now.getFullYear()}年${now.getMonth() + 1}月 場地月曆`, buildCalendarButtonFlex(calUrl, now.getFullYear(), now.getMonth() + 1))
       }
