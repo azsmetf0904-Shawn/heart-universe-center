@@ -34,6 +34,14 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl)
   }
 
+  const { data: isAdmin } = await supabase.rpc('is_admin')
+  if (!isAdmin) {
+    const loginUrl = new URL('/admin/login', req.url)
+    loginUrl.searchParams.set('redirect', pathname)
+    loginUrl.searchParams.set('error', 'not_admin')
+    return NextResponse.redirect(loginUrl)
+  }
+
   return res
 }
 

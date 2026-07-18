@@ -32,6 +32,8 @@ export async function POST(req: NextRequest) {
     const supabase = await createClient()
     const { data: { session } } = await supabase.auth.getSession()
     if (!session) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 })
+    const { data: isAdmin } = await supabase.rpc('is_admin')
+    if (!isAdmin) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 })
   }
 
   // Validate that the recipient is tied to a real booking before sending.

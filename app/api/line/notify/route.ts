@@ -46,6 +46,8 @@ export async function POST(req: NextRequest) {
       const supabase = await createClient()
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 })
+      const { data: isAdmin } = await supabase.rpc('is_admin')
+      if (!isAdmin) return NextResponse.json({ ok: false, error: 'unauthorized' }, { status: 401 })
     }
 
     // 管理員通知：新預約申請（Flex Message + 核可/候補/取消按鈕）

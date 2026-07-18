@@ -36,7 +36,8 @@ export default async function AdminCalendarPage({
 
   const auth = await createClient()
   const { data: { user } } = await auth.auth.getUser()
-  if (!user) {
+  const { data: isAdmin } = user ? await auth.rpc('is_admin') : { data: false }
+  if (!user || !isAdmin) {
     return (
       <div style={{ padding: 32, fontFamily: 'sans-serif', color: '#888', textAlign: 'center', marginTop: 80 }}>
         🔒 無存取權限
