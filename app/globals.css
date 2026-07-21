@@ -925,13 +925,11 @@ button, a, [role="button"], label[for] {
     text-align: center;
   }
   .hu-perfect-hero .hu-hero-tags { display: none !important; }
-  .hu-perfect-hero .hu-hero-mobile-cta { display: inline-flex !important; margin: 0 !important; }
   .hu-perfect-hero .hu-hero-desktop-ctas { display: none !important; }
   .hu-perfect-hero > [data-hp="photo"] { display: none !important; }
 }
 
 @media (min-width: 1024px) {
-  .hu-perfect-hero .hu-hero-mobile-cta { display: none !important; }
   .hu-perfect-hero .hu-hero-desktop-ctas { display: flex !important; }
 }
 
