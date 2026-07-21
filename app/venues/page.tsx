@@ -26,7 +26,7 @@ export default async function VenuesPage() {
     .order('created_at')
 
   return (
-    <div className="py-20">
+    <div className="py-[var(--section-py)]">
       <div className="container-narrow mb-16">
         <p className="label-tag mb-4">Venue</p>
         <h1 className="text-4xl md:text-5xl mb-4">台北松山場地租借</h1>

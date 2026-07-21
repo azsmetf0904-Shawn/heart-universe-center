@@ -273,7 +273,7 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
           {pricing.length > 0 && <PricingTable pricing={pricing} />}
 
           {pricing.length > 0 && (
-            <div className="hidden md:flex items-center justify-between gap-4 rounded-xl border border-[var(--border-color)] bg-[var(--surface)] px-5 py-4 mb-10">
+            <div className="hidden md:flex items-center justify-between gap-4 rounded-lg border border-[var(--border-color)] bg-[var(--surface)] px-5 py-4 mb-10">
               <div>
                 <p className="text-xs tracking-widest mb-1" style={{ color: 'var(--gold)' }}>申請租借</p>
                 <p className="text-sm text-[var(--gray)]">

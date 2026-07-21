@@ -64,6 +64,7 @@
   --gold-subtle: rgba(196,160,56,0.15);
 
   /* Stone wall — 主背景 */
+  --near-white:   #FDFAF6;   /* 石材上的高光面（比 cream 更白） */
   --cream:        #EDE4D4;   /* 石材牆亮面 */
   --cream-deep:   #E2D6C2;   /* 石材牆陰面 */
   --card-bg:      #E8DECE;   /* 卡片底色 */
@@ -188,9 +189,9 @@
 }
 
 /* Button utilities */
-.btn-gold-fill { background: var(--gold); color: #fff; transition: background 0.2s, transform 0.15s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-gold-fill { position: relative; overflow: hidden; background: var(--gold); color: #fff; transition: background 0.2s, transform 0.15s; display: inline-flex; align-items: center; gap: 8px; }
 .btn-gold-fill:hover { background: var(--gold-dark); transform: scale(1.02); }
-.btn-cta-ghost { border: 1px solid var(--gold); color: var(--gold); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
+.btn-cta-ghost { position: relative; overflow: hidden; border: 1px solid var(--gold); color: var(--gold); transition: all 0.2s; display: inline-flex; align-items: center; gap: 8px; }
 .btn-cta-ghost:hover { background: var(--gold); color: #fff; }
 .event-row { transition: background 0.2s; }
 .event-row:hover { background: var(--card-bg); }
@@ -452,6 +453,13 @@ button, a, [role="button"], label[for] {
   line-height: 1.4;
 }
 
+/* Shared vertical rhythm for page/section wrappers. Each page previously
+   invented its own number (home: 108/120/140px, venues: 80px, rent: 160px,
+   availability: 48-64px) with nothing tying them together. */
+:root {
+  --section-py: 96px;
+}
+
 .container-wide {
   max-width: 1200px;
   margin: 0 auto;
@@ -503,6 +511,106 @@ button, a, [role="button"], label[for] {
   50%      { opacity: .7; transform: scaleX(1); transform-origin: left; }
 }
 
+/* ── Vitality: restrained ambient + interaction motion ──────────────────
+   Fixed-count, fixed-position, fixed-duration only. No JS timers spawning
+   nodes. Each effect is a deliberate, singular touch — not a decoration
+   pile-up (see the desktop aesthetic audit this replaces). */
+
+/* Hero photo grid — respond to hover instead of sitting inert. */
+.hu-hero-photo-cell:hover img {
+  transform: scale(1.045);
+  filter: brightness(1.08);
+}
+
+/* Gold motes — fixed particles drifting up the hero's dark panel. */
+.hu-mote {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(240,216,158,1), rgba(196,160,56,.2) 70%);
+  box-shadow: 0 0 6px rgba(232,206,140,.5);
+  pointer-events: none;
+  z-index: 1;
+  animation: hu-moteRise linear infinite;
+}
+@keyframes hu-moteRise {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  12%  { opacity: .7; }
+  85%  { opacity: .3; }
+  100% { transform: translateY(-280px) translateX(var(--hu-mote-dx, 0)); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hu-mote { display: none; }
+}
+
+/* Breathing stat numbers — pure scale. A text-shadow glow was here, but the
+   ribbon's background is light cream: a warm-gold glow on a warm-cream
+   ground has no visible contrast, so it was cut rather than kept for show. */
+@keyframes hu-numBreathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.06); }
+}
+.hu-num-breathe {
+  display: inline-block;
+  animation: hu-numBreathe 5s ease-in-out infinite;
+}
+
+/* Card reveal shimmer — plays once when ScrollRevealSection fires. */
+@keyframes hu-shimmerSweep {
+  from { transform: skewX(-14deg) translateX(-170%); }
+  to   { transform: skewX(-14deg) translateX(270%); }
+}
+.hu-shimmer-sweep {
+  position: absolute;
+  inset: 0;
+  width: 85%;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,247,222,.8), transparent);
+  animation: hu-shimmerSweep 1.1s ease-out both;
+}
+
+/* CTA click ripple — interaction-triggered, not ambient. */
+@keyframes hu-rippleExpand {
+  to { transform: scale(1); opacity: 0; }
+}
+.hu-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,.7);
+  transform: scale(0);
+  pointer-events: none;
+  animation: hu-rippleExpand .75s ease-out forwards;
+}
+.btn-cta-ghost .hu-ripple { background: rgba(196,160,56,.55); }
+
+/* Time-aware hero light — daypart swaps the base gradient stops under the
+   existing hu-heroGlow position-shift animation. Desktop-only: the mobile
+   hero uses a flat --charcoal background by design (see max-width:1023px
+   block below) and this must not out-specificity that. */
+@media (min-width: 1024px) {
+  .hu-perfect-hero[data-daypart="morning"] {
+    background:
+      radial-gradient(ellipse 72% 58% at 12% 48%, rgba(168,196,232,.22), transparent 66%),
+      radial-gradient(ellipse 55% 48% at 82% 72%, rgba(91,110,140,.32), transparent 68%),
+      #10151A;
+  }
+  .hu-perfect-hero[data-daypart="afternoon"] {
+    background:
+      radial-gradient(ellipse 72% 58% at 12% 48%, rgba(196,160,56,.26), transparent 66%),
+      radial-gradient(ellipse 55% 48% at 82% 72%, rgba(91,52,16,.4), transparent 68%),
+      #1C1008;
+  }
+  .hu-perfect-hero[data-daypart="night"] {
+    background:
+      radial-gradient(ellipse 72% 58% at 12% 48%, rgba(196,160,56,.16), transparent 66%),
+      radial-gradient(ellipse 55% 48% at 82% 72%, rgba(60,36,12,.38), transparent 68%),
+      #0D0704;
+  }
+  .hu-perfect-hero[data-daypart] {
+    background-size: 160% 160%, 160% 160%, auto;
+    transition: background 1.4s ease;
+  }
+}
+
 /* Feature strip hover — gold top-line reveal */
 .hu-f-cell {
   position: relative;
@@ -549,42 +657,6 @@ button, a, [role="button"], label[for] {
   isolation: isolate;
   overflow: clip;
 }
-.hu-home-page::before,
-.hu-home-page::after {
-  content: '';
-  position: fixed;
-  z-index: -1;
-  width: 48vw;
-  height: 48vw;
-  border-radius: 50%;
-  pointer-events: none;
-  filter: blur(34px);
-  opacity: .17;
-  mix-blend-mode: multiply;
-  animation: hu-ambientDrift 22s ease-in-out infinite alternate;
-}
-.hu-home-page::before {
-  top: 12vh;
-  left: -24vw;
-  background: radial-gradient(circle, rgba(196,160,56,.38), transparent 68%);
-}
-.hu-home-page::after {
-  right: -22vw;
-  bottom: 8vh;
-  background: radial-gradient(circle, rgba(122,106,80,.32), transparent 68%);
-  display: none;
-}
-@keyframes hu-ambientDrift {
-  0% { transform: translate3d(0, 0, 0) scale(.92); }
-  50% { transform: translate3d(5vw, 3vh, 0) scale(1.08); }
-  100% { transform: translate3d(-2vw, -4vh, 0) scale(.98); }
-}
-.hu-stats-ribbon > div:nth-child(2n) { animation: hu-softLift 7s ease-in-out infinite; }
-.hu-stats-ribbon > div:nth-child(3n) { animation: hu-softLift 8s ease-in-out -2s infinite; }
-@keyframes hu-softLift {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-3px); }
-}
 .hu-feature-ribbon .hu-f-cell { overflow: hidden; }
 .hu-feature-ribbon .hu-f-cell::before {
   content: '';
@@ -604,18 +676,6 @@ button, a, [role="button"], label[for] {
   background-image: linear-gradient(180deg, rgba(255,255,255,.08), transparent 24%, rgba(196,160,56,.025)) !important;
   background-blend-mode: soft-light;
   border-color: rgba(196,160,56,.18) !important;
-}
-.hu-home-page > section:not(.hu-perfect-hero)::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -35%;
-  width: 28%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(196,160,56,.5), transparent);
-  opacity: .35;
-  animation: hu-sectionSweep 18s ease-in-out infinite;
-  pointer-events: none;
 }
 @keyframes hu-sectionSweep {
   0%, 30% { transform: translateX(0); opacity: 0; }
@@ -766,7 +826,11 @@ button, a, [role="button"], label[for] {
     mix-blend-mode: screen;
     opacity: .8;
     transform: rotate(-13deg);
-    animation: hu-organicMorph 16s ease-in-out infinite alternate;
+    transition: opacity .5s ease;
+  }
+  /* Reacts to presence instead of animating forever — hover the photo side. */
+  .hu-perfect-hero > [data-hp="photo"]:hover > .hu-organic-orb {
+    animation: hu-organicMorph 6s ease-in-out infinite alternate;
   }
   .hu-perfect-hero > [data-hp="photo"] > .hu-organic-orb::after {
     content: '';
@@ -778,7 +842,6 @@ button, a, [role="button"], label[for] {
     border-radius: 48% 52% 60% 40% / 55% 42% 58% 45%;
     border: 1px solid rgba(245,224,164,.18);
     background: rgba(245,224,164,.05);
-    animation: hu-organicOrbit 11s ease-in-out infinite;
   }
   .hu-perfect-hero > [data-hp="photo"]::before {
     content: '';

@@ -44,7 +44,7 @@ export default async function AvailabilityPage() {
       </section>
 
       {/* Calendar */}
-      <section className="py-16" style={{ background: 'var(--card-bg)' }}>
+      <section className="py-[var(--section-py)]" style={{ background: 'var(--card-bg)' }}>
         <div className="container-narrow">
           {venue ? (
             <AvailabilityCalendar venueId={venue.id} />
@@ -58,7 +58,7 @@ export default async function AvailabilityPage() {
 
       {/* CTA */}
       <section
-        className="py-12 md:py-14"
+        className="py-[var(--section-py)]"
         style={{ background: 'var(--cream)', borderTop: '1px solid var(--border-color)' }}
       >
         <div className="container-narrow text-center">

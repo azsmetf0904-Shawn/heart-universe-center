@@ -8,6 +8,7 @@ import { MobileBottomCTA } from '@/components/MobileBottomCTA'
 import { ScrollRevealSection } from '@/components/ScrollRevealSection'
 import { MobileAvailabilityStrip } from '@/components/MobileAvailabilityStrip'
 import { HeroEffects } from '@/components/HeroEffects'
+import { TimeAwareHero } from '@/components/TimeAwareHero'
 import { TiltCard } from '@/components/TiltCard'
 import { MagneticButton } from '@/components/MagneticButton'
 
@@ -26,14 +27,16 @@ export const metadata: Metadata = {
 }
 
 // ── Design tokens ─────────────────────────────────────────────────────────────
-const W    = '#FDFAF6'   // near-white warm
-const ST   = '#F2EAE0'   // stone
-const ST2  = '#EAE0D2'   // stone 2
-const ST3  = '#E0D4C4'   // stone 3
-const BD   = '#D4C4B0'   // border
-const GOLD = '#C4A038'
-const DARK = '#1C1008'
-const GRAY = '#7A6A50'
+// Sourced from app/globals.css :root so the homepage never drifts from the
+// stone/gold palette the rest of the site uses.
+const W    = 'var(--near-white)'
+const ST   = 'var(--cream)'
+const ST2  = 'var(--card-bg)'
+const ST3  = 'var(--cream-deep)'
+const BD   = 'var(--border-color)'
+const GOLD = 'var(--gold)'
+const DARK = 'var(--charcoal)'
+const GRAY = 'var(--gray)'
 
 function formatDate(s: string) {
   return new Date(s).toLocaleDateString('zh-TW', { month: 'long', day: 'numeric', weekday: 'short' })
@@ -56,11 +59,11 @@ export default async function HomePage() {
 function HomeFallback() {
   return (
     <section className="hu-perfect-hero" style={{ minHeight: 'calc(100vh - 64px)' }}>
-      <div className="hu-perfect-left" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '120px 8vw 80px', background: '#1C1008', color: '#fff' }}>
+      <div className="hu-perfect-left" style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', padding: '120px 8vw 80px', background: 'var(--charcoal)', color: '#fff' }}>
         <p className="hu-perfect-eyebrow" style={{ color: 'rgba(196,160,56,.75)', letterSpacing: '.35em', fontSize: 10, marginBottom: 28 }}>Heart Universe · Taipei</p>
         <h1 className="hu-perfect-h1" style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 400, lineHeight: 1.2, marginBottom: 24 }}>
           <span style={{ fontSize: '0.4em', fontWeight: 400, letterSpacing: '.25em', color: 'rgba(196,160,56,.85)', display: 'block', marginBottom: 10 }}>台北 · 松山</span>
-          文化生態圈<br /><span style={{ color: '#C4A038' }}>質感活動</span>場地租借
+          文化生態圈<br /><span style={{ color: 'var(--gold)' }}>質感活動</span>場地租借
         </h1>
         <p style={{ color: 'rgba(237,228,212,.62)', fontSize: 13, lineHeight: 1.9, marginBottom: 36 }}>二手公益 × 文創教室，獨一無二</p>
         <Link href="/rent" className="btn-gold-fill" style={{ alignSelf: 'flex-start', padding: '14px 30px', letterSpacing: '.18em', fontSize: 12 }}>{CTA.home.startRental} <ArrowRight size={14} /></Link>
@@ -136,9 +139,10 @@ async function HomePageContent() {
       {/* ═══════════════════════════════════════════════════════════
           HERO — dark left panel + photo grid right
       ═══════════════════════════════════════════════════════════ */}
-      <section id="hero-section" className="hu-perfect-hero grid md:grid-cols-2" style={{ minHeight: 'calc(100vh - 64px)' }}>
-        {/* Client: particles + parallax */}
+      <section id="hero-section" className="hu-perfect-hero grid md:grid-cols-2" style={{ minHeight: 'calc(100vh - 64px)', position: 'relative' }}>
+        {/* Client: mouse parallax + time-of-day light */}
         <HeroEffects heroId="hero-section" leftId="hero-left" />
+        <TimeAwareHero heroId="hero-section" />
 
         {/* ── Left: dark text panel ── */}
         <div
@@ -171,6 +175,16 @@ async function HomePageContent() {
           {/* Decorative rings */}
           <div className="absolute pointer-events-none" style={{ bottom: -80, right: -80, width: 280, height: 280, borderRadius: '50%', border: '1px solid rgba(176,120,80,.12)' }} />
           <div className="absolute pointer-events-none" style={{ bottom: -40, right: -40, width: 160, height: 160, borderRadius: '50%', border: '1px solid rgba(176,120,80,.10)' }} />
+
+          {/* Gold motes — 6 fixed particles, kept off the centered headline/CTA column */}
+          <div className="hidden md:block" aria-hidden="true">
+            <span className="hu-mote" style={{ left: '6%', bottom: '4%', width: 3, height: 3, animationDuration: '7s', animationDelay: '0s', ['--hu-mote-dx' as string]: '14px' }} />
+            <span className="hu-mote" style={{ left: '16%', bottom: '16%', width: 4, height: 4, animationDuration: '8.6s', animationDelay: '.9s', ['--hu-mote-dx' as string]: '-16px' }} />
+            <span className="hu-mote" style={{ left: '25%', bottom: '2%', width: 3, height: 3, animationDuration: '9s', animationDelay: '1.4s', ['--hu-mote-dx' as string]: '-18px' }} />
+            <span className="hu-mote" style={{ left: '75%', bottom: '4%', width: 3.5, height: 3.5, animationDuration: '8.2s', animationDelay: '2.2s', ['--hu-mote-dx' as string]: '-12px' }} />
+            <span className="hu-mote" style={{ left: '85%', bottom: '18%', width: 3, height: 3, animationDuration: '7.2s', animationDelay: '4.4s', ['--hu-mote-dx' as string]: '18px' }} />
+            <span className="hu-mote" style={{ left: '94%', bottom: '8%', width: 4, height: 4, animationDuration: '7.6s', animationDelay: '3s', ['--hu-mote-dx' as string]: '16px' }} />
+          </div>
 
           {/* Logo */}
           <Image
@@ -219,8 +233,8 @@ async function HomePageContent() {
             <Link href="/rent" className="btn-gold-fill text-xs tracking-widest px-8 py-3">
               {CTA.home.startRental}
             </Link>
-            <Link href="/venues" className="text-xs tracking-widest px-6 py-3 transition-colors"
-              style={{ border: '1px solid rgba(244,239,230,.18)', color: 'rgba(244,239,230,.55)', display: 'inline-flex', alignItems: 'center' }}>
+            <Link href="/venues" className="text-[11px] tracking-widest px-5 py-3 transition-colors"
+              style={{ border: '1px solid rgba(244,239,230,.14)', color: 'rgba(244,239,230,.4)', display: 'inline-flex', alignItems: 'center' }}>
               {CTA.home.viewVenuePhotos}
             </Link>
           </div>
@@ -232,12 +246,12 @@ async function HomePageContent() {
           className="hidden md:grid"
           style={{ gridTemplateRows: '2fr 1fr', gridTemplateColumns: 'repeat(3,1fr)' }}
         >
-          <div className="relative col-span-3 overflow-hidden" style={{ background: 'var(--surface)' }}>
+          <div className="hu-hero-photo-cell relative col-span-3 overflow-hidden" style={{ background: 'var(--surface)' }}>
             <Image
               src="/home-hero/event-family-day-1.jpg"
               alt="心宇宙商務中心親子日活動現場"
               fill className="object-cover" sizes="(min-width: 1024px) 58vw, 100vw" quality={95} priority
-              style={{ objectPosition: 'center center' }}
+              style={{ objectPosition: 'center center', transition: 'transform .6s ease, filter .6s ease' }}
             />
             <div className="absolute bottom-0 left-0 right-0 px-5 py-3"
               style={{ background: 'linear-gradient(to top, rgba(26,16,8,.72), transparent)' }}>
@@ -252,52 +266,50 @@ async function HomePageContent() {
             { src: '/home-hero/event-family-day-3.jpg', alt: '親子日活動互動現場' },
             { src: '/home-hero/event-family-day-4.jpg', alt: '心宇宙活動講者分享現場' },
           ].map(photo => (
-            <div key={photo.src} className="relative overflow-hidden" style={{ background: '#b8b4b0' }}>
+            <div key={photo.src} className="hu-hero-photo-cell relative overflow-hidden" style={{ background: '#b8b4b0' }}>
               <Image src={photo.src} alt={photo.alt} fill className="object-cover" sizes="17vw"
-                style={{ objectPosition: 'center center' }} />
+                style={{ objectPosition: 'center center', transition: 'transform .6s ease, filter .6s ease' }} />
             </div>
           ))}
         </div>
+
+        {/* Soft shadow lip — settles the hero into the stats ribbon below */}
+        <div className="absolute bottom-0 left-0 right-0 pointer-events-none hidden md:block" style={{ height: 56, background: 'linear-gradient(to bottom, transparent, rgba(10,6,2,.3))', zIndex: 6 }} />
       </section>
 
       {/* ═══════════════════════════════════════════════════════════
-          STATS RIBBON — 3 stats, animated gradient
+          TRUST BAR — stats row + feature row, one shared frame
+          (previously two separately-bordered 3-col grids of the
+          same shape stacked back to back right after the hero)
       ═══════════════════════════════════════════════════════════ */}
-      <div className="hu-stats-ribbon grid grid-cols-3" style={{
-        background: `linear-gradient(90deg, ${W}, #F8F2EA, ${W})`,
-        backgroundSize: '200% 100%',
-        animation: 'hu-gradShift 8s ease-in-out infinite',
-        borderBottom: `1px solid ${BD}`,
-      }}>
-        {([
-          { n: '150', u: '人', l: '最大容納' },
-          { n: '15K', u: '起', l: '平日場租' },
-          { n: '3H',  u: '',   l: '每時段' },
-        ] as const).map((s, i) => (
-          <ScrollRevealSection key={s.l} delay={i * 80}>
-            <div className="py-8 md:py-10 text-center cursor-default" style={{ borderRight: i < 2 ? `1px solid ${BD}` : 'none' }}>
-              <div style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 'clamp(28px,3.5vw,44px)', fontWeight: 300, color: GOLD, lineHeight: 1 }}>
-                {s.n}<span style={{ fontSize: 13, color: GRAY, marginLeft: 2 }}>{s.u}</span>
+      <div style={{ background: ST, borderBottom: `1px solid ${BD}` }}>
+        <div className="hu-stats-ribbon grid grid-cols-3">
+          {([
+            { n: '150', u: '人', l: '最大容納' },
+            { n: '15K', u: '起', l: '平日場租' },
+            { n: '3H',  u: '',   l: '每時段' },
+          ] as const).map((s, i) => (
+            <ScrollRevealSection key={s.l} delay={i * 80}>
+              <div className="py-8 md:py-10 text-center cursor-default" style={{ borderRight: i < 2 ? `1px solid ${BD}` : 'none' }}>
+                <div
+                  className="hu-num-breathe"
+                  style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 'clamp(28px,3.5vw,44px)', fontWeight: 300, color: GOLD, lineHeight: 1, animationDelay: `${i * -1.6}s` }}
+                >
+                  {s.n}<span style={{ fontSize: 13, color: GRAY, marginLeft: 2 }}>{s.u}</span>
+                </div>
+                <div style={{ fontSize: 9, letterSpacing: '.28em', color: GRAY, marginTop: 10, textTransform: 'uppercase' }}>{s.l}</div>
               </div>
-              <div style={{ fontSize: 9, letterSpacing: '.28em', color: GRAY, marginTop: 10, textTransform: 'uppercase' }}>{s.l}</div>
-            </div>
-          </ScrollRevealSection>
-        ))}
-      </div>
+            </ScrollRevealSection>
+          ))}
+        </div>
 
-      {/* ═══════════════════════════════════════════════════════════
-          FEATURE STRIP — 3 cols, hover gold top-line
-      ═══════════════════════════════════════════════════════════ */}
-      <div className="hu-feature-ribbon grid" style={{ background: BD, gap: 1, gridTemplateColumns: 'repeat(1,1fr)' }}
-           // on md: 3 cols via inline override applied below
-      >
-        <div className="grid grid-cols-1 md:grid-cols-3" style={{ background: BD, gap: 1 }}>
+        <div className="hu-feature-ribbon grid grid-cols-1 md:grid-cols-3" style={{ borderTop: `1px solid ${BD}`, gap: 1, background: BD }}>
           {[
             { label: 'Location',  title: '捷運步行可達',   desc: '小巨蛋站 3 號出口 · 國父紀念館站 1 號出口，步行約 10 分鐘，鄰近停車場。' },
             { label: 'Capacity',  title: '彈性座位配置',   desc: '劇院型 · 島嶼式 100–150 人，桌椅自由調整，支援多種活動動線規劃。' },
             { label: 'Equipment', title: '高規格視聽設備', desc: '雷射投影機 · Sure 無線麥克風 × 4 · 專業音響系統，全數含於場租費用。' },
           ].map((f, i) => (
-            <ScrollRevealSection key={f.title} delay={i * 130}>
+            <ScrollRevealSection key={f.title} delay={i * 130} shimmer>
               <div className="hu-f-cell h-full" style={{ padding: '52px 44px', background: ST }}>
                 <div style={{ fontSize: 9, letterSpacing: '.45em', color: GOLD, textTransform: 'uppercase', marginBottom: 18 }}>{f.label}</div>
                 <h3 style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 20, color: DARK, marginBottom: 14, fontWeight: 500 }}>{f.title}</h3>
@@ -315,7 +327,7 @@ async function HomePageContent() {
           VENUE — editorial 55/45
       ═══════════════════════════════════════════════════════════ */}
       <ScrollRevealSection>
-      <section style={{ padding: '108px 0', background: W, borderBottom: `1px solid ${BD}` }}>
+      <section style={{ padding: '96px 0', background: ST2, borderBottom: `1px solid ${BD}` }}>
         <div className="container-wide">
           {/* Section header */}
           <div className="flex items-end justify-between mb-16">
@@ -388,6 +400,37 @@ async function HomePageContent() {
               </div>
             )
           })() : null}
+
+          {/* Other venues — "精品場地空間" is plural; the editorial card above
+              only ever showed one, so surface the rest at a glance. */}
+          {venues && venues.length > 1 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+              {venues.slice(1, 3).map(v => {
+                const photos = v.venue_photos as VenuePhoto[] | null
+                const cover = photos?.sort((a, b) => a.sort_order - b.sort_order)[0]?.image_url
+                return (
+                  <Link key={v.id} href={`/venues/${v.slug}`}
+                    className="group relative flex items-center gap-5 overflow-hidden"
+                    style={{ border: `1px solid ${BD}`, background: W, padding: '18px 22px', textDecoration: 'none' }}>
+                    <div className="relative overflow-hidden shrink-0" style={{ width: 84, height: 64, background: DARK }}>
+                      {cover ? (
+                        <Image src={cover} alt={v.name} fill className="object-cover transition-transform duration-500 group-hover:scale-105" sizes="84px" />
+                      ) : (
+                        <div className="absolute inset-0" style={{ background: 'linear-gradient(160deg, #2E1C0C 0%, #1A0E06 60%)' }} />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <h4 style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 15, color: DARK, marginBottom: 4 }}>{v.name}</h4>
+                      <p style={{ fontSize: 10.5, color: GRAY, letterSpacing: '.04em' }}>
+                        最多 {v.capacity ?? '—'} 人{v.area_ping ? ` · ${v.area_ping} 坪` : ''}
+                      </p>
+                    </div>
+                    <ArrowRight size={13} className="ml-auto shrink-0 transition-transform group-hover:translate-x-1" style={{ color: GOLD }} />
+                  </Link>
+                )
+              })}
+            </div>
+          )}
         </div>
       </section>
       </ScrollRevealSection>
@@ -397,7 +440,7 @@ async function HomePageContent() {
       ═══════════════════════════════════════════════════════════ */}
       {showcaseEvents && showcaseEvents.length > 0 && (
         <ScrollRevealSection>
-        <section style={{ padding: '108px 0', background: ST2, borderBottom: `1px solid ${BD}` }}>
+        <section style={{ padding: '96px 0', background: ST, borderBottom: `1px solid ${BD}` }}>
           <div className="container-wide">
             <div className="flex items-end justify-between mb-16">
               <div>
@@ -459,10 +502,11 @@ async function HomePageContent() {
       )}
 
       {/* ═══════════════════════════════════════════════════════════
-          EVENTS — 3-col cards with large date + 3D tilt
+          EVENTS — upcoming (primary) + past (secondary, folded into
+          the same section instead of a duplicate full-width block)
       ═══════════════════════════════════════════════════════════ */}
       <ScrollRevealSection>
-      <section style={{ padding: '108px 0', background: W, borderBottom: `1px solid ${BD}` }}>
+      <section style={{ padding: '96px 0', background: ST2, borderBottom: `1px solid ${BD}` }}>
         <div className="container-wide">
           <div className="flex items-end justify-between mb-16">
             <div>
@@ -503,55 +547,39 @@ async function HomePageContent() {
           ) : (
             <div className="py-16 text-center text-sm" style={{ color: GRAY }}>近期暫無活動，請持續關注</div>
           )}
-        </div>
-      </section>
-      </ScrollRevealSection>
 
-      {/* ═══════════════════════════════════════════════════════════
-          PAST EVENTS — stone bg, white cards + 3D tilt
-      ═══════════════════════════════════════════════════════════ */}
-      {pastEvents && pastEvents.length > 0 && (
-        <ScrollRevealSection>
-        <section style={{ padding: '108px 0', background: ST, borderBottom: `1px solid ${BD}` }}>
-          <div className="container-wide">
-            <div className="flex items-end justify-between mb-16">
-              <div>
-                <p style={{ fontSize: 9, letterSpacing: '.5em', color: GOLD, textTransform: 'uppercase', marginBottom: 14 }}>Past Events</p>
-                <h2 style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 'clamp(30px,3vw,44px)', fontWeight: 400, color: DARK }}>精彩活動回顧</h2>
-              </div>
-              <Link href="/events" style={{ fontSize: 10, letterSpacing: '.2em', color: GRAY, textDecoration: 'none', borderBottom: `1px solid ${BD}`, paddingBottom: 2 }}>
-                {CTA.home.viewAll} <ArrowRight size={11} style={{ display: 'inline', verticalAlign: 'middle' }} />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {pastEvents.map(ev => (
-                <TiltCard key={ev.id} intensity={5} style={{ background: W, border: `1px solid ${BD}`, overflow: 'hidden' }}>
-                  <Link href={`/events/${ev.slug}`} className="block" style={{ textDecoration: 'none' }}>
-                    <div className="relative overflow-hidden" style={{ aspectRatio: '16/9', background: DARK }}>
+          {/* Past events — a quieter sub-row, not a duplicate section of
+              equal weight. Smaller cards, no date/price treatment. */}
+          {pastEvents && pastEvents.length > 0 && (
+            <div style={{ marginTop: 32, paddingTop: 24, borderTop: `1px solid ${BD}` }}>
+              <p style={{ fontSize: 9, letterSpacing: '.4em', color: GRAY, textTransform: 'uppercase', marginBottom: 20 }}>精彩活動回顧</p>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                {pastEvents.map(ev => (
+                  <Link key={ev.id} href={`/events/${ev.slug}`} className="group flex items-center gap-3" style={{ textDecoration: 'none' }}>
+                    <div className="relative overflow-hidden shrink-0" style={{ width: 72, aspectRatio: '4/3', background: DARK }}>
                       <Image
                         src={ev.cover_image_url!}
                         alt={ev.title}
                         fill
-                        className="object-cover"
-                        sizes="(max-width: 768px) 100vw, 33vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-105"
+                        sizes="72px"
                       />
-                      <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, rgba(10,6,2,.5) 0%, transparent 45%)' }} />
                     </div>
-                    <div style={{ padding: '22px 26px 28px' }}>
-                      <h3 style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 15, color: DARK, marginBottom: 8, lineHeight: 1.48, fontWeight: 500 }}>{ev.title}</h3>
-                      <p style={{ fontSize: 10, color: GRAY, letterSpacing: '.07em' }}>
-                        {new Date(ev.start_time).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long', day: 'numeric' })}
+                    <div className="min-w-0">
+                      <h4 style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 13, color: DARK, marginBottom: 3, lineHeight: 1.4 }}>{ev.title}</h4>
+                      <p style={{ fontSize: 10, color: GRAY, letterSpacing: '.05em' }}>
+                        {new Date(ev.start_time).toLocaleDateString('zh-TW', { year: 'numeric', month: 'long' })}
                         {ev.organizer_name && <> · {ev.organizer_name}</>}
                       </p>
                     </div>
                   </Link>
-                </TiltCard>
-              ))}
+                ))}
+              </div>
             </div>
-          </div>
-        </section>
-        </ScrollRevealSection>
-      )}
+          )}
+        </div>
+      </section>
+      </ScrollRevealSection>
 
       {/* ═══════════════════════════════════════════════════════════
           CHARITY — unchanged dark section
@@ -567,7 +595,7 @@ async function HomePageContent() {
             </div>
             <div className="px-8 py-14 md:px-14 md:py-20">
               <div className="flex items-center gap-4 mb-6">
-                <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0" style={{ background: '#f5ede4' }}>
+                <div className="relative w-14 h-14 rounded-full overflow-hidden shrink-0" style={{ background: 'var(--cream)' }}>
                   <Image src="/charity/logo.jpg" alt="台灣愛物王公益協會" fill className="object-cover" sizes="56px" />
                 </div>
                 <p className="text-[10px] tracking-[0.45em] uppercase" style={{ color: 'rgba(196,160,56,.75)' }}>
@@ -598,7 +626,7 @@ async function HomePageContent() {
           MANIFESTO — 2-col with organic blob
       ═══════════════════════════════════════════════════════════ */}
       <ScrollRevealSection>
-      <section style={{ padding: '120px 0', background: ST3, borderBottom: `1px solid ${BD}` }}>
+      <section style={{ padding: '96px 0', background: ST, borderBottom: `1px solid ${BD}` }}>
         <div className="container-wide">
           <div className="grid grid-cols-1 md:grid-cols-2 items-center gap-12 md:gap-24">
             {/* Left: copy */}
@@ -637,14 +665,6 @@ async function HomePageContent() {
                 overflow: 'hidden',
                 background: 'rgba(253,250,246,.65)',
               }}>
-                {/* Decorative "心" */}
-                <div aria-hidden style={{
-                  position: 'absolute', bottom: -40, right: -16,
-                  fontFamily: 'Noto Serif TC, serif',
-                  fontSize: 220, fontWeight: 300,
-                  color: 'rgba(196,160,56,.07)', lineHeight: 1,
-                  pointerEvents: 'none', userSelect: 'none',
-                }}>心</div>
                 {/* Top gold accent line */}
                 <div style={{ position: 'absolute', top: 0, left: 52, right: 52, height: 1, background: `linear-gradient(90deg, ${GOLD}, transparent)`, opacity: .45 }} />
                 <p style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 20, fontWeight: 300, color: '#2C1E12', lineHeight: 2.1, letterSpacing: '.12em', marginBottom: 32 }}>
@@ -664,7 +684,7 @@ async function HomePageContent() {
           CTA — stone2 bg, halo breath, magnetic button
       ═══════════════════════════════════════════════════════════ */}
       <ScrollRevealSection>
-      <section style={{ padding: '140px 0', background: ST2, borderTop: `1px solid ${BD}`, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <section style={{ padding: '128px 0', background: ST2, borderTop: `1px solid ${BD}`, textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         {/* Halo */}
         <div aria-hidden style={{
           position: 'absolute', top: '50%', left: '50%',

@@ -688,7 +688,7 @@ function RentForm() {
         )}
 
         {/* Progress bar */}
-        <div className="mt-8 mb-8 rounded-2xl border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-4 md:px-6">
+        <div className="mt-8 mb-8 rounded-lg border border-[var(--border-color)] bg-[var(--card-bg)] px-4 py-4 md:px-6">
           <div className="hidden md:grid grid-cols-3 gap-3">
             {[
               { n: 1, label: '基本資料' },

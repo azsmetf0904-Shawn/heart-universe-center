@@ -251,7 +251,7 @@ export function AvailabilityCalendar({ venueId }: Props) {
             })}
           </div>
 
-          <div className="mt-4 rounded-xl border border-[var(--border-color)] bg-[var(--surface)] p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div className="mt-4 rounded-lg border border-[var(--border-color)] bg-[var(--surface)] p-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-[10px] tracking-[0.3em]" style={{ color: 'var(--gold)' }}>
                 {activeDateLabel} 已選取
