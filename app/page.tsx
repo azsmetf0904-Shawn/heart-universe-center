@@ -282,7 +282,7 @@ async function HomePageContent() {
           (previously two separately-bordered 3-col grids of the
           same shape stacked back to back right after the hero)
       ═══════════════════════════════════════════════════════════ */}
-      <div style={{ background: ST, borderBottom: `1px solid ${BD}` }}>
+      <div className="hu-diagonal-seam" style={{ background: ST, borderBottom: `1px solid ${BD}` }}>
         <div className="hu-stats-ribbon grid grid-cols-3">
           {([
             { n: '150', u: '人', l: '最大容納' },
@@ -310,7 +310,7 @@ async function HomePageContent() {
             { label: 'Equipment', title: '高規格視聽設備', desc: '雷射投影機 · Sure 無線麥克風 × 4 · 專業音響系統，全數含於場租費用。' },
           ].map((f, i) => (
             <ScrollRevealSection key={f.title} delay={i * 130} shimmer>
-              <div className="hu-f-cell h-full" style={{ padding: '52px 44px', background: ST }}>
+              <div className="hu-f-cell hu-clip-corner h-full" style={{ padding: '52px 44px', background: ST }}>
                 <div style={{ fontSize: 9, letterSpacing: '.45em', color: GOLD, textTransform: 'uppercase', marginBottom: 18 }}>{f.label}</div>
                 <h3 style={{ fontFamily: 'Noto Serif TC, serif', fontSize: 20, color: DARK, marginBottom: 14, fontWeight: 500 }}>{f.title}</h3>
                 <p style={{ fontSize: 12, color: GRAY, lineHeight: 2.05, letterSpacing: '.04em' }}>{f.desc}</p>
@@ -410,7 +410,7 @@ async function HomePageContent() {
                 const cover = photos?.sort((a, b) => a.sort_order - b.sort_order)[0]?.image_url
                 return (
                   <Link key={v.id} href={`/venues/${v.slug}`}
-                    className="group relative flex items-center gap-5 overflow-hidden"
+                    className="hu-clip-corner group relative flex items-center gap-5 overflow-hidden"
                     style={{ border: `1px solid ${BD}`, background: W, padding: '18px 22px', textDecoration: 'none' }}>
                     <div className="relative overflow-hidden shrink-0" style={{ width: 84, height: 64, background: DARK }}>
                       {cover ? (
@@ -658,7 +658,7 @@ async function HomePageContent() {
                 top: -30, left: -30,
               }} />
               {/* Quote card */}
-              <div style={{
+              <div className="hu-corner-bracket" style={{
                 border: `1px solid ${ST3}`,
                 padding: '52px 52px 48px',
                 position: 'relative',

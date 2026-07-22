@@ -868,6 +868,52 @@ button, a, [role="button"], label[for] {
     background: var(--gold);
     animation: hu-lineBreath 4.5s ease-in-out infinite;
   }
+
+  /* Edge-treatment demo — extends the hero's own diagonal clip-path
+     language to a real section boundary instead of stopping at the
+     hero. Same shallow angle as #hero-left's 88%-100% cut. */
+  .hu-diagonal-seam {
+    position: relative;
+    z-index: 2;
+    margin-top: -32px;
+    clip-path: polygon(0 32px, 100% 0, 100% 100%, 0 100%);
+  }
+
+  /* Single clipped corner — a boutique "cut stone" detail, used in
+     place of border-radius so it reads as precision-cut rather than
+     softened. */
+  .hu-clip-corner {
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 22px), calc(100% - 22px) 100%, 0 100%);
+  }
+
+  /* Gold corner bracket — the same L-shaped mark used at the top-left
+     and bottom-left of #hero-left, reused as a recurring signature
+     rather than a one-off hero flourish. */
+  .hu-corner-bracket {
+    position: relative;
+  }
+  .hu-corner-bracket::before,
+  .hu-corner-bracket::after {
+    content: '';
+    position: absolute;
+    pointer-events: none;
+  }
+  .hu-corner-bracket::before {
+    top: 14px;
+    left: 14px;
+    width: 28px;
+    height: 28px;
+    border-top: 1px solid rgba(196,160,56,.5);
+    border-left: 1px solid rgba(196,160,56,.5);
+  }
+  .hu-corner-bracket::after {
+    bottom: 14px;
+    right: 14px;
+    width: 28px;
+    height: 28px;
+    border-bottom: 1px solid rgba(196,160,56,.5);
+    border-right: 1px solid rgba(196,160,56,.5);
+  }
 }
 
 /* Tablet and mobile: keep the Hero whole, calm, and readable. */
