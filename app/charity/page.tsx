@@ -249,6 +249,25 @@ export default function CharityPage() {
         </div>
       </section>
 
+      {/* ── VIDEO ── */}
+      <section className="hu-charity-video py-4 md:py-8">
+        <div className="container-narrow px-6">
+          <p className="text-xs tracking-[0.35em] uppercase mb-5" style={{ color: 'var(--gold)' }}>Our Story</p>
+          <h2 className="text-2xl md:text-3xl leading-snug mb-8">看看愛物王，<br />實際上在做什麼</h2>
+          <div className="relative overflow-hidden rounded-2xl" style={{ background: '#000' }}>
+            <video
+              controls
+              preload="none"
+              poster="/charity/video/poster.jpg"
+              className="w-full h-auto block"
+              style={{ aspectRatio: '16/9' }}
+            >
+              <source src="/charity/video/love-secondhand-story.mp4" type="video/mp4" />
+            </video>
+          </div>
+        </div>
+      </section>
+
       {/* ── GALLERY ── */}
       <section className="hu-charity-gallery pb-20">
         <div className="container-wide px-4 md:px-8">
