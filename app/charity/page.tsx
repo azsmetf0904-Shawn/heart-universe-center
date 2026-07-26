@@ -250,7 +250,7 @@ export default function CharityPage() {
       </section>
 
       {/* ── VIDEO ── */}
-      <section className="hu-charity-video py-4 md:py-8">
+      <section className="hu-charity-video py-16 md:py-20">
         <div className="container-narrow px-6">
           <p className="text-xs tracking-[0.35em] uppercase mb-5" style={{ color: 'var(--gold)' }}>Our Story</p>
           <h2 className="text-2xl md:text-3xl leading-snug mb-8">看看愛物王，<br />實際上在做什麼</h2>
