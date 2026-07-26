@@ -120,8 +120,13 @@ const pressLinks = [
     outlet: '三立新聞網 SETN',
     date: '2026-07',
     title: '財富女神股災前出清股票賺進7位數　王宥忻曝今年公益目標捐500萬元',
-    quote: '希望大家捐贈的二手物品都能夠持續流通，換成現金，再注入到不同的公益單位，把愛延續下去。',
     href: 'https://www.setn.com/news/1878757',
+  },
+  {
+    outlet: '太報 TaiSounds',
+    date: '2026-04',
+    title: '王宥忻釋出600坪當二手物資基地　離婚又閃婚現況曝光',
+    href: 'https://www.taisounds.com/news/content/107/212801',
   },
 ]
 
