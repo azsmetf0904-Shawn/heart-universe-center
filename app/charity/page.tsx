@@ -115,6 +115,16 @@ const gallery = [
   { src: '/charity/grid-6.jpg', alt: '愛物王服飾陳列區' },
 ]
 
+const pressLinks = [
+  {
+    outlet: '三立新聞網 SETN',
+    date: '2026-07',
+    title: '財富女神股災前出清股票賺進7位數　王宥忻曝今年公益目標捐500萬元',
+    quote: '希望大家捐贈的二手物品都能夠持續流通，換成現金，再注入到不同的公益單位，把愛延續下去。',
+    href: 'https://www.setn.com/news/1878757',
+  },
+]
+
 const steps = [
   {
     num: '01',
@@ -222,6 +232,35 @@ export default function CharityPage() {
               扣除人事與管銷成本，所有收入全數捐出。每一件物品，都在延續它的生命；每一筆消費，都是一份流動的善意。
             </p>
             <div className="gold-divider mt-8" />
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRESS ──
+          Compact list rows, not one big card per item -- this needs to
+          hold up whether there's 1 press mention or 20. */}
+      <section className="hu-charity-press pb-16">
+        <div className="container-narrow px-6 max-w-2xl mx-auto">
+          <div
+            className="rounded-2xl px-6 md:px-8 divide-y"
+            style={{ border: '1.5px solid rgba(196,160,56,0.4)', background: 'rgba(196,160,56,0.09)' }}
+          >
+            <p className="text-xs tracking-[0.35em] uppercase pt-6 md:pt-8 pb-4 font-medium" style={{ color: 'var(--gold)', borderColor: 'rgba(196,160,56,0.22)' }}>媒體報導</p>
+            {pressLinks.map(p => (
+              <div key={p.href} className="py-5" style={{ borderColor: 'rgba(196,160,56,0.22)' }}>
+                <p className="text-xs mb-2" style={{ color: 'var(--gray)' }}>{p.outlet} · {p.date}</p>
+                <a
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-start gap-1.5 text-sm md:text-base font-medium leading-snug hover:underline"
+                  style={{ color: 'var(--charcoal)' }}
+                >
+                  {p.title}
+                  <ExternalLink size={12} className="shrink-0 mt-1" style={{ color: 'var(--gold)' }} />
+                </a>
+              </div>
+            ))}
           </div>
         </div>
       </section>
