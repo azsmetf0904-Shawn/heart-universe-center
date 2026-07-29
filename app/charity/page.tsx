@@ -140,6 +140,48 @@ const pressLinks = [
     title: '王宥忻釋出600坪當二手物資基地　離婚又閃婚現況曝光',
     href: 'https://www.taisounds.com/news/content/107/212801',
   },
+  {
+    outlet: '年代新聞 EraNews',
+    date: '2026-04',
+    title: '五年願景終發芽！王宥忻打造「心宇宙商務中心」與「二手公益店」號召共創愛與成長',
+    href: 'https://www.eracom.com.tw/EraNews/Home/NextEra/2026-04-15/2316939.html',
+  },
+  {
+    outlet: '中時新聞網',
+    date: '2025-09',
+    title: '10億女神王宥忻租600坪黃金地段　做公益推廣共享共好',
+    href: 'https://www.chinatimes.com/realtimenews/20250909002393-260404?chdtv',
+  },
+  {
+    outlet: '壹蘋新聞網',
+    date: '2025-09',
+    title: '10億身家歌手王宥忻出手了　釋出北市八德路600坪黃金地段做公益',
+    href: 'https://news.nextapple.com/entertainment/20250909/DE47866C4AE20170CED6DB3A4B5A63E4',
+  },
+  {
+    outlet: '自由娛樂',
+    date: '2025-09',
+    title: '10億女神不忍了　宣布釋出「北市蛋黃區」600坪地段',
+    href: 'https://ent.ltn.com.tw/news/breakingnews/5171927',
+  },
+  {
+    outlet: 'CNEWS匯流新聞網',
+    date: '2025-09',
+    title: '財富女神打造二手物資平台　王宥忻推廣公益『斷捨離』',
+    href: 'https://cnews.com.tw/ctwant/財富女神打造二手物資平台%E3%80%80王宥忻推廣公益「斷/',
+  },
+  {
+    outlet: '自由娛樂',
+    date: '2021-04',
+    title: '財富女神捐5萬做公益　盼終結「久病無孝子」',
+    href: 'https://ent.ltn.com.tw/news/breakingnews/3489512',
+  },
+  {
+    outlet: '門諾基金會',
+    date: '2020-10',
+    title: '財富女神王宥忻　為獨居老人送餐　捐贈10萬元　挺「送愛偏鄉　好好吃飯」',
+    href: 'https://www.mf.org.tw/contents/news_ct?id=284',
+  },
 ]
 
 const steps = [
@@ -254,35 +296,6 @@ export default function CharityPage() {
         </div>
       </section>
 
-      {/* ── PRESS ──
-          Compact list rows, not one big card per item -- this needs to
-          hold up whether there's 1 press mention or 20. */}
-      <section className="hu-charity-press pb-16">
-        <div className="container-narrow px-6 max-w-2xl mx-auto">
-          <div
-            className="rounded-2xl px-6 md:px-8 divide-y"
-            style={{ border: '1.5px solid rgba(196,160,56,0.4)', background: 'rgba(196,160,56,0.09)' }}
-          >
-            <p className="text-xs tracking-[0.35em] uppercase pt-6 md:pt-8 pb-4 font-medium" style={{ color: 'var(--gold)', borderColor: 'rgba(196,160,56,0.22)' }}>媒體報導</p>
-            {pressLinks.map(p => (
-              <div key={p.href} className="py-5" style={{ borderColor: 'rgba(196,160,56,0.22)' }}>
-                <p className="text-xs mb-2" style={{ color: 'var(--gray)' }}>{p.outlet} · {p.date}</p>
-                <a
-                  href={p.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-start gap-1.5 text-sm md:text-base font-medium leading-snug hover:underline"
-                  style={{ color: 'var(--charcoal)' }}
-                >
-                  {p.title}
-                  <ExternalLink size={12} className="shrink-0 mt-1" style={{ color: 'var(--gold)' }} />
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── DONATION PHILOSOPHY ── */}
       <section className="hu-charity-philosophy py-16 md:py-20">
         <div className="container-narrow px-6">
@@ -342,6 +355,38 @@ export default function CharityPage() {
                   className="object-cover transition-transform duration-500 hover:scale-105"
                   sizes="(max-width: 768px) 50vw, 33vw"
                 />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRESS ──
+          Compact list rows, not one big card per item -- this needs to
+          hold up whether there's 1 press mention or 20. Sits after the
+          emotional narrative (About/Why/Video/Gallery) rather than
+          interrupting it early -- reinforcing credibility right before
+          the practical donate-rules/CTA section, not competing with it. */}
+      <section className="hu-charity-press pb-16">
+        <div className="container-narrow px-6 max-w-2xl mx-auto">
+          <div
+            className="rounded-2xl px-6 md:px-8 divide-y"
+            style={{ border: '1.5px solid rgba(196,160,56,0.4)', background: 'rgba(196,160,56,0.09)' }}
+          >
+            <p className="text-xs tracking-[0.35em] uppercase pt-6 md:pt-8 pb-4 font-medium" style={{ color: 'var(--gold)', borderColor: 'rgba(196,160,56,0.22)' }}>媒體報導</p>
+            {pressLinks.map(p => (
+              <div key={p.href} className="py-5" style={{ borderColor: 'rgba(196,160,56,0.22)' }}>
+                <p className="text-xs mb-2" style={{ color: 'var(--gray)' }}>{p.outlet} · {p.date}</p>
+                <a
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-start gap-1.5 text-sm md:text-base font-medium leading-snug hover:underline"
+                  style={{ color: 'var(--charcoal)' }}
+                >
+                  {p.title}
+                  <ExternalLink size={12} className="shrink-0 mt-1" style={{ color: 'var(--gold)' }} />
+                </a>
               </div>
             ))}
           </div>
