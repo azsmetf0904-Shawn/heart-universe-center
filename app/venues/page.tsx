@@ -3,6 +3,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, Users } from 'lucide-react'
 import type { Metadata } from 'next'
+import { JsonLd } from '@/components/JsonLd'
+import { SITE_URL } from '@/lib/seo'
 
 export const metadata: Metadata = {
   title: '台北松山場地租借｜場地介紹與設備',
@@ -25,8 +27,20 @@ export default async function VenuesPage() {
     .eq('is_active', true)
     .order('created_at')
 
+  const itemListLd = venues?.length ? {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: venues.map((v, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE_URL}/venues/${v.slug}`,
+      name: v.name,
+    })),
+  } : null
+
   return (
     <div className="py-[var(--section-py)]">
+      {itemListLd && <JsonLd data={itemListLd} />}
       <div className="container-narrow mb-16">
         <p className="label-tag mb-4">Venue</p>
         <h1 className="text-4xl md:text-5xl mb-4">台北松山場地租借</h1>

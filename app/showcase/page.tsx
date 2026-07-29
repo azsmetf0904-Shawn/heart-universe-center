@@ -5,10 +5,19 @@ import { ShowcaseClient } from './ShowcaseClient'
 import type { PastEvent } from './ShowcaseClient'
 import { CTA } from '@/lib/cta'
 import PageTabs from '@/components/layout/PageTabs'
+import { JsonLd } from '@/components/JsonLd'
+import { SITE_URL } from '@/lib/seo'
 
 export const metadata: Metadata = {
   title: '活動回顧 | 心宇宙商務中心',
   description: '過去在心宇宙舉辦的活動精彩回顧，企業培訓、工作坊、品牌發表、社群聚會一覽。',
+  alternates: { canonical: '/showcase' },
+  openGraph: {
+    title: '活動回顧｜心宇宙商務中心',
+    description: '過去在心宇宙舉辦的活動精彩回顧，企業培訓、工作坊、品牌發表、社群聚會一覽。',
+    url: '/showcase',
+    type: 'website',
+  },
 }
 
 export default async function ShowcasePage() {
@@ -45,8 +54,22 @@ export default async function ShowcasePage() {
     }))
     .filter((e: PastEvent) => e.cover_image_url || e.event_photos.length > 0)
 
+  const galleryImages = events.flatMap(e =>
+    e.event_photos.length
+      ? e.event_photos.map(p => p.image_url)
+      : e.cover_image_url ? [e.cover_image_url] : []
+  )
+  const imageGalleryLd = galleryImages.length ? {
+    '@context': 'https://schema.org',
+    '@type': 'ImageGallery',
+    name: '心宇宙商務中心 活動回顧',
+    url: `${SITE_URL}/showcase`,
+    image: galleryImages,
+  } : null
+
   return (
     <>
+      {imageGalleryLd && <JsonLd data={imageGalleryLd} />}
       {/* Page header */}
       <section style={{ background: 'var(--cream)', borderBottom: '1px solid var(--border-color)', padding: '80px 0 56px' }}>
         <div className="container-narrow">

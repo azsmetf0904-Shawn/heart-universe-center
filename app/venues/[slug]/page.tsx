@@ -7,8 +7,8 @@ import type { Metadata } from 'next'
 import type { VenuePricing, TimeSlot, LayoutType } from '@/lib/types'
 import { TIME_SLOT_LABEL, LAYOUT_TYPES } from '@/lib/types'
 import { CTA } from '@/lib/cta'
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
+import { JsonLd } from '@/components/JsonLd'
+import { SITE_URL as SITE, HEART_UNIVERSE_ADDRESS } from '@/lib/seo'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -126,14 +126,7 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
     name: venue.name,
     description: venue.description ?? '',
     url: `${SITE}/venues/${slug}`,
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: '八德路三段223號',
-      addressLocality: '松山區',
-      addressRegion: '台北市',
-      postalCode: '105',
-      addressCountry: 'TW',
-    },
+    address: HEART_UNIVERSE_ADDRESS,
     ...(venue.capacity ? { maximumAttendeeCapacity: venue.capacity } : {}),
     ...(venue.area_ping ? { floorSize: { '@type': 'QuantitativeValue', value: venue.area_ping, unitCode: 'ping' } } : {}),
     ...(venue.equipment?.length ? {
@@ -199,14 +192,8 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
 
   return (
     <div className="py-20 pb-32 md:pb-20">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }}
-      />
+      <JsonLd data={jsonLd} />
+      <JsonLd data={faqLd} />
       <div className="container-narrow mb-10">
         <p className="label-tag mb-4">Venue</p>
         <div className="flex items-end gap-4 flex-wrap">

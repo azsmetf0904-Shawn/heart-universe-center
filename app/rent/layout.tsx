@@ -1,4 +1,6 @@
 import type { Metadata } from 'next'
+import { JsonLd } from '@/components/JsonLd'
+import { SITE_URL } from '@/lib/seo'
 
 export const metadata: Metadata = {
   title: '台北企業培訓場地租借｜場地申請',
@@ -13,6 +15,20 @@ export const metadata: Metadata = {
   },
 }
 
+const breadcrumbLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '首頁', item: SITE_URL },
+    { '@type': 'ListItem', position: 2, name: '場地租借申請', item: `${SITE_URL}/rent` },
+  ],
+}
+
 export default function RentLayout({ children }: { children: React.ReactNode }) {
-  return children
+  return (
+    <>
+      <JsonLd data={breadcrumbLd} />
+      {children}
+    </>
+  )
 }

@@ -1,6 +1,5 @@
 import type { MetadataRoute } from 'next'
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
+import { SITE_URL as SITE } from '@/lib/seo'
 
 export default function robots(): MetadataRoute.Robots {
   return {
