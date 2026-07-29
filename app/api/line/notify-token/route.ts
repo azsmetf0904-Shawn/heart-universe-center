@@ -21,7 +21,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ ok: false, error: 'invalid_params' }, { status: 400 })
   }
   const supabase = await createAdminClient()
-  const { data: booking } = await supabase.from('rental_requests').select('id, phone, email').eq('id', bookingId).single()
+  const { data: booking, error: bookingError } = await supabase.from('rental_requests').select('id, phone, email').eq('id', bookingId).single()
+  if (bookingError) console.error('[line/notify-token] booking lookup failed:', bookingError)
   if (!booking) return NextResponse.json({ ok: false, error: 'not_found' }, { status: 404 })
   const value = contact.trim().toLowerCase()
   if ((!value.includes('@') && !phoneVariants(value).has(booking.phone?.replace(/\D/g, ''))) && value !== booking.email?.toLowerCase()) {

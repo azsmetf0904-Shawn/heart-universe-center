@@ -34,11 +34,12 @@ export async function POST(req: NextRequest) {
   const supabase = await createAdminClient()
 
   // Validate the booking exists and is in pending state
-  const { data: booking } = await supabase
+  const { data: booking, error: bookingError } = await supabase
     .from('rental_requests')
     .select('id, status, name, event_title, booking_date, time_slot, phone, email')
     .eq('id', bookingId)
     .single()
+  if (bookingError) console.error('[payment-report] booking lookup failed:', bookingError)
 
   if (!booking) {
     return NextResponse.json({ ok: false, error: 'not_found' }, { status: 404 })
