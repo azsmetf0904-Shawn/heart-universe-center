@@ -140,6 +140,48 @@ const pressLinks = [
     title: '王宥忻釋出600坪當二手物資基地　離婚又閃婚現況曝光',
     href: 'https://www.taisounds.com/news/content/107/212801',
   },
+  {
+    outlet: '年代新聞 EraNews',
+    date: '2026-04',
+    title: '五年願景終發芽！王宥忻打造「心宇宙商務中心」與「二手公益店」號召共創愛與成長',
+    href: 'https://www.eracom.com.tw/EraNews/Home/NextEra/2026-04-15/2316939.html',
+  },
+  {
+    outlet: '中時新聞網',
+    date: '2025-09',
+    title: '10億女神王宥忻租600坪黃金地段　做公益推廣共享共好',
+    href: 'https://www.chinatimes.com/realtimenews/20250909002393-260404?chdtv',
+  },
+  {
+    outlet: '壹蘋新聞網',
+    date: '2025-09',
+    title: '10億身家歌手王宥忻出手了　釋出北市八德路600坪黃金地段做公益',
+    href: 'https://news.nextapple.com/entertainment/20250909/DE47866C4AE20170CED6DB3A4B5A63E4',
+  },
+  {
+    outlet: '自由娛樂',
+    date: '2025-09',
+    title: '10億女神不忍了　宣布釋出「北市蛋黃區」600坪地段',
+    href: 'https://ent.ltn.com.tw/news/breakingnews/5171927',
+  },
+  {
+    outlet: 'CNEWS匯流新聞網',
+    date: '2025-09',
+    title: '財富女神打造二手物資平台　王宥忻推廣公益『斷捨離』',
+    href: 'https://cnews.com.tw/ctwant/財富女神打造二手物資平台%E3%80%80王宥忻推廣公益「斷/',
+  },
+  {
+    outlet: '自由娛樂',
+    date: '2021-04',
+    title: '財富女神捐5萬做公益　盼終結「久病無孝子」',
+    href: 'https://ent.ltn.com.tw/news/breakingnews/3489512',
+  },
+  {
+    outlet: '門諾基金會',
+    date: '2020-10',
+    title: '財富女神王宥忻　為獨居老人送餐　捐贈10萬元　挺「送愛偏鄉　好好吃飯」',
+    href: 'https://www.mf.org.tw/contents/news_ct?id=284',
+  },
 ]
 
 const steps = [
