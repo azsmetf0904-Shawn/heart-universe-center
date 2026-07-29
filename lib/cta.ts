@@ -14,12 +14,10 @@ const nextConfirm = '前往確認'
 const back = '返回上一步'
 const submit = '送出申請'
 const submitting = '送出中…'
-const loginLineThenSubmit = '登入 LINE 後送出'
 const loginLine = 'LINE 登入'
 const retry = '重新嘗試'
-const retryLine = '重新登入 LINE'
 const noticeConnected = '通知接收：LINE 已連結'
-const noticeRequired = '通知接收：需登入 LINE'
+const noticeRequired = '通知接收：建議登入 LINE'
 const joinOfficialLine = '+ 加入官方 LINE'
 const searching = '查詢中…'
 const checkIn = '完成簽到'
@@ -50,10 +48,8 @@ export const CTA = {
     back,
     submit,
     submitting,
-    loginLineThenSubmit,
     loginLine,
     retry,
-    retryLine,
     noticeConnected,
     noticeRequired,
     queryStatus,

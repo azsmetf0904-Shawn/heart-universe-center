@@ -366,14 +366,9 @@ function RentForm() {
   const grouped = groupBy(addons, 'category')
 
   const isHolidayDate = calSel ? isHoliday(calSel.date) : false
-  const lineLoginRequired = Boolean(process.env.NEXT_PUBLIC_LINE_LIFF_ID) && !lineProfile
   const needsFriendGate = Boolean(lineProfile) && lineFriendStatus !== null && lineFriendStatus !== 'friend'
 
   async function handleSubmit({ fromLineLogin = false }: { fromLineLogin?: boolean } = {}) {
-    if (lineLoginRequired) {
-      setSubmitError(`請先登入 LINE 後再${CTA.rental.submit}`)
-      return
-    }
     if (needsFriendGate && !lineFriendConfirmed) {
       setSubmitError('請先加入心宇宙官方帳號好友，勾選確認後再送出。')
       return
@@ -1129,20 +1124,20 @@ function RentForm() {
                 <p className="text-xs text-red-600 leading-relaxed">{submitError}</p>
                 <button
                   type="button"
-                  onClick={lineLoginRequired ? handleLineLogin : () => void handleSubmit()}
+                  onClick={() => void handleSubmit()}
                   className="shrink-0 text-xs px-3 py-1.5 border border-red-200 text-red-700 hover:border-red-300 hover:bg-red-100 transition-colors"
                 >
-                  {lineLoginRequired ? CTA.rental.retryLine : CTA.rental.retry}
+                  {CTA.rental.retry}
                 </button>
               </div>
             )}
             <div className="flex gap-4 pt-1">
               <button onClick={() => setStep(2)} className="flex-1 py-3 border border-[var(--border-color)] text-sm tracking-widest hover:border-[var(--charcoal)] transition-colors">{CTA.rental.back}</button>
               <button
-                onClick={lineLoginRequired ? handleLineLogin : () => void handleSubmit()}
+                onClick={() => void handleSubmit()}
                 disabled={submitting || (needsFriendGate && !lineFriendConfirmed)}
                 className="flex-1 py-3 bg-[var(--gold)] text-white text-sm tracking-widest hover:bg-[var(--gold-dark)] transition-colors disabled:opacity-50">
-                {lineLoginRequired ? CTA.rental.loginLineThenSubmit : (submitting ? CTA.rental.submitting : CTA.rental.submit)}
+                {submitting ? CTA.rental.submitting : CTA.rental.submit}
               </button>
             </div>
           </div>
