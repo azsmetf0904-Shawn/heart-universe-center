@@ -40,7 +40,8 @@ export default async function EventsPage({
 
   if (!isEnded) query = query.gte('start_time', now)
 
-  const { data: events } = await query
+  const { data: events, error } = await query
+  if (error) console.error('[events] list query failed:', error)
 
   return (
     <div className="py-20">

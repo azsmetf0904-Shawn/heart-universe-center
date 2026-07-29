@@ -21,11 +21,12 @@ export default async function CheckInPage({ searchParams }: Props) {
   }
 
   const supabase = await createAdminClient()
-  const { data: reg } = await supabase
+  const { data: reg, error: regError } = await supabase
     .from('event_registrations')
     .select('id, name, checked_in, checked_in_at, status, events(title, start_time)')
     .eq('check_in_token', token)
     .single()
+  if (regError) console.error('[check-in] registration lookup failed:', regError)
 
   if (!reg) {
     return (
@@ -68,11 +69,12 @@ export default async function CheckInPage({ searchParams }: Props) {
   async function doCheckIn() {
     'use server'
     const sb = await createAdminClient()
-    await sb
+    const { error } = await sb
       .from('event_registrations')
       .update({ checked_in: true, checked_in_at: new Date().toISOString() })
       .eq('check_in_token', token!)
       .eq('checked_in', false) // race condition guard
+    if (error) console.error('[check-in] check-in update failed:', error)
     revalidatePath('/check-in')
   }
 
