@@ -12,33 +12,37 @@ export async function POST(req: NextRequest) {
 
   const supabase = await createAdminClient()
 
-  const { data: event } = await supabase
+  const { data: event, error: eventError } = await supabase
     .from('events').select('id').eq('slug', eventSlug).single()
+  if (eventError) console.error('[event-check-in] event lookup failed:', eventError)
   if (!event) return NextResponse.json({ result: 'notfound' })
 
   const q = query.trim()
-  const { data: byPhone } = await supabase
+  const { data: byPhone, error: phoneError } = await supabase
     .from('event_registrations')
     .select('id, name, checked_in, status')
     .eq('event_id', event.id)
     .eq('status', 'registered')
     .eq('phone', q)
     .maybeSingle()
-  const { data: reg } = byPhone ? { data: byPhone } : await supabase
+  if (phoneError) console.error('[event-check-in] phone lookup failed:', phoneError)
+  const { data: reg, error: regError } = byPhone ? { data: byPhone, error: null } : await supabase
     .from('event_registrations')
     .select('id, name, checked_in, status')
     .eq('event_id', event.id)
     .eq('status', 'registered')
     .eq('email', q.toLowerCase())
     .maybeSingle()
+  if (regError) console.error('[event-check-in] email lookup failed:', regError)
 
   if (!reg) return NextResponse.json({ result: 'notfound' })
   if (reg.checked_in) return NextResponse.json({ result: 'already', name: reg.name })
 
-  await supabase
+  const { error: updateError } = await supabase
     .from('event_registrations')
     .update({ checked_in: true, checked_in_at: new Date().toISOString() })
     .eq('id', reg.id)
+  if (updateError) console.error('[event-check-in] check-in update failed:', updateError)
 
   return NextResponse.json({ result: 'success', name: reg.name })
 }

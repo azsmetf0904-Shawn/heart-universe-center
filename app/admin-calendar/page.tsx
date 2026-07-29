@@ -63,7 +63,7 @@ export default async function AdminCalendarPage({
   const endDate = `${year}-${String(month).padStart(2, '0')}-${String(daysInMonth).padStart(2, '0')}`
 
   const supabase = await createAdminClient()
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from('rental_requests')
     .select('id, name, phone, event_title, booking_date, time_slot, time_slots, status')
     .gte('booking_date', startDate)
@@ -71,6 +71,7 @@ export default async function AdminCalendarPage({
     .neq('status', 'cancelled')
     .order('booking_date')
     .order('time_slot')
+  if (error) console.error('[admin-calendar] bookings query failed:', error)
 
   const bookings: Booking[] = (data ?? []) as Booking[]
 

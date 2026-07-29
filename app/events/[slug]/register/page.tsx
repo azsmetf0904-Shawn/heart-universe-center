@@ -7,11 +7,12 @@ export default async function RegisterPage({ params }: { params: Promise<{ slug:
   const { slug } = await params
   const supabase = await createAdminClient()
 
-  const { data: event } = await supabase
+  const { data: event, error } = await supabase
     .from('events')
     .select('id, title, slug, status, is_paid, price, capacity, end_time, event_registrations(id, status)')
     .eq('slug', slug)
     .single()
+  if (error) console.error('[events/register] event lookup failed:', error)
 
   if (!event) notFound()
 

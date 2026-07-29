@@ -39,7 +39,9 @@ export async function POST(req: NextRequest) {
   const emailQuery = trimmed.includes('@')
     ? supabase.from('rental_requests').select(select).ilike('email', trimmed)
     : Promise.resolve({ data: [], error: null })
-  const [{ data: phoneData }, { data: emailData }] = await Promise.all([phoneQuery, emailQuery])
+  const [{ data: phoneData, error: phoneError }, { data: emailData, error: emailError }] = await Promise.all([phoneQuery, emailQuery])
+  if (phoneError) console.error('[my-booking] phone lookup failed:', phoneError)
+  if (emailError) console.error('[my-booking] email lookup failed:', emailError)
   const data = [...(phoneData ?? []), ...(emailData ?? [])]
     .filter((row, index, all) => all.findIndex(other => other.id === row.id) === index)
     .sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)))

@@ -34,7 +34,8 @@ export async function GET(req: NextRequest) {
 
     if (venue_id) q = q.eq('venue_id', venue_id)
 
-    const { data } = await q
+    const { data, error } = await q
+    if (error) console.error('[availability] calendar-mode query failed:', error)
     const map: Record<string, Record<string, string>> = {}
     ;(data ?? []).forEach((r: { booking_date: string | null; time_slot: string | null; status: string }) => {
       if (!r.booking_date || !r.time_slot) return
@@ -55,7 +56,8 @@ export async function GET(req: NextRequest) {
 
   if (venue_id) query = query.eq('venue_id', venue_id)
 
-  const { data } = await query
+  const { data, error } = await query
+  if (error) console.error('[availability] single-day query failed:', error)
   const booked = (data ?? []).map((r: { time_slot: string | null }) => r.time_slot).filter(Boolean)
   return NextResponse.json({ booked })
 }

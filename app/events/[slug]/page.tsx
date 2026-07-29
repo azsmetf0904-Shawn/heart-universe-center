@@ -12,7 +12,8 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createAdminClient()
-  const { data } = await supabase.from('events').select('title, description, cover_image_url').eq('slug', slug).single()
+  const { data, error } = await supabase.from('events').select('title, description, cover_image_url').eq('slug', slug).single()
+  if (error) console.error('[events/slug] metadata lookup failed:', error)
   return {
     title: data?.title ?? '活動詳情',
     description: data?.description ?? `心宇宙商務中心活動：${data?.title ?? ''}`,
@@ -36,12 +37,13 @@ function formatDateTime(s: string) {
 export default async function EventDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createAdminClient()
-  const { data: event } = await supabase
+  const { data: event, error: eventError } = await supabase
     .from('events')
     .select('*, venue:venues(name, slug), event_registrations(id, status)')
     .eq('slug', slug)
     .in('status', ['published', 'ended'])
     .single()
+  if (eventError) console.error('[events/slug] event lookup failed:', eventError)
 
   if (!event) notFound()
 
@@ -49,13 +51,14 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
   const showReviews = event.status === 'ended'
   const registered = event.event_registrations?.filter((r: { status: string }) => r.status === 'registered').length ?? 0
   const isFull = event.capacity ? registered >= event.capacity : false
-  const { data: reviews } = showReviews
+  const { data: reviews, error: reviewsError } = showReviews
     ? await supabase
         .from('event_reviews')
         .select('id, reviewer_name, content, created_at')
         .eq('event_id', event.id)
         .order('created_at', { ascending: false })
-    : { data: [] }
+    : { data: [], error: null }
+  if (reviewsError) console.error('[events/slug] reviews query failed:', reviewsError)
 
   const jsonLd = {
     '@context': 'https://schema.org',

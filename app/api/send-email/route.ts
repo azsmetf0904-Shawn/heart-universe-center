@@ -43,11 +43,12 @@ export async function POST(req: NextRequest) {
     const supabase = await createAdminClient()
     const email = body.to ?? body.email
     if (email) {
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from('rental_requests')
         .select('id', { count: 'exact', head: true })
         .eq('email', email)
         .gte('created_at', oneHourAgo)
+      if (error) console.error('[send-email] rental_requests count check failed:', error)
       if (!count) return NextResponse.json({ ok: false, error: 'no_booking' }, { status: 400 })
     }
   }
@@ -55,11 +56,12 @@ export async function POST(req: NextRequest) {
     const supabase = await createAdminClient()
     const email = body.to
     if (email) {
-      const { count } = await supabase
+      const { count, error } = await supabase
         .from('event_registrations')
         .select('id', { count: 'exact', head: true })
         .eq('email', email)
         .gte('created_at', oneHourAgo)
+      if (error) console.error('[send-email] event_registrations count check failed:', error)
       if (!count) return NextResponse.json({ ok: false, error: 'no_registration' }, { status: 400 })
     }
   }
