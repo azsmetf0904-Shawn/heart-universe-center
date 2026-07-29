@@ -6,8 +6,8 @@ import { ArrowRight, CalendarDays, MapPin, Users, DollarSign } from 'lucide-reac
 import type { Metadata } from 'next'
 import ReviewForm from './ReviewForm'
 import { CTA } from '@/lib/cta'
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
+import { JsonLd } from '@/components/JsonLd'
+import { SITE_URL as SITE, HEART_UNIVERSE_ADDRESS } from '@/lib/seo'
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
@@ -17,6 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return {
     title: data?.title ?? '活動詳情',
     description: data?.description ?? `心宇宙商務中心活動：${data?.title ?? ''}`,
+    alternates: { canonical: `/events/${slug}` },
     openGraph: {
       title: `${data?.title ?? '活動'}｜心宇宙商務中心`,
       description: data?.description ?? '',
@@ -72,7 +73,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
     location: {
       '@type': 'Place',
       name: event.venue?.name ?? '心宇宙商務中心',
-      address: { '@type': 'PostalAddress', addressLocality: '台北市', addressCountry: 'TW' },
+      address: HEART_UNIVERSE_ADDRESS,
     },
     organizer: event.organizer_name
       ? { '@type': 'Organization', name: event.organizer_name }
@@ -89,7 +90,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
 
   return (
     <div className="py-20">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       {/* Cover */}
       {event.cover_image_url && (
         <div className="container-wide mb-12">

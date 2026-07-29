@@ -3,10 +3,10 @@ import './globals.css'
 import Navbar from '@/components/layout/Navbar'
 import Footer from '@/components/layout/Footer'
 import { RippleEffect } from '@/components/RippleEffect'
+import { JsonLd } from '@/components/JsonLd'
+import { SITE_URL as SITE, HEART_UNIVERSE_ADDRESS } from '@/lib/seo'
 import { Analytics } from '@vercel/analytics/next'
 import { SpeedInsights } from '@vercel/speed-insights/next'
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE),
@@ -52,24 +52,11 @@ const jsonLd = {
   url: SITE,
   image: `${SITE}/home-hero/event-family-day-1.jpg`,
   logo: `${SITE}/logo-new.png`,
-  address: {
-    '@type': 'PostalAddress',
-    streetAddress: '八德路三段223號',
-    addressLocality: '松山區',
-    addressRegion: '台北市',
-    postalCode: '105',
-    addressCountry: 'TW',
-  },
+  address: HEART_UNIVERSE_ADDRESS,
   openingHoursSpecification: [
     {
       '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
-      opens: '09:00',
-      closes: '21:30',
-    },
-    {
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Saturday', 'Sunday'],
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
       opens: '09:00',
       closes: '21:30',
     },
@@ -82,10 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="zh-TW" className="h-full">
       <head>
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-        />
+        <JsonLd data={jsonLd} />
       </head>
       <body className="min-h-full flex flex-col">
         <RippleEffect />

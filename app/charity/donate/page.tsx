@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { ArrowLeft, ExternalLink, MapPin } from 'lucide-react'
+import { JsonLd } from '@/components/JsonLd'
 
 export const metadata: Metadata = {
   title: '二手物資捐贈規範與流程｜愛物王公益',
@@ -34,7 +35,7 @@ const steps = [
 export default function CharityDonatePage() {
   return (
     <div className="min-h-screen py-20 md:py-28" style={{ background: 'var(--cream)' }}>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
+      <JsonLd data={breadcrumbLd} />
       <main className="container-narrow px-6">
         <Link href="/charity" className="inline-flex items-center gap-2 text-xs tracking-widest mb-12 hover:underline" style={{ color: 'var(--gray)' }}>
           <ArrowLeft size={13} /> 返回愛物王公益

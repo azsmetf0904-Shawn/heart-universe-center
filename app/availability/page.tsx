@@ -3,10 +3,12 @@ import { AvailabilityCalendar } from '@/components/AvailabilityCalendar'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { CTA } from '@/lib/cta'
+import type { Metadata } from 'next'
 
-export const metadata = {
+export const metadata: Metadata = {
   title: '場地可用時段查詢 | 心宇宙商務中心',
   description: '查詢心宇宙商務中心多功能大廳的可預約時段，早場、午場、晚場一目瞭然。',
+  alternates: { canonical: '/availability' },
 }
 
 export default async function AvailabilityPage() {

@@ -6,10 +6,13 @@ import type { Metadata } from 'next'
 import { CTA } from '@/lib/cta'
 import PageTabs from '@/components/layout/PageTabs'
 import type { EventRegistration } from '@/lib/types'
+import { JsonLd } from '@/components/JsonLd'
+import { SITE_URL } from '@/lib/seo'
 
 export const metadata: Metadata = {
   title: '活動課程',
   description: '心宇宙商務中心舉辦的課程、講座、工作坊與社群活動，品牌培訓、身心靈成長、女性創業一覽。',
+  alternates: { canonical: '/events' },
   openGraph: {
     title: '活動課程｜心宇宙商務中心',
     description: '課程、講座、工作坊與社群活動，台北八德路精品場地。',
@@ -43,8 +46,20 @@ export default async function EventsPage({
   const { data: events, error } = await query
   if (error) console.error('[events] list query failed:', error)
 
+  const itemListLd = events?.length ? {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    itemListElement: events.map((ev, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE_URL}/events/${ev.slug}`,
+      name: ev.title,
+    })),
+  } : null
+
   return (
     <div className="py-20">
+      {itemListLd && <JsonLd data={itemListLd} />}
       <div className="container-narrow mb-12">
         <p className="label-tag mb-4">Events</p>
         <h1 className="text-4xl md:text-5xl mb-4">活動課程</h1>

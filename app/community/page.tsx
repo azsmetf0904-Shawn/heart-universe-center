@@ -3,12 +3,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ArrowRight, CalendarDays } from 'lucide-react'
 import type { Metadata } from 'next'
-
-const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.vercel.app'
+import { SITE_URL as SITE } from '@/lib/seo'
 
 export const metadata: Metadata = {
   title: '社群 Community',
   description: '心宇宙商務中心是台北的質感聚集地。每一個到來的人，都帶著自己的使命與夢想。這裡不只是場地，是一個讓想法落地、讓連結發生的社群。',
+  alternates: { canonical: '/community' },
   openGraph: {
     title: '社群 Community｜心宇宙商務中心',
     description: '每一個到來的人，都帶著自己的使命與夢想。',

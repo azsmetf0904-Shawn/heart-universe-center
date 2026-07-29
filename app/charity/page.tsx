@@ -3,6 +3,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { MapPin, ExternalLink, CheckCircle2, XCircle, AlertTriangle, ArrowRight } from 'lucide-react'
 import CharityHeroSlideshow from '@/components/CharityHeroSlideshow'
+import { JsonLd } from '@/components/JsonLd'
 
 export const metadata: Metadata = {
   title: '愛物王斷捨離二手公益｜台北二手物資捐贈',
@@ -185,9 +186,9 @@ function IgIcon({ size = 16 }: { size?: number }) {
 export default function CharityPage() {
   return (
     <div className="hu-charity-page">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videoLd) }} />
+      <JsonLd data={orgLd} />
+      <JsonLd data={faqLd} />
+      <JsonLd data={videoLd} />
 
       <div className="hu-charity-spirit-field" aria-hidden="true">
         {Array.from({ length: 30 }, (_, i) => <i key={i} />)}
