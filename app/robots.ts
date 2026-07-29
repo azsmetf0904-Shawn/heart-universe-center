@@ -7,7 +7,16 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: '*',
       allow: '/',
-      disallow: ['/admin/', '/admin-calendar', '/api/'],
+      disallow: [
+        '/admin/',
+        '/admin-calendar',
+        '/api/',
+        '/check-in',
+        '/my-booking',
+        '/liff/',
+        '/events/*/register',
+        '/events/*/check-in',
+      ],
     },
     sitemap: `${SITE}/sitemap.xml`,
   }

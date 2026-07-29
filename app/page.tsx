@@ -105,36 +105,11 @@ async function HomePageContent() {
       .limit(3),
   ])
 
-  const localBusinessLd = {
-    '@context': 'https://schema.org',
-    '@type': 'LocalBusiness',
-    name: '心宇宙商務中心',
-    alternateName: 'Heart Universe Business Center',
-    url: 'https://heart-universe-center.vercel.app',
-    image: 'https://heart-universe-center.vercel.app/home-hero/event-family-day-1.jpg',
-    logo: 'https://heart-universe-center.vercel.app/logo-new.png',
-    address: {
-      '@type': 'PostalAddress',
-      streetAddress: '八德路三段223號',
-      addressLocality: '松山區',
-      addressRegion: '台北市',
-      postalCode: '105',
-      addressCountry: 'TW',
-    },
-    openingHoursSpecification: [{
-      '@type': 'OpeningHoursSpecification',
-      dayOfWeek: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
-      opens: '09:00',
-      closes: '21:30',
-    }],
-    priceRange: 'NT$15,000+',
-    description: '台北八德路精品場地租借，適合品牌講座、企業培訓、工作坊、課程活動，最多容納150人，捷運步行可達。',
-    hasMap: 'https://maps.app.goo.gl/NCZomv2nD1zPsq2B7',
-  }
-
   return (
     <div className="hu-home-page">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessLd) }} />
+      {/* LocalBusiness JSON-LD is already emitted site-wide by app/layout.tsx --
+          this page used to duplicate it verbatim, which just doubled the same
+          block rather than adding anything. */}
 
       {/* ═══════════════════════════════════════════════════════════
           HERO — dark left panel + photo grid right
