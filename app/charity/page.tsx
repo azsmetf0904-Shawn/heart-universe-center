@@ -296,35 +296,6 @@ export default function CharityPage() {
         </div>
       </section>
 
-      {/* ── PRESS ──
-          Compact list rows, not one big card per item -- this needs to
-          hold up whether there's 1 press mention or 20. */}
-      <section className="hu-charity-press pb-16">
-        <div className="container-narrow px-6 max-w-2xl mx-auto">
-          <div
-            className="rounded-2xl px-6 md:px-8 divide-y"
-            style={{ border: '1.5px solid rgba(196,160,56,0.4)', background: 'rgba(196,160,56,0.09)' }}
-          >
-            <p className="text-xs tracking-[0.35em] uppercase pt-6 md:pt-8 pb-4 font-medium" style={{ color: 'var(--gold)', borderColor: 'rgba(196,160,56,0.22)' }}>媒體報導</p>
-            {pressLinks.map(p => (
-              <div key={p.href} className="py-5" style={{ borderColor: 'rgba(196,160,56,0.22)' }}>
-                <p className="text-xs mb-2" style={{ color: 'var(--gray)' }}>{p.outlet} · {p.date}</p>
-                <a
-                  href={p.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-start gap-1.5 text-sm md:text-base font-medium leading-snug hover:underline"
-                  style={{ color: 'var(--charcoal)' }}
-                >
-                  {p.title}
-                  <ExternalLink size={12} className="shrink-0 mt-1" style={{ color: 'var(--gold)' }} />
-                </a>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ── DONATION PHILOSOPHY ── */}
       <section className="hu-charity-philosophy py-16 md:py-20">
         <div className="container-narrow px-6">
@@ -384,6 +355,38 @@ export default function CharityPage() {
                   className="object-cover transition-transform duration-500 hover:scale-105"
                   sizes="(max-width: 768px) 50vw, 33vw"
                 />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── PRESS ──
+          Compact list rows, not one big card per item -- this needs to
+          hold up whether there's 1 press mention or 20. Sits after the
+          emotional narrative (About/Why/Video/Gallery) rather than
+          interrupting it early -- reinforcing credibility right before
+          the practical donate-rules/CTA section, not competing with it. */}
+      <section className="hu-charity-press pb-16">
+        <div className="container-narrow px-6 max-w-2xl mx-auto">
+          <div
+            className="rounded-2xl px-6 md:px-8 divide-y"
+            style={{ border: '1.5px solid rgba(196,160,56,0.4)', background: 'rgba(196,160,56,0.09)' }}
+          >
+            <p className="text-xs tracking-[0.35em] uppercase pt-6 md:pt-8 pb-4 font-medium" style={{ color: 'var(--gold)', borderColor: 'rgba(196,160,56,0.22)' }}>媒體報導</p>
+            {pressLinks.map(p => (
+              <div key={p.href} className="py-5" style={{ borderColor: 'rgba(196,160,56,0.22)' }}>
+                <p className="text-xs mb-2" style={{ color: 'var(--gray)' }}>{p.outlet} · {p.date}</p>
+                <a
+                  href={p.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-start gap-1.5 text-sm md:text-base font-medium leading-snug hover:underline"
+                  style={{ color: 'var(--charcoal)' }}
+                >
+                  {p.title}
+                  <ExternalLink size={12} className="shrink-0 mt-1" style={{ color: 'var(--gold)' }} />
+                </a>
               </div>
             ))}
           </div>
