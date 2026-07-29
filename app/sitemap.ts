@@ -6,10 +6,12 @@ const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://heart-universe-center.
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createAdminClient()
 
-  const [{ data: venues }, { data: events }] = await Promise.all([
-    supabase.from('venues').select('slug, updated_at').eq('is_active', true),
-    supabase.from('events').select('slug, updated_at').neq('status', 'draft'),
+  const [{ data: venues, error: venuesError }, { data: events, error: eventsError }] = await Promise.all([
+    supabase.from('venues').select('slug, created_at').eq('is_active', true),
+    supabase.from('events').select('slug, created_at').neq('status', 'draft'),
   ])
+  if (venuesError) console.error('[sitemap] venues query failed:', venuesError)
+  if (eventsError) console.error('[sitemap] events query failed:', eventsError)
 
   const staticRoutes: MetadataRoute.Sitemap = [
     { url: `${SITE}/`, lastModified: new Date(), changeFrequency: 'weekly', priority: 1 },
@@ -28,21 +30,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const venueRoutes: MetadataRoute.Sitemap = (venues ?? []).map(v => ({
     url: `${SITE}/venues/${v.slug}`,
-    lastModified: v.updated_at ? new Date(v.updated_at) : new Date(),
+    lastModified: v.created_at ? new Date(v.created_at) : new Date(),
     changeFrequency: 'monthly',
     priority: 0.7,
   }))
 
   const eventRoutes: MetadataRoute.Sitemap = (events ?? []).map(e => ({
     url: `${SITE}/events/${e.slug}`,
-    lastModified: e.updated_at ? new Date(e.updated_at) : new Date(),
+    lastModified: e.created_at ? new Date(e.created_at) : new Date(),
     changeFrequency: 'weekly',
     priority: 0.6,
   }))
 
   const eventGalleryRoutes: MetadataRoute.Sitemap = (events ?? []).map(e => ({
     url: `${SITE}/events/${e.slug}/gallery`,
-    lastModified: e.updated_at ? new Date(e.updated_at) : new Date(),
+    lastModified: e.created_at ? new Date(e.created_at) : new Date(),
     changeFrequency: 'monthly',
     priority: 0.5,
   }))
