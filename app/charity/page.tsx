@@ -106,6 +106,17 @@ const faqLd = {
   ],
 }
 
+const videoLd = {
+  '@context': 'https://schema.org',
+  '@type': 'VideoObject',
+  name: '愛物王二手公益｜創辦人親述場地由來與斷捨離理念',
+  description: '心宇宙商務中心創辦人分享為何釋出台北松山八德路空間，打造愛物王斷捨離二手公益商店，讓九成新物資延續生命、義賣所得全數捐出。',
+  thumbnailUrl: 'https://heart-universe-center.vercel.app/charity/video/poster.jpg',
+  contentUrl: 'https://heart-universe-center.vercel.app/charity/video/love-secondhand-story.mp4',
+  uploadDate: '2026-07-26T21:30:41+08:00',
+  duration: 'PT1M47S',
+}
+
 const gallery = [
   { src: '/charity/grid-1.jpg', alt: '愛物王精品展示區' },
   { src: '/charity/grid-2.jpg', alt: '愛物王苔蘚樹牆藝術裝置' },
@@ -176,6 +187,7 @@ export default function CharityPage() {
     <div className="hu-charity-page">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(orgLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqLd) }} />
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(videoLd) }} />
 
       <div className="hu-charity-spirit-field" aria-hidden="true">
         {Array.from({ length: 30 }, (_, i) => <i key={i} />)}
