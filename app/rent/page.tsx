@@ -393,7 +393,13 @@ function RentForm() {
     }
 
     const generatedCode = crypto.randomUUID().replace(/-/g, '').slice(0, 6).toUpperCase()
-    const { data: req, error } = await supabase.from('rental_requests').insert({
+    // rental_requests has no public SELECT policy (customer PII shouldn't be
+    // publicly readable), so `.insert().select()` fails RLS on the implicit
+    // RETURNING read-back even though the INSERT itself is allowed. Generate
+    // the id client-side and skip .select() entirely to avoid needing one.
+    const bookingUuid = crypto.randomUUID()
+    const { error } = await supabase.from('rental_requests').insert({
+      id: bookingUuid,
       line_user_id: lineProfile?.userId ?? null,
       venue_id: form.venue_id || null,
       name: form.name,
@@ -413,12 +419,12 @@ function RentForm() {
       note: form.note || null,
       status: isWaitlist ? 'waitlist' : 'pending',
       line_code: generatedCode,
-    }).select('id').single()
+    })
 
-    if (!error && req && Object.keys(selected).length > 0) {
+    if (!error && Object.keys(selected).length > 0) {
       await supabase.from('rental_addons').insert(
         Object.values(selected).map(s => ({
-          rental_request_id: req.id,
+          rental_request_id: bookingUuid,
           addon_id: s.addon.id,
           quantity: s.qty,
           unit_price: s.addon.price,
@@ -426,7 +432,7 @@ function RentForm() {
         }))
       )
     }
-    if (!error && req) { setBookingId(req.id); setLineCode(generatedCode) }
+    if (!error) { setBookingId(bookingUuid); setLineCode(generatedCode) }
     if (!error) {
       const emailPayload = {
         name: form.name,
@@ -458,18 +464,18 @@ function RentForm() {
       const notifyBooking = async (type: 'new_booking' | 'booking_received', payload: Record<string, unknown>) => {
         const tokenRes = await fetch('/api/line/notify-token', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ bookingId: req.id, contact: form.phone, type }),
+          body: JSON.stringify({ bookingId: bookingUuid, contact: form.phone, type }),
         })
         const token = await tokenRes.json() as { ok: boolean; token?: string; expires?: number }
         if (!token.ok || !token.token || !token.expires) return
         await fetch('/api/line/notify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-notify-token': token.token, 'x-notify-expires': String(token.expires) },
-          body: JSON.stringify({ type, bookingId: req.id, ...payload }),
+          body: JSON.stringify({ type, bookingId: bookingUuid, ...payload }),
         })
       }
       notifyBooking('new_booking', {
-        bookingId: req.id,
+        bookingId: bookingUuid,
         name: form.name,
         phone: form.phone,
         email: form.email,
