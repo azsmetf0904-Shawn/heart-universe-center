@@ -62,11 +62,12 @@ export async function POST(req: NextRequest) {
       if (!intendedStatus) continue
 
       // 先查目前狀態：候補申請被「核可」時應先轉 pending（待付款），而非直接 confirmed
-      const { data: current } = await supabase
+      const { data: current, error: currentError } = await supabase
         .from('rental_requests')
         .select('status')
         .eq('id', bookingId)
         .single()
+      if (currentError) console.error('[line/webhook] postback status lookup failed:', currentError)
 
       const allowed = action === 'confirm'
         ? ['pending', 'waitlist'].includes(current?.status ?? '')
@@ -172,13 +173,14 @@ export async function POST(req: NextRequest) {
     const code = text.toUpperCase()
     if (!/^[A-Z0-9]{6}$/.test(code)) continue
 
-    const { data } = await supabase
+    const { data, error: linkError } = await supabase
       .from('rental_requests')
       .update({ line_user_id: userId })
       .eq('line_code', code)
       .is('line_user_id', null)
       .select('name')
       .maybeSingle()
+    if (linkError) console.error('[line/webhook] line_code link failed:', linkError)
 
     if (data?.name) {
       await linePush(userId, `✅ 驗證成功！${data.name}，LINE 通知已啟用。\n\n審核結果將直接透過此帳號通知您，請耐心等候。😊`)

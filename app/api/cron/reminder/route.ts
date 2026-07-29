@@ -12,22 +12,24 @@ export async function GET(req: NextRequest) {
   const supabase = await createAdminClient()
 
   // 付款期限到期後自動取消仍未付款的申請，避免場地長期被佔用。
-  const { data: expired } = await supabase
+  const { data: expired, error: expiredError } = await supabase
     .from('rental_requests')
     .select('id, name, event_title, line_user_id')
     .eq('status', 'pending')
     .not('payment_due_at', 'is', null)
     .lt('payment_due_at', new Date().toISOString())
+  if (expiredError) console.error('[cron/reminder] expired-bookings lookup failed:', expiredError)
 
   const expiredIds: string[] = []
   for (const booking of expired ?? []) {
-    const { data: updated } = await supabase
+    const { data: updated, error: expireUpdateError } = await supabase
       .from('rental_requests')
       .update({ status: 'cancelled', admin_note: '付款期限已到期，系統自動取消' })
       .eq('id', booking.id)
       .eq('status', 'pending')
       .select('id')
       .maybeSingle()
+    if (expireUpdateError) console.error('[cron/reminder] auto-cancel update failed:', booking.id, expireUpdateError)
     if (!updated) continue
     expiredIds.push(booking.id)
     if (booking.line_user_id) {

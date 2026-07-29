@@ -34,9 +34,10 @@ export async function POST(req: NextRequest) {
       }
       publicBooking = await (async () => {
         const sb = await createAdminClient()
-        const { data } = await sb.from('rental_requests')
+        const { data, error } = await sb.from('rental_requests')
           .select('id, name, phone, email, event_title, booking_date, time_slot, guest_count, note, line_user_id, status, venue:venues(name)')
           .eq('id', bookingId).single()
+        if (error) console.error('[line/notify] booking lookup failed:', error)
         return data as PublicBooking | null
       })()
       if (!publicBooking) return NextResponse.json({ ok: false, error: 'not_found' }, { status: 404 })

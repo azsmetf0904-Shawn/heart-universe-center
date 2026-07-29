@@ -59,12 +59,13 @@ export async function POST(req: NextRequest) {
   }
 
   const supabase = await createAdminClient()
-  const { data: booking } = await supabase
+  const { data: booking, error: bookingError } = await supabase
     .from('rental_requests')
     .select('id, name, event_title, booking_date, time_slot, status, line_user_id, phone')
     .eq('id', bookingId)
     .eq('line_user_id', lineUserId)
     .single()
+  if (bookingError) console.error('[liff/payment-report] booking lookup failed:', bookingError)
 
   if (!booking) return NextResponse.json({ ok: false, error: 'booking_not_found' }, { status: 404 })
   if (booking.status !== 'pending') return NextResponse.json({ ok: false, error: 'already_reported' }, { status: 409 })
