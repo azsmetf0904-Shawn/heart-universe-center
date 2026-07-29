@@ -20,6 +20,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${SITE}/charity/donate`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE}/rent`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.8 },
     { url: `${SITE}/news`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.7 },
+    { url: `${SITE}/showcase`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${SITE}/availability`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.5 },
     { url: `${SITE}/privacy`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
     { url: `${SITE}/terms`, lastModified: new Date(), changeFrequency: 'yearly', priority: 0.3 },
   ]
@@ -38,5 +40,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }))
 
-  return [...staticRoutes, ...venueRoutes, ...eventRoutes]
+  const eventGalleryRoutes: MetadataRoute.Sitemap = (events ?? []).map(e => ({
+    url: `${SITE}/events/${e.slug}/gallery`,
+    lastModified: e.updated_at ? new Date(e.updated_at) : new Date(),
+    changeFrequency: 'monthly',
+    priority: 0.5,
+  }))
+
+  return [...staticRoutes, ...venueRoutes, ...eventRoutes, ...eventGalleryRoutes]
 }
