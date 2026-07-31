@@ -129,6 +129,7 @@ CREATE TABLE IF NOT EXISTS event_registrations (
   checked_in boolean DEFAULT false,
   checked_in_at timestamptz,
   check_in_token uuid DEFAULT gen_random_uuid() UNIQUE,
+  line_user_id text,                 -- 綁定的 LINE userId（LIFF 課程報名推播用）
   created_at timestamptz DEFAULT now()
 );
 
@@ -228,6 +229,8 @@ CREATE INDEX IF NOT EXISTS idx_rental_requests_line_code ON rental_requests (lin
 CREATE INDEX IF NOT EXISTS rental_requests_payment_due_idx
   ON rental_requests (status, payment_due_at)
   WHERE status = 'pending' AND payment_due_at IS NOT NULL;
+CREATE INDEX IF NOT EXISTS event_registrations_line_user_id_idx
+  ON event_registrations (line_user_id) WHERE line_user_id IS NOT NULL;
 
 -- RLS (Row Level Security)
 ALTER TABLE venue_pricing ENABLE ROW LEVEL SECURITY;

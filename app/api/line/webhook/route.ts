@@ -1,7 +1,7 @@
 import { createHmac } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { linePush, linePushFlex, lineReply, lineReplyFlex, buildConfirmedFlex, buildCancelledFlex, buildAdminSetWaitlistFlex, buildWaitlistToPayFlex, buildCustomerBookingConfirmFlex, getLineGroupMemberName, buildCalendarButtonFlex } from '@/lib/line'
+import { linePush, linePushFlex, lineReply, lineReplyFlex, buildConfirmedFlex, buildCancelledFlex, buildAdminSetWaitlistFlex, buildWaitlistToPayFlex, buildCustomerBookingConfirmFlex, getLineGroupMemberName, buildCalendarButtonFlex, buildBookingMenuFlex, buildCourseMenuFlex, buildCourseRegistrationConfirmFlex } from '@/lib/line'
 import { signCalendarToken } from '@/lib/calendar-token'
 import { TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus } from '@/lib/types'
@@ -166,6 +166,57 @@ export async function POST(req: NextRequest) {
       const calUrl = `https://heart-universe-center.vercel.app/admin-calendar?year=${now.getFullYear()}&month=${now.getMonth() + 1}${tokenParams}`
       if (event.replyToken) {
         await lineReplyFlex(event.replyToken, `📅 ${now.getFullYear()}年${now.getMonth() + 1}月 場地月曆`, buildCalendarButtonFlex(calUrl, now.getFullYear(), now.getMonth() + 1))
+      }
+      continue
+    }
+
+    // 預約／課程報名關鍵字：回覆 Flex 卡片，內含 LIFF 頁面連結。
+    if (['預約', '場地預約', '我要預約', '訂場地'].includes(text)) {
+      if (event.replyToken) await lineReplyFlex(event.replyToken, '📋 場地預約', buildBookingMenuFlex())
+      continue
+    }
+    if (['課程', '報名', '課程報名', '我要報名'].includes(text)) {
+      if (event.replyToken) await lineReplyFlex(event.replyToken, '🎓 課程報名', buildCourseMenuFlex())
+      continue
+    }
+
+    // LIFF 頁面送出成功後，前端會呼叫 liff.sendMessages() 送出這兩則固定文字，
+    // 目的是換取一個新的 message event（帶 replyToken），讓機器人可以用免費的
+    // Reply API 回覆完整確認卡片，不必用有配額限制的 Push API。
+    if (text === '✅ 我已送出場地預約') {
+      const { data: booking, error: bookingError } = await supabase
+        .from('rental_requests')
+        .select('name, phone, event_title, booking_date, time_slot, status, venues(name)')
+        .eq('line_user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (bookingError) console.error('[line/webhook] booking confirm lookup failed:', bookingError)
+      if (event.replyToken && booking) {
+        const slotLabel = booking.time_slot ? (TIME_SLOT_LABEL[booking.time_slot as keyof typeof TIME_SLOT_LABEL] ?? booking.time_slot) : ''
+        const venueName = (booking.venues as unknown as { name?: string } | null)?.name ?? ''
+        await lineReplyFlex(
+          event.replyToken, `${booking.name}，申請已收到！`,
+          buildCustomerBookingConfirmFlex(booking.name, booking.event_title, booking.booking_date ?? '', slotLabel, venueName, null, booking.phone ?? '', booking.status === 'waitlist', false, null),
+        )
+      }
+      continue
+    }
+    if (text === '✅ 我已送出課程報名') {
+      const { data: registration, error: registrationError } = await supabase
+        .from('event_registrations')
+        .select('name, events(title, start_time, is_paid, price)')
+        .eq('line_user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (registrationError) console.error('[line/webhook] course registration confirm lookup failed:', registrationError)
+      const ev = registration?.events as unknown as { title?: string; start_time?: string; is_paid?: boolean; price?: number } | null
+      if (event.replyToken && registration && ev) {
+        await lineReplyFlex(
+          event.replyToken, `${registration.name}，課程報名成功！`,
+          buildCourseRegistrationConfirmFlex(registration.name, ev.title ?? '', ev.start_time ?? new Date().toISOString(), ev.is_paid ?? false, ev.price ?? 0),
+        )
       }
       continue
     }
