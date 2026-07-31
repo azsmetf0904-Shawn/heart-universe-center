@@ -463,3 +463,89 @@ function getPaymentLiffUrl(fallback: string) {
   const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID ?? DEFAULT_PAYMENT_LIFF_ID
   return liffId ? `https://liff.line.me/${liffId}` : fallback
 }
+
+export function buildBookingMenuFlex() {
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#C4A038', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#F0D9B0', size: 'xs' },
+        { type: 'text', text: '📋 場地預約', color: '#FFFFFF', weight: 'bold', size: 'lg' },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '點下方按鈕，直接在 LINE 內填寫預約申請。', size: 'sm', color: '#888888', wrap: true },
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'primary', color: '#C4A038', height: 'sm',
+          action: { type: 'uri', label: '開始預約', uri: `${SITE_URL}/liff/booking` } },
+      ],
+    },
+  }
+}
+
+export function buildCourseMenuFlex() {
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#C4A038', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#F0D9B0', size: 'xs' },
+        { type: 'text', text: '🎓 課程報名', color: '#FFFFFF', weight: 'bold', size: 'lg' },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '點下方按鈕，查看開放報名的課程並直接完成報名。', size: 'sm', color: '#888888', wrap: true },
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'primary', color: '#C4A038', height: 'sm',
+          action: { type: 'uri', label: '查看課程', uri: `${SITE_URL}/liff/course-registration` } },
+      ],
+    },
+  }
+}
+
+export function buildCourseRegistrationConfirmFlex(
+  name: string, eventTitle: string, startTime: string, isPaid: boolean, price: number,
+) {
+  const dateLabel = new Date(startTime).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#22C55E', paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#D1FAE5', size: 'xs' },
+        { type: 'text', text: '✅ 課程報名成功', color: '#FFFFFF', weight: 'bold', size: 'lg' },
+        { type: 'text', text: `${name}，期待您的參與！`, color: '#FFFFFF', size: 'sm', wrap: true },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [
+        row('課程', eventTitle),
+        row('時間', dateLabel),
+        ...(isPaid ? [row('費用', `NT$ ${price.toLocaleString()}`)] : []),
+        { type: 'separator', margin: 'md' },
+        { type: 'text', text: '請至活動頁查看簽到 QR Code，活動當天出示即可完成簽到。', size: 'xs', color: '#888888', wrap: true, margin: 'md' },
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'primary', color: '#22C55E', height: 'sm',
+          action: { type: 'uri', label: '查看所有課程', uri: `${SITE_URL}/events` } },
+      ],
+    },
+  }
+}
