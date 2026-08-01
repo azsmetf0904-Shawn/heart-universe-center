@@ -110,6 +110,14 @@ export default async function EventsPage({
                   ? <Image src={ev.cover_image_url} alt={ev.title} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw" />
                   : <div className="w-full h-full flex items-center justify-center text-[var(--gray)] text-xs tracking-widest">EVENT</div>
                 }
+                {ev.category && (
+                  <span
+                    className="absolute top-3 left-3 z-10 text-[10px] px-2.5 py-1"
+                    style={{ background: 'rgba(26,16,8,0.72)', color: '#fff', letterSpacing: '.1em', backdropFilter: 'blur(2px)' }}
+                  >
+                    {ev.category}
+                  </span>
+                )}
               </div>
               <div className="p-5">
                 <p className="text-[var(--gold)] text-xs mb-2 flex items-center gap-1">
