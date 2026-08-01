@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { Venue, VenueAddon, VenuePricing } from '@/lib/types'
+import { LINE_OA_URL } from '@/lib/constants'
 import {
   ADDON_CATEGORY_LABEL, TIME_SLOT_LABEL, LAYOUT_TYPES,
   isHoliday,
@@ -575,7 +576,7 @@ function RentForm() {
             <span className="font-mono text-lg tracking-widest font-bold" style={{ color: 'var(--charcoal)' }}>{lineCode}</span>
           </div>
           <ol className="text-xs leading-relaxed space-y-1.5" style={{ color: 'var(--gray)' }}>
-            <li>1. <a href="https://lin.ee/wMS5gQU" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--gold)' }}>點此加入心宇宙官方帳號</a></li>
+            <li>1. <a href={LINE_OA_URL} target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--gold)' }}>點此加入心宇宙官方帳號</a></li>
             <li>2. 傳送驗證碼 <strong style={{ color: 'var(--charcoal)' }}>{lineCode}</strong> 給官方帳號</li>
             <li>3. 收到確認訊息後即完成綁定 ✅</li>
           </ol>
@@ -645,7 +646,7 @@ function RentForm() {
             <p className="text-[11px] leading-relaxed" style={{ color: 'var(--gray)' }}>
               加入心宇宙官方帳號，匯款確認後我們將第一時間推播通知給您。
             </p>
-            <a href="https://lin.ee/wMS5gQU" target="_blank" rel="noopener noreferrer"
+            <a href={LINE_OA_URL} target="_blank" rel="noopener noreferrer"
               className="inline-block mt-2 text-[11px] px-3 py-1 text-white"
               style={{ background: '#06C755' }}>
               + 加入官方 LINE
@@ -1107,7 +1108,7 @@ function RentForm() {
                   <p className="text-[11px] leading-relaxed mb-2" style={{ color: 'var(--gray)' }}>
                     加入好友後才能收到預約確認、匯款提醒及審核通知。
                   </p>
-                  <a href="https://lin.ee/wMS5gQU" target="_blank" rel="noopener noreferrer"
+                  <a href={LINE_OA_URL} target="_blank" rel="noopener noreferrer"
                     className="inline-block text-[11px] px-3 py-1.5 text-white"
                     style={{ background: '#06C755' }}>
                     ＋ 加入心宇宙官方帳號

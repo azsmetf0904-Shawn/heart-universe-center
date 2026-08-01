@@ -178,6 +178,11 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
                   {r.payment_reported_at && (
                     <span className="text-[9px] px-1.5 py-0.5 font-normal" style={{ background: 'rgba(196,160,56,0.12)', color: 'var(--gold)', border: '1px solid rgba(196,160,56,0.3)' }}>已回報匯款</span>
                   )}
+                  {r.line_user_id ? (
+                    <span className="text-[9px] px-1.5 py-0.5 font-normal" style={{ background: 'rgba(34,197,94,0.10)', color: '#16a34a', border: '1px solid rgba(34,197,94,0.3)' }} title="已綁定 LINE，通知會直接推播">LINE 已綁定</span>
+                  ) : (
+                    <span className="text-[9px] px-1.5 py-0.5 font-normal" style={{ background: 'rgba(156,163,175,0.12)', color: 'var(--gray)', border: '1px solid rgba(156,163,175,0.3)' }} title="未綁定 LINE，通知僅能靠 Email，請留意主動聯繫">未綁 LINE</span>
+                  )}
                 </p>
                 <p className="text-xs text-[var(--gray)]">{r.name} · {fmt(r.start_time)} – {fmt(r.end_time)}</p>
               </div>

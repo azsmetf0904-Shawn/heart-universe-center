@@ -17,7 +17,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ slug:
   if (!event) notFound()
 
   const registeredCount = (event.event_registrations ?? []).filter(
-    (r: { status: string }) => r.status === 'registered'
+    (r: { status: string }) => ['registered', 'payment_pending'].includes(r.status)
   ).length
   const isFull = !!event.capacity && registeredCount >= event.capacity
   const isUnavailable = event.status !== 'published' || new Date(event.end_time) < new Date() || isFull

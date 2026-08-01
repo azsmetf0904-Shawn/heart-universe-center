@@ -6,6 +6,7 @@ import { RENTAL_STATUS_LABEL, TIME_SLOT_LABEL } from '@/lib/types'
 import type { TimeSlot } from '@/lib/types'
 import { RENTAL_STATUS_TAILWIND as STATUS_COLORS } from '@/lib/status-colors'
 import { Search, CheckCircle2 } from 'lucide-react'
+import { LINE_OA_URL } from '@/lib/constants'
 
 type PaymentForm = { last5: string; date: string; amount: string }
 
@@ -115,6 +116,17 @@ export default function MyBookingPage() {
         <p className="-mt-7 mb-8 text-xs text-[var(--gray)]">
           請輸入申請時填寫的手機號碼或 Email
         </p>
+
+        <a
+          href={LINE_OA_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-10 -mt-3 flex items-center gap-3 rounded-xl border px-4 py-3 text-xs leading-relaxed transition-colors hover:border-[var(--gold)]"
+          style={{ borderColor: 'rgba(196,160,56,.25)', background: 'rgba(196,160,56,.06)', color: 'var(--charcoal)' }}
+        >
+          <span style={{ color: 'var(--gold)' }}>💡</span>
+          加入 LINE 好友並綁定申請，之後審核結果會直接透過 LINE 通知您，不用回來這裡查詢
+        </a>
 
         {results === null && (
           <div className="py-4 text-xs leading-relaxed" style={{ color: 'var(--gray)' }}>
