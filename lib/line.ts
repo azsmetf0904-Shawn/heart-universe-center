@@ -461,7 +461,10 @@ export function buildCustomerBookingConfirmFlex(
 
 function getPaymentLiffUrl(fallback: string) {
   const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID ?? DEFAULT_PAYMENT_LIFF_ID
-  return liffId ? `https://liff.line.me/${liffId}` : fallback
+  // 故意不用 liff.line.me/{id} 捷徑——實測這個捷徑在 LINE App 內部的解析階段
+  // 會間歇性失敗（跟我們自己的網域完全無關，LINE 自己的黑盒子），
+  // 直接連到我們網域再由頁面自己 liff.init() 反而穩定。
+  return liffId ? `${SITE_URL}/liff/payment-report` : fallback
 }
 
 export function buildBookingMenuFlex() {
