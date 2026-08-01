@@ -3,6 +3,11 @@ import { createAdminClient, createClient } from '@/lib/supabase/server'
 import { createHmac, timingSafeEqual } from 'crypto'
 import { rateLimit, requestIp } from '@/lib/rate-limit'
 import { linePushFlex, buildConfirmedFlex, buildCancelledFlex, buildWaitlistFlex, buildAdminPaymentFlex, buildAdminNewBookingFlex, buildCustomerBookingConfirmFlex } from '@/lib/line'
+import { TIME_SLOT_LABEL, type TimeSlot } from '@/lib/types'
+
+function slotLabelOf(slot: string | null | undefined) {
+  return slot && slot in TIME_SLOT_LABEL ? TIME_SLOT_LABEL[slot as TimeSlot] : (slot ?? '')
+}
 
 type PublicBooking = {
   id: string; name: string; phone: string; email: string; event_title: string;
@@ -63,7 +68,7 @@ export async function POST(req: NextRequest) {
       const note = publicBooking?.note ?? body.note
       const isWaitlist = publicBooking?.status === 'waitlist'
       const flex = buildAdminNewBookingFlex(
-        bookingId, publicBooking?.name ?? name, phone, email ?? '', publicBooking?.event_title ?? eventTitle, publicBooking?.booking_date ?? bookingDate, publicBooking?.time_slot ?? timeSlot,
+        bookingId, publicBooking?.name ?? name, phone, email ?? '', publicBooking?.event_title ?? eventTitle, publicBooking?.booking_date ?? bookingDate, slotLabelOf(publicBooking?.time_slot ?? timeSlot),
         venueName ?? '', guestCount ?? null, note ?? null, !!isWaitlist,
       )
       const altText = `${isWaitlist ? '🔔 候補' : '📋 新預約'}：${publicBooking?.name ?? name}・${publicBooking?.event_title ?? eventTitle}`
@@ -76,7 +81,7 @@ export async function POST(req: NextRequest) {
       const adminId = process.env.ADMIN_LINE_GROUP_ID ?? process.env.ADMIN_LINE_USER_ID
       if (!adminId) return NextResponse.json({ ok: false, error: 'ADMIN_LINE_GROUP_ID / ADMIN_LINE_USER_ID not set' })
       const { bookingId, last5, paymentDate, amount } = body
-      const flex = buildAdminPaymentFlex(bookingId, name, eventTitle, bookingDate, timeSlot, last5, paymentDate, amount)
+      const flex = buildAdminPaymentFlex(bookingId, name, eventTitle, bookingDate, slotLabelOf(timeSlot), last5, paymentDate, amount)
       await linePushFlex(adminId, `💰 ${name} 已回報匯款`, flex)
       return NextResponse.json({ ok: true })
     }
@@ -90,7 +95,7 @@ export async function POST(req: NextRequest) {
       const phone = publicBooking?.phone ?? body.phone
       const isWaitlist = publicBooking?.status === 'waitlist'
       const flex = buildCustomerBookingConfirmFlex(
-        publicBooking?.name ?? name, publicBooking?.event_title ?? eventTitle, publicBooking?.booking_date ?? bookingDate, publicBooking?.time_slot ?? timeSlot,
+        publicBooking?.name ?? name, publicBooking?.event_title ?? eventTitle, publicBooking?.booking_date ?? bookingDate, slotLabelOf(publicBooking?.time_slot ?? timeSlot),
         venueName ?? '', totalAmount ?? null, phone ?? '', !!isWaitlist,
       )
       await linePushFlex(recipient, `${publicBooking?.name ?? name}，您的場地申請已收到！`, flex)
@@ -100,11 +105,11 @@ export async function POST(req: NextRequest) {
     if (!lineUserId) return NextResponse.json({ ok: false })
     const { phone } = body
     if (type === 'confirmed') {
-      await linePushFlex(lineUserId, `${name}，場地租借已確認！`, buildConfirmedFlex(name, eventTitle, bookingDate, timeSlot, phone ?? ''))
+      await linePushFlex(lineUserId, `${name}，場地租借已確認！`, buildConfirmedFlex(name, eventTitle, bookingDate, slotLabelOf(timeSlot), phone ?? ''))
     } else if (type === 'cancelled') {
       await linePushFlex(lineUserId, `${name}，您的場地申請已取消`, buildCancelledFlex(name, eventTitle))
     } else if (type === 'waitlist') {
-      await linePushFlex(lineUserId, `${name}，候補時段釋出！`, buildWaitlistFlex(name, eventTitle, bookingDate, timeSlot))
+      await linePushFlex(lineUserId, `${name}，候補時段釋出！`, buildWaitlistFlex(name, eventTitle, bookingDate, slotLabelOf(timeSlot)))
     }
     return NextResponse.json({ ok: true })
   } catch {
