@@ -11,6 +11,16 @@ export async function GET(req: NextRequest) {
 
   const supabase = await createAdminClient()
 
+  // 活動時間已過但還是 published 的話自動轉 ended，避免要靠人工記得手動切換
+  // （忘記切換的話，該筆活動會同時從「即將到來」跟「活動回顧」兩個分頁消失）。
+  const { data: endedIds, error: endedError } = await supabase
+    .from('events')
+    .update({ status: 'ended' })
+    .eq('status', 'published')
+    .lt('end_time', new Date().toISOString())
+    .select('id')
+  if (endedError) console.error('[cron/reminder] auto-end events failed:', endedError)
+
   // 付款期限到期後自動取消仍未付款的申請，避免場地長期被佔用。
   const { data: expired, error: expiredError } = await supabase
     .from('rental_requests')
@@ -62,5 +72,5 @@ export async function GET(req: NextRequest) {
     sent.push(r.id)
   }
 
-  return NextResponse.json({ ok: true, sent: sent.length, ids: sent, expired: expiredIds.length, expiredIds })
+  return NextResponse.json({ ok: true, sent: sent.length, ids: sent, expired: expiredIds.length, expiredIds, ended: endedIds?.length ?? 0 })
 }

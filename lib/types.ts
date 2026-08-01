@@ -2,7 +2,7 @@ export type AddonCategory = 'equipment' | 'setup' | 'fb' | 'staff' | 'time'
 export type AddonUnit = 'per_session' | 'per_hour' | 'per_person' | 'per_unit'
 export type RentalStatus = 'pending' | 'confirmed' | 'payment_pending' | 'completed' | 'cancelled' | 'waitlist'
 export type EventStatus = 'draft' | 'published' | 'ended'
-export type RegistrationStatus = 'registered' | 'cancelled'
+export type RegistrationStatus = 'registered' | 'payment_pending' | 'cancelled'
 export type DayType = 'weekday' | 'holiday'
 export type TimeSlot = 'morning' | 'afternoon' | 'evening'
 

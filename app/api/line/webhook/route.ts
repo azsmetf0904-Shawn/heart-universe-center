@@ -1,7 +1,7 @@
 import { createHmac } from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { linePush, linePushFlex, lineReply, lineReplyFlex, buildConfirmedFlex, buildCancelledFlex, buildAdminSetWaitlistFlex, buildWaitlistToPayFlex, buildCustomerBookingConfirmFlex, getLineGroupMemberName, buildCalendarButtonFlex, buildBookingMenuFlex, buildCourseMenuFlex } from '@/lib/line'
+import { linePush, linePushFlex, lineReply, lineReplyFlex, buildConfirmedFlex, buildCancelledFlex, buildAdminSetWaitlistFlex, buildWaitlistToPayFlex, buildCustomerBookingConfirmFlex, getLineGroupMemberName, buildCalendarButtonFlex, buildBookingMenuFlex, buildCourseMenuFlex, buildEventPaymentConfirmedFlex } from '@/lib/line'
 import { signCalendarToken } from '@/lib/calendar-token'
 import { TIME_SLOT_LABEL } from '@/lib/types'
 import type { RentalStatus } from '@/lib/types'
@@ -47,6 +47,58 @@ export async function POST(req: NextRequest) {
       }
       const params = new URLSearchParams(event.postback.data)
       const action = params.get('action')
+
+      // 課程報名審核（entity=registration）跟場地預約審核走不同的表，先分流處理。
+      if (params.get('entity') === 'registration') {
+        const registrationId = params.get('id')
+        if (!action || !registrationId) continue
+
+        if (action === 'cancel') {
+          const { data: reg, error: cancelError } = await supabase
+            .from('event_registrations')
+            .update({ status: 'cancelled' })
+            .eq('id', registrationId)
+            .select('name, line_user_id, events(title)')
+            .single()
+          if (cancelError) console.error('[line/webhook] registration cancel failed:', cancelError)
+          if (event.replyToken) await lineReply(event.replyToken, `❌ 已取消報名：${reg?.name ?? registrationId}`)
+          if (reg?.line_user_id) {
+            await linePush(reg.line_user_id, `${reg.name}，您的課程報名已取消。如有疑問請直接聯繫我們。`)
+          }
+          continue
+        }
+
+        if (action === 'event_payment_confirm' || action === 'event_payment_return') {
+          const { data: current } = await supabase.from('event_registrations').select('status').eq('id', registrationId).single()
+          if (current?.status !== 'payment_pending') {
+            if (event.replyToken) await lineReply(event.replyToken, 'ℹ️ 這筆報名已處理，按鈕已失效。')
+            continue
+          }
+          const newStatus = action === 'event_payment_confirm' ? 'registered' : 'payment_pending'
+          const { data: reg, error: updateError } = await supabase
+            .from('event_registrations')
+            .update({ status: newStatus })
+            .eq('id', registrationId)
+            .select('name, line_user_id, events(title, start_time)')
+            .single()
+          if (updateError) console.error('[line/webhook] registration payment update failed:', updateError)
+          const ev = reg?.events as unknown as { title?: string; start_time?: string } | null
+          if (event.replyToken) {
+            const label = action === 'event_payment_confirm' ? '✅ 已確認入帳，報名成立' : '↩️ 已退回，請客戶補充匯款資料'
+            await lineReply(event.replyToken, `${label}：${reg?.name ?? registrationId}`)
+          }
+          if (reg?.line_user_id) {
+            if (action === 'event_payment_confirm') {
+              await linePushFlex(reg.line_user_id, `${reg.name}，課程付款已確認！`, buildEventPaymentConfirmedFlex(reg.name, ev?.title ?? '', ev?.start_time ?? new Date().toISOString())).catch(() => {})
+            } else {
+              await linePush(reg.line_user_id, `${reg.name}，請補充或修正匯款資料，麻煩重新回報。`).catch(() => {})
+            }
+          }
+          continue
+        }
+        continue
+      }
+
       const bookingId = params.get('bookingId')
       if (!action || !bookingId) continue
 

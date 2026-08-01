@@ -3,13 +3,15 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 
+const CATEGORIES = ['課程', '講座', '工作坊', '社群活動', '其他']
+
 interface Props {
   venues: { id: string; name: string }[]
   initial?: {
     id: string; title: string; slug: string; description: string; venue_id: string
     organizer_name: string; start_time: string; end_time: string
     price: number; is_paid: boolean; capacity: number | null; status: string
-    external_url: string | null
+    external_url: string | null; category: string | null
   }
 }
 
@@ -28,6 +30,7 @@ export default function EventForm({ venues, initial }: Props) {
     capacity: String(initial?.capacity ?? ''),
     status: initial?.status ?? 'draft',
     external_url: initial?.external_url ?? '',
+    category: initial?.category ?? CATEGORIES[0],
   })
   const [saving, setSaving] = useState(false)
 
@@ -51,6 +54,7 @@ export default function EventForm({ venues, initial }: Props) {
       capacity: form.capacity ? parseInt(form.capacity) : null,
       status: form.status,
       external_url: form.external_url || null,
+      category: form.category || null,
     }
     if (initial) {
       await supabase.from('events').update(payload).eq('id', initial.id)
@@ -83,6 +87,13 @@ export default function EventForm({ venues, initial }: Props) {
             />
           </div>
         ))}
+      </div>
+
+      <div>
+        <label className="text-xs text-[var(--gray)] mb-1 block">分類</label>
+        <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="w-full border border-[var(--border-color)] bg-transparent px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--gold)]">
+          {CATEGORIES.map(c => <option key={c} value={c}>{c}</option>)}
+        </select>
       </div>
 
       <div>
