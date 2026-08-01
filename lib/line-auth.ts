@@ -8,13 +8,19 @@ export async function verifyLineAccessToken(accessToken: string): Promise<LinePr
     body: new URLSearchParams({ access_token: accessToken }),
     cache: 'no-store',
   })
-  if (!verify.ok) return null
+  if (!verify.ok) {
+    console.error('[line-auth] /oauth2/v2.1/verify failed:', verify.status, await verify.text().catch(() => ''))
+    return null
+  }
 
   const profile = await fetch('https://api.line.me/v2/profile', {
     headers: { Authorization: `Bearer ${accessToken}` },
     cache: 'no-store',
   })
-  if (!profile.ok) return null
+  if (!profile.ok) {
+    console.error('[line-auth] /v2/profile failed:', profile.status, await profile.text().catch(() => ''))
+    return null
+  }
   const data = await profile.json() as { userId?: string }
   return data.userId ? { userId: data.userId } : null
 }
