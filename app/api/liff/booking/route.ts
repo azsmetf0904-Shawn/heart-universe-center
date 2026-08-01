@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
-import { linePushFlex, buildCustomerBookingConfirmFlex } from '@/lib/line'
+import { linePushFlex, buildCustomerBookingConfirmFlex, buildAdminNewBookingFlex } from '@/lib/line'
 import { verifyLineAccessToken } from '@/lib/line-auth'
 import { TIME_SLOT_LABEL } from '@/lib/types'
 import type { TimeSlot } from '@/lib/types'
@@ -74,6 +74,19 @@ export async function POST(req: NextRequest) {
     lineUserId, `${name}，申請已收到！`,
     buildCustomerBookingConfirmFlex(name, eventTitle, bookingDate, slotLabel, venueName, null, phone, isWaitlist, false, null),
   ).catch(() => {})
+
+  // 通知審核群組，比照 /rent 既有的 new_booking 通知（漏掉這步的話，
+  // 客戶收得到確認卡片，但管理員完全不會知道有新申請）。
+  const adminId = process.env.ADMIN_LINE_GROUP_ID ?? process.env.ADMIN_LINE_USER_ID
+  if (adminId) {
+    const altText = `${isWaitlist ? '🔔 候補' : '📋 新預約'}：${name}・${eventTitle}`
+    await linePushFlex(
+      adminId, altText,
+      buildAdminNewBookingFlex(booking.id, name, phone, email, eventTitle, bookingDate, timeSlot, venueName, null, body.note?.trim() || null, isWaitlist),
+    ).catch(() => {})
+  } else {
+    console.error('[liff/booking] ADMIN_LINE_GROUP_ID / ADMIN_LINE_USER_ID not set, admin not notified')
+  }
 
   return NextResponse.json({ ok: true, bookingId: booking.id, isWaitlist })
 }
