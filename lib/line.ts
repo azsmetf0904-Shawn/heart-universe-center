@@ -78,8 +78,8 @@ const OA_URL = 'https://lin.ee/RlmKDmn'
 const row = (label: string, value: string) => ({
   type: 'box', layout: 'horizontal',
   contents: [
-    { type: 'text', text: label, color: '#888888', size: 'sm', flex: 2 },
-    { type: 'text', text: value || '—', size: 'sm', flex: 3, wrap: true },
+    { type: 'text', text: label, color: '#888888', size: 'md', flex: 2 },
+    { type: 'text', text: value || '—', size: 'md', flex: 3, wrap: true },
   ],
 })
 

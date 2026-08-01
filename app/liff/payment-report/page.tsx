@@ -36,6 +36,7 @@ export default function LiffPaymentReportPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [needsLogin, setNeedsLogin] = useState(false)
 
   const selected = useMemo(() => bookings.find(b => b.id === selectedId) ?? null, [bookings, selectedId])
 
@@ -45,7 +46,9 @@ export default function LiffPaymentReportPage() {
       try {
         await liff.init({ liffId })
         if (!liff.isLoggedIn()) {
-          liff.login({ redirectUri: window.location.href })
+          // 故意不在這裡自動呼叫 liff.login()，見 app/liff/booking/page.tsx 同段註解。
+          setNeedsLogin(true)
+          setLoading(false)
           return
         }
         const token = liff.getAccessToken()
@@ -68,6 +71,10 @@ export default function LiffPaymentReportPage() {
       }
     })
   }, [])
+
+  function loginWithLine() {
+    import('@line/liff').then(({ default: liff }) => liff.login({ redirectUri: window.location.href }))
+  }
 
   function chooseBooking(id: string) {
     setSelectedId(id)
@@ -109,6 +116,12 @@ export default function LiffPaymentReportPage() {
         </div>
 
         {loading && <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--gray)' }}><Loader2 size={16} className="animate-spin" /> 正在讀取您的預約…</div>}
+
+        {!loading && needsLogin && (
+          <button onClick={loginWithLine} className="btn-gold-fill w-full justify-center px-5 py-3 text-sm tracking-widest">
+            使用 LINE 登入回報匯款
+          </button>
+        )}
 
         {!loading && error && (
           <div className="rounded-2xl border p-5" style={{ borderColor: 'rgba(196,160,56,.25)', background: 'rgba(196,160,56,.06)' }}>
