@@ -35,6 +35,7 @@ export default function LiffBookingPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [isWaitlist, setIsWaitlist] = useState(false)
+  const [needsLogin, setNeedsLogin] = useState(false)
 
   useEffect(() => {
     const liffId = process.env.NEXT_PUBLIC_LINE_LIFF_ID ?? DEFAULT_LIFF_ID
@@ -42,7 +43,12 @@ export default function LiffBookingPage() {
       try {
         await liff.init({ liffId })
         if (!liff.isLoggedIn()) {
-          liff.login({ redirectUri: window.location.href })
+          // 故意不在這裡自動呼叫 liff.login()——經過 liff.init() 這段非同步
+          // 流程後，使用者點擊 Flex 按鈕當下的手勢已經不新鮮，LINE 的 OAuth
+          // 會把自動觸發的跳轉判定為不合法請求（間歇性 400）。改成顯示按鈕，
+          // 讓登入永遠是使用者當下點擊觸發，比照 /rent 既有、穩定的做法。
+          setNeedsLogin(true)
+          setLoading(false)
           return
         }
         const token = liff.getAccessToken()
@@ -64,6 +70,10 @@ export default function LiffBookingPage() {
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm(p => ({ ...p, [key]: value }))
+  }
+
+  function loginWithLine() {
+    import('@line/liff').then(({ default: liff }) => liff.login({ redirectUri: window.location.href }))
   }
 
   async function submit(e: React.FormEvent) {
@@ -102,6 +112,12 @@ export default function LiffBookingPage() {
         </div>
 
         {loading && <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--gray)' }}><Loader2 size={16} className="animate-spin" /> 載入中…</div>}
+
+        {!loading && needsLogin && (
+          <button onClick={loginWithLine} className="btn-gold-fill w-full justify-center px-5 py-3 text-sm tracking-widest">
+            使用 LINE 登入開始預約
+          </button>
+        )}
 
         {!loading && error && (
           <div className="rounded-2xl border p-5" style={{ borderColor: 'rgba(196,160,56,.25)', background: 'rgba(196,160,56,.06)' }}>
