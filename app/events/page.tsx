@@ -96,7 +96,7 @@ export default async function EventsPage({
           {events.map(ev => (
             (() => {
               const registrations = Array.isArray(ev.event_registrations) ? ev.event_registrations as EventRegistration[] : []
-              const registeredCount = registrations.filter(r => r.status === 'registered').length
+              const registeredCount = registrations.filter(r => r.status === 'registered' || r.status === 'payment_pending').length
               const remainingSeats = ev.capacity !== null && ev.capacity !== undefined ? ev.capacity - registeredCount : null
 
               return (

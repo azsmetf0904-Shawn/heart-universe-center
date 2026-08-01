@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react'
 import { ArrowLeft, CheckCircle2, ExternalLink, Loader2 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import type { Venue, TimeSlot } from '@/lib/types'
-import { TIME_SLOT_LABEL } from '@/lib/types'
+import { TIME_SLOT_LABEL, getPriceForSlot } from '@/lib/types'
 
 const DEFAULT_LIFF_ID = '2010632211-TAiLlAYX'
 
@@ -58,7 +58,8 @@ export default function LiffBookingPage() {
         setDisplayName(p.displayName)
 
         const supabase = createClient()
-        const { data } = await supabase.from('venues').select('*').eq('is_active', true)
+        const { data, error: venuesError } = await supabase.from('venues').select('*, venue_pricing(*)').eq('is_active', true)
+        if (venuesError) console.error('[liff/booking] venues query failed:', venuesError)
         setVenues(data ?? [])
       } catch {
         setError('LINE 登入失敗，請改用網站預約。')
@@ -71,6 +72,14 @@ export default function LiffBookingPage() {
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm(p => ({ ...p, [key]: value }))
   }
+
+  const selectedVenue = venues.find(v => v.id === form.venue_id)
+  const estimatedPrice = (() => {
+    if (!selectedVenue?.venue_pricing || !form.booking_date || !form.time_slot) return null
+    const date = new Date(`${form.booking_date}T00:00:00`)
+    const p = getPriceForSlot(selectedVenue.venue_pricing, date, form.time_slot)
+    return p?.price ?? null
+  })()
 
   function loginWithLine() {
     import('@line/liff').then(({ default: liff }) => liff.login({ redirectUri: window.location.href }))
@@ -152,6 +161,12 @@ export default function LiffBookingPage() {
                 {(Object.keys(TIME_SLOT_LABEL) as TimeSlot[]).map(k => <option key={k} value={k}>{TIME_SLOT_LABEL[k]}</option>)}
               </select>
             </label>
+            {estimatedPrice !== null && (
+              <div className="rounded-xl border p-4" style={{ borderColor: 'rgba(196,160,56,.25)', background: 'rgba(196,160,56,.06)' }}>
+                <p className="text-xs" style={{ color: 'var(--gray)' }}>預估費用</p>
+                <p className="mt-1 text-lg font-medium" style={{ color: 'var(--charcoal)' }}>NT$ {estimatedPrice.toLocaleString()}</p>
+              </div>
+            )}
             <label className="block text-sm" style={{ color: 'var(--charcoal)' }}>
               聯絡人姓名
               <input required value={form.name} onChange={e => set('name', e.target.value)} className="mt-2 w-full border bg-transparent px-3 py-3 text-base" style={{ borderColor: 'var(--border-color)' }} placeholder={displayName} />

@@ -1,3 +1,5 @@
+import { LINE_OA_URL as OA_URL } from './constants'
+
 const ACCESS_TOKEN = process.env.LINE_CHANNEL_ACCESS_TOKEN
 
 async function lineApiGet(endpoint: string): Promise<unknown | null> {
@@ -72,8 +74,6 @@ export function buildCalendarButtonFlex(calUrl: string, year: number, month: num
     },
   }
 }
-
-const OA_URL = 'https://lin.ee/RlmKDmn'
 
 const row = (label: string, value: string) => ({
   type: 'box', layout: 'horizontal',

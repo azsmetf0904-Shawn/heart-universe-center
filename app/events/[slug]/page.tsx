@@ -50,7 +50,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
 
   const isEnded = event.status === 'ended' || new Date(event.end_time) < new Date()
   const showReviews = event.status === 'ended'
-  const registered = event.event_registrations?.filter((r: { status: string }) => r.status === 'registered').length ?? 0
+  const registered = event.event_registrations?.filter((r: { status: string }) => ['registered', 'payment_pending'].includes(r.status)).length ?? 0
   const isFull = event.capacity ? registered >= event.capacity : false
   const { data: reviews, error: reviewsError } = showReviews
     ? await supabase

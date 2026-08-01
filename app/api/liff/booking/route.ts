@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
   const eventTitle = body.event_title?.trim() ?? ''
   const bookingDate = body.booking_date?.trim() ?? ''
   const timeSlot = (body.time_slot?.trim() ?? '') as TimeSlot | ''
+  const venueId = body.venue_id?.trim() ?? ''
   if (!name || !phone || !email || !eventTitle || !bookingDate || !timeSlot) {
     console.error('[liff/booking] invalid_params:', { name: Boolean(name), phone: Boolean(phone), email: Boolean(email), eventTitle: Boolean(eventTitle), bookingDate: Boolean(bookingDate), timeSlot: Boolean(timeSlot) })
     return NextResponse.json({ ok: false, error: 'invalid_params' }, { status: 400 })
@@ -39,19 +40,24 @@ export async function POST(req: NextRequest) {
 
   const supabase = await createAdminClient()
 
-  const { data: conflicts } = await supabase
-    .from('rental_requests')
-    .select('id')
-    .eq('booking_date', bookingDate)
-    .eq('time_slot', timeSlot)
-    .in('status', ['pending', 'confirmed', 'payment_pending', 'waitlist'])
-    .limit(1)
-  const isWaitlist = Boolean(conflicts && conflicts.length > 0)
+  let isWaitlist = false
+  if (venueId) {
+    const { data: conflicts, error: conflictError } = await supabase
+      .from('rental_requests')
+      .select('id')
+      .eq('venue_id', venueId)
+      .eq('booking_date', bookingDate)
+      .eq('time_slot', timeSlot)
+      .in('status', ['pending', 'confirmed', 'payment_pending', 'waitlist'])
+      .limit(1)
+    if (conflictError) console.error('[liff/booking] conflict check failed:', conflictError)
+    isWaitlist = Boolean(conflicts && conflicts.length > 0)
+  }
 
   const generatedCode = crypto.randomUUID().replace(/-/g, '').slice(0, 6).toUpperCase()
   const { data: booking, error } = await supabase.from('rental_requests').insert({
     line_user_id: lineUserId,
-    venue_id: body.venue_id || null,
+    venue_id: venueId || null,
     name, phone, email,
     event_title: eventTitle,
     booking_date: bookingDate,

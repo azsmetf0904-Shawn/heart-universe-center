@@ -8,7 +8,8 @@ import { SITE_URL } from '@/lib/seo'
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('events').select('title').eq('slug', slug).single()
+  const { data, error: metaError } = await supabase.from('events').select('title').eq('slug', slug).single()
+  if (metaError) console.error('[events/slug/gallery] generateMetadata query failed:', metaError)
   return {
     title: `${data?.title ?? ''} 活動回顧`,
     description: data?.title ? `${data.title} 活動照片回顧` : undefined,
@@ -19,11 +20,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 export default async function GalleryPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createClient()
-  const { data: event } = await supabase
+  const { data: event, error } = await supabase
     .from('events')
     .select('*, event_photos(image_url, caption, sort_order)')
     .eq('slug', slug)
     .single()
+  if (error) console.error('[events/slug/gallery] event query failed:', error)
 
   if (!event) notFound()
 

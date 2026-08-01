@@ -21,11 +21,12 @@ export const metadata: Metadata = {
 
 export default async function VenuesPage() {
   const supabase = await createClient()
-  const { data: venues } = await supabase
+  const { data: venues, error } = await supabase
     .from('venues')
     .select('*, venue_photos(image_url, sort_order)')
     .eq('is_active', true)
     .order('created_at')
+  if (error) console.error('[venues] list query failed:', error)
 
   const itemListLd = venues?.length ? {
     '@context': 'https://schema.org',

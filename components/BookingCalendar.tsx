@@ -1,7 +1,7 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import type { TimeSlot, VenuePricing } from '@/lib/types'
-import { getPriceForSlot } from '@/lib/types'
+import type { TimeSlot, VenuePricing, SlotStatus } from '@/lib/types'
+import { getPriceForSlot, SLOT_STATUS_LABEL } from '@/lib/types'
 
 const SLOTS: TimeSlot[] = ['morning', 'afternoon', 'evening']
 const DOW = ['日', '一', '二', '三', '四', '五', '六']
@@ -12,7 +12,6 @@ const SLOT_CONFIG: Record<TimeSlot, { label: string; short: string; time: string
   evening:   { label: '晚場', short: '晚', time: '18:30 – 21:30' },
 }
 
-type SlotStatus = 'available' | 'pending' | 'booked' | 'past'
 type MonthMap = Record<string, Record<string, string>>
 
 export interface CalendarSelection {
@@ -272,7 +271,7 @@ export function BookingCalendar({ venueId, pricing, onSelect, selected }: Props)
                   ) : (
                     <span className="text-[10px]"
                       style={{ color: isSelected ? 'rgba(255,255,255,0.7)' : 'var(--gray)' }}>
-                      {{ pending: '待確認', booked: '已預約', past: '已過期', available: '' }[status]}
+                      {status === 'available' ? '' : SLOT_STATUS_LABEL[status]}
                     </span>
                   )}
                 </button>

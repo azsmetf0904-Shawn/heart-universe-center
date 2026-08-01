@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { CTA } from '@/lib/cta'
+import { LINE_OA_URL } from '@/lib/constants'
 
 export default function Footer() {
   return (
@@ -44,6 +45,18 @@ export default function Footer() {
               如需洽詢請透過租借申請表<br />
               或掃描現場 QR Code 聯繫我們
             </p>
+            <a
+              href={LINE_OA_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 text-xs tracking-widest hover:text-white transition-colors mb-3"
+              style={{ color: 'var(--gold)' }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 11.5c0 4.14-4.03 7.5-9 7.5-.83 0-1.63-.09-2.39-.27L5 20.5l1.1-3.3C4.2 15.85 3 13.8 3 11.5 3 7.36 7.03 4 12 4s9 3.36 9 7.5Z"/>
+              </svg>
+              加入 LINE 好友，直接在 LINE 內預約／報名
+            </a>
             <a
               href="https://www.instagram.com/love_secondhand_charity"
               target="_blank"

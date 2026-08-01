@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from 'react'
 import { usePathname } from 'next/navigation'
 import { Menu, X, Settings, ChevronDown } from 'lucide-react'
 import { CTA } from '@/lib/cta'
+import { LINE_OA_URL } from '@/lib/constants'
 
 const mainLinks = [
   { href: '/venues', label: '場地介紹' },
@@ -19,6 +20,7 @@ const moreLinks = [
   { href: '/showcase', label: '活動回顧' },
   { href: '/news', label: '新聞連結' },
   { href: '/my-booking', label: '查詢申請狀態' },
+  { href: LINE_OA_URL, label: 'LINE 內預約／報名', external: true },
 ] as const
 
 export default function Navbar() {
@@ -141,8 +143,9 @@ export default function Navbar() {
                     key={l.href}
                     href={l.href}
                     onClick={() => setMoreOpen(false)}
+                    {...('external' in l && l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     className="block px-4 py-2 text-xs tracking-widest transition-colors hover:bg-[var(--surface)] hover:text-[var(--charcoal)]"
-                    style={{ color: 'var(--gray)' }}
+                    style={{ color: ('external' in l && l.external) ? 'var(--gold)' : 'var(--gray)' }}
                   >
                     {l.label}
                   </Link>
@@ -210,8 +213,9 @@ export default function Navbar() {
                       setOpen(false)
                       setMoreOpen(false)
                     }}
+                    {...('external' in l && l.external ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
                     className="text-sm tracking-widest"
-                    style={{ color: 'var(--gray)' }}
+                    style={{ color: ('external' in l && l.external) ? 'var(--gold)' : 'var(--gray)' }}
                   >
                     {l.label}
                   </Link>

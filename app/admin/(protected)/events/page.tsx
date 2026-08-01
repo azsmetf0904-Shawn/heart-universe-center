@@ -4,10 +4,11 @@ import EventsAdminClient from './EventsAdminClient'
 
 export default async function AdminEventsPage() {
   const supabase = await createClient()
-  const { data: events } = await supabase
+  const { data: events, error } = await supabase
     .from('events')
     .select('*, venue:venues(name), event_registrations(id, status)')
     .order('start_time', { ascending: false })
+  if (error) console.error('[admin/events] list query failed:', error)
   return (
     <div>
       <div className="flex items-center justify-between mb-8">

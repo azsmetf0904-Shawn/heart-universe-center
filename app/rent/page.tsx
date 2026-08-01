@@ -4,6 +4,7 @@ import { useSearchParams, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import type { Venue, VenueAddon, VenuePricing } from '@/lib/types'
+import { LINE_OA_URL } from '@/lib/constants'
 import {
   ADDON_CATEGORY_LABEL, TIME_SLOT_LABEL, LAYOUT_TYPES,
   isHoliday,
@@ -379,17 +380,19 @@ function RentForm() {
     try {
 
     // 檢查同日所有選取時段是否已有有效預約
+    // rental_requests 沒有公開 SELECT RLS 政策，瀏覽器端 anon client 直接查
+    // 會被安靜地擋成 0 筆（不是報錯），候補機制會整個失效卻毫無警訊——
+    // 改成呼叫伺服器端 API（用 admin client 查、只回傳布林值）。
     let isWaitlist = false
     const slotsToCheck = form.time_slots.length > 0 ? form.time_slots : (form.time_slot ? [form.time_slot] : [])
-    if (form.booking_date && slotsToCheck.length > 0) {
-      const { data: conflicts } = await supabase
-        .from('rental_requests')
-        .select('id')
-        .eq('booking_date', form.booking_date)
-        .in('time_slot', slotsToCheck)
-        .in('status', ['pending', 'confirmed', 'payment_pending', 'waitlist'])
-        .limit(1)
-      if (conflicts && conflicts.length > 0) isWaitlist = true
+    if (form.venue_id && form.booking_date && slotsToCheck.length > 0) {
+      const res = await fetch('/api/booking-availability', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ venue_id: form.venue_id, booking_date: form.booking_date, time_slots: slotsToCheck }),
+      })
+      const json = await res.json() as { ok: boolean; hasConflict?: boolean }
+      if (json.ok && json.hasConflict) isWaitlist = true
     }
 
     const generatedCode = crypto.randomUUID().replace(/-/g, '').slice(0, 6).toUpperCase()
@@ -575,7 +578,7 @@ function RentForm() {
             <span className="font-mono text-lg tracking-widest font-bold" style={{ color: 'var(--charcoal)' }}>{lineCode}</span>
           </div>
           <ol className="text-xs leading-relaxed space-y-1.5" style={{ color: 'var(--gray)' }}>
-            <li>1. <a href="https://lin.ee/wMS5gQU" target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--gold)' }}>點此加入心宇宙官方帳號</a></li>
+            <li>1. <a href={LINE_OA_URL} target="_blank" rel="noopener noreferrer" className="underline" style={{ color: 'var(--gold)' }}>點此加入心宇宙官方帳號</a></li>
             <li>2. 傳送驗證碼 <strong style={{ color: 'var(--charcoal)' }}>{lineCode}</strong> 給官方帳號</li>
             <li>3. 收到確認訊息後即完成綁定 ✅</li>
           </ol>
@@ -645,7 +648,7 @@ function RentForm() {
             <p className="text-[11px] leading-relaxed" style={{ color: 'var(--gray)' }}>
               加入心宇宙官方帳號，匯款確認後我們將第一時間推播通知給您。
             </p>
-            <a href="https://lin.ee/wMS5gQU" target="_blank" rel="noopener noreferrer"
+            <a href={LINE_OA_URL} target="_blank" rel="noopener noreferrer"
               className="inline-block mt-2 text-[11px] px-3 py-1 text-white"
               style={{ background: '#06C755' }}>
               + 加入官方 LINE
@@ -777,8 +780,9 @@ function RentForm() {
                 { key: 'event_title', label: '活動名稱', type: 'text' },
               ].map(f => (
                 <div key={f.key}>
-                  <label className="form-label mb-2">{f.label}</label>
+                  <label htmlFor={f.key} className="form-label mb-2">{f.label}</label>
                   <input
+                    id={f.key}
                     type={f.type}
                     value={form[f.key as keyof RentFormState] as string}
                     onChange={e => {
@@ -801,8 +805,9 @@ function RentForm() {
             {/* Venue selector */}
             {venues.length > 0 && (
               <div>
-                <label className="form-label mb-2">選擇場地</label>
+                <label htmlFor="venue_id" className="form-label mb-2">選擇場地</label>
                 <select
+                  id="venue_id"
                   value={form.venue_id}
                   onChange={e => handleVenueChange(e.target.value)}
                   onBlur={() => {
@@ -845,15 +850,16 @@ function RentForm() {
             {/* Sessions */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="form-label mb-2">租借時段數</label>
-                <select value={form.session_count} onChange={e => setForm(p => ({ ...p, session_count: e.target.value }))}
+                <label htmlFor="session_count" className="form-label mb-2">租借時段數</label>
+                <select id="session_count" value={form.session_count} onChange={e => setForm(p => ({ ...p, session_count: e.target.value }))}
                   className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)]">
                   {[1, 2, 3].map(n => <option key={n} value={n}>{n} 個時段{n > 1 ? '（連租）' : ''}</option>)}
                 </select>
               </div>
               <div>
-                <label className="form-label mb-2">座位配置</label>
+                <label htmlFor="layout_config" className="form-label mb-2">座位配置</label>
                 <select
+                  id="layout_config"
                   value={form.layout_config}
                   onChange={e => setForm(p => ({ ...p, layout_config: e.target.value as LayoutType | '' }))}
                   className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)]"
@@ -878,8 +884,8 @@ function RentForm() {
               {showOptional && (
                 <div className="py-4 flex flex-col gap-6">
                   <div>
-                    <label className="form-label mb-2">活動類型</label>
-                    <select value={form.event_type} onChange={e => setForm(p => ({ ...p, event_type: e.target.value }))}
+                    <label htmlFor="event_type" className="form-label mb-2">活動類型</label>
+                    <select id="event_type" value={form.event_type} onChange={e => setForm(p => ({ ...p, event_type: e.target.value }))}
                       className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)]">
                       <option value="">請選擇</option>
                       {EVENT_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
@@ -887,16 +893,16 @@ function RentForm() {
                   </div>
 
                   <div>
-                    <label className="form-label mb-2">預計人數</label>
-                    <input type="number" min="1" value={form.guest_count}
+                    <label htmlFor="guest_count" className="form-label mb-2">預計人數</label>
+                    <input id="guest_count" type="number" min="1" value={form.guest_count}
                       onChange={e => setForm(p => ({ ...p, guest_count: e.target.value }))}
                       className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)]"
                     />
                   </div>
 
                   <div>
-                    <label className="form-label mb-2">備註需求</label>
-                    <textarea rows={3} value={form.note} onChange={e => setForm(p => ({ ...p, note: e.target.value }))}
+                    <label htmlFor="note" className="form-label mb-2">備註需求</label>
+                    <textarea id="note" rows={3} value={form.note} onChange={e => setForm(p => ({ ...p, note: e.target.value }))}
                       className="w-full border border-[var(--border-color)] bg-transparent px-4 py-3 text-sm focus:outline-none focus:border-[var(--gold)] resize-none"
                     />
                   </div>
@@ -939,8 +945,14 @@ function RentForm() {
                       const sel = selected[a.id]
                       return (
                         <div key={a.id}
+                          role="checkbox"
+                          aria-checked={!!sel}
+                          tabIndex={0}
                           className={`border p-4 cursor-pointer transition-colors ${sel ? 'border-[var(--gold)] bg-[var(--card-bg)]' : 'border-[var(--border-color)]'}`}
                           onClick={() => toggleAddon(a)}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleAddon(a) }
+                          }}
                         >
                           <div className="flex items-start justify-between gap-4">
                             <div className="flex items-start gap-3">
@@ -1107,7 +1119,7 @@ function RentForm() {
                   <p className="text-[11px] leading-relaxed mb-2" style={{ color: 'var(--gray)' }}>
                     加入好友後才能收到預約確認、匯款提醒及審核通知。
                   </p>
-                  <a href="https://lin.ee/wMS5gQU" target="_blank" rel="noopener noreferrer"
+                  <a href={LINE_OA_URL} target="_blank" rel="noopener noreferrer"
                     className="inline-block text-[11px] px-3 py-1.5 text-white"
                     style={{ background: '#06C755' }}>
                     ＋ 加入心宇宙官方帳號

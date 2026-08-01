@@ -13,7 +13,8 @@ import { SITE_URL as SITE, HEART_UNIVERSE_ADDRESS } from '@/lib/seo'
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('venues').select('name, description').eq('slug', slug).single()
+  const { data, error: metaError } = await supabase.from('venues').select('name, description').eq('slug', slug).single()
+  if (metaError) console.error('[venues/slug] generateMetadata query failed:', metaError)
   return {
     title: `台北松山場地租借｜${data?.name ?? '場地詳情'}`,
     description: data?.description ?? `心宇宙商務中心 ${data?.name ?? '場地'} — 台北松山八德路企業培訓、講座與工作坊場地租借`,
@@ -102,14 +103,25 @@ function LayoutTable({ capacities }: { capacities: Partial<Record<LayoutType, nu
 export default async function VenueDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createClient()
-  const { data: venue } = await supabase
+  const { data: venue, error: venueError } = await supabase
     .from('venues')
     .select('*, venue_photos(image_url, alt_text, sort_order), venue_pricing(*)')
     .eq('slug', slug)
     .eq('is_active', true)
     .single()
+  if (venueError) console.error('[venues/slug] venue query failed:', venueError)
 
   if (!venue) notFound()
+
+  const { data: upcomingEvents, error: eventsError } = await supabase
+    .from('events')
+    .select('id, title, slug, start_time')
+    .eq('venue_id', venue.id)
+    .eq('status', 'published')
+    .gte('start_time', new Date().toISOString())
+    .order('start_time', { ascending: true })
+    .limit(3)
+  if (eventsError) console.error('[venues/slug] upcoming events query failed:', eventsError)
 
   const photos = (venue.venue_photos ?? []).sort((a: { sort_order: number; alt_text?: string }, b: { sort_order: number }) => a.sort_order - b.sort_order)
   const pricing: VenuePricing[] = venue.venue_pricing ?? []
@@ -351,6 +363,31 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
               {CTA.venue.applyRental} <ArrowRight size={14} />
             </Link>
           </div>
+
+          {/* Upcoming events at this venue */}
+          {upcomingEvents && upcomingEvents.length > 0 && (
+            <div className="bg-[var(--card-bg)] border border-[var(--border-color)] p-6">
+              <p className="label-tag mb-4">近期在此舉辦的活動課程</p>
+              <div className="flex flex-col gap-4">
+                {upcomingEvents.map(ev => (
+                  <Link key={ev.id} href={`/events/${ev.slug}`} className="group block">
+                    <p className="text-xs text-[var(--gold)] mb-1">
+                      {new Date(ev.start_time).toLocaleDateString('zh-TW', { timeZone: 'Asia/Taipei', month: 'long', day: 'numeric' })}
+                    </p>
+                    <p className="text-sm text-[var(--charcoal)] group-hover:text-[var(--gold)] transition-colors leading-snug">
+                      {ev.title}
+                    </p>
+                  </Link>
+                ))}
+              </div>
+              <Link
+                href="/events"
+                className="mt-4 inline-flex items-center gap-1 text-xs tracking-widest text-[var(--gray)] hover:text-[var(--gold)] transition-colors"
+              >
+                查看所有活動課程 <ArrowRight size={11} />
+              </Link>
+            </div>
+          )}
 
           {/* Transport info */}
           <div className="bg-[var(--card-bg)] border border-[var(--border-color)] p-6">

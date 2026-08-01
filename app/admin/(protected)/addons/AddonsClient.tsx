@@ -27,7 +27,7 @@ export default function AddonsClient({ initialData }: { initialData: VenueAddon[
   const supabase = createClient()
 
   async function saveEdit(id: string) {
-    await supabase.from('venue_addons').update({
+    const { error } = await supabase.from('venue_addons').update({
       name: editRow.name,
       description: editRow.description,
       price: editRow.price,
@@ -36,12 +36,13 @@ export default function AddonsClient({ initialData }: { initialData: VenueAddon[
       is_available: editRow.is_available,
       sort_order: editRow.sort_order,
     }).eq('id', id)
+    if (error) { console.error('[admin/addons] saveEdit failed:', error); return }
     setAddons(a => a.map(x => x.id === id ? { ...x, ...editRow } as VenueAddon : x))
     setEditing(null)
   }
 
   async function addNew() {
-    const { data } = await supabase.from('venue_addons').insert({
+    const { data, error } = await supabase.from('venue_addons').insert({
       name: newRow.name,
       category: newRow.category,
       description: newRow.description || null,
@@ -51,6 +52,7 @@ export default function AddonsClient({ initialData }: { initialData: VenueAddon[
       is_available: true,
       sort_order: newRow.sort_order ?? 0,
     }).select().single()
+    if (error) console.error('[admin/addons] addNew failed:', error)
     if (data) {
       setAddons(a => [...a, data])
       setShowAdd(false)
@@ -61,7 +63,8 @@ export default function AddonsClient({ initialData }: { initialData: VenueAddon[
   async function toggleAvailable(id: string, val: boolean) {
     const label = val ? '啟用' : '停用'
     if (!window.confirm(`確定要${label}此加購品項嗎？`)) return
-    await supabase.from('venue_addons').update({ is_available: val }).eq('id', id)
+    const { error } = await supabase.from('venue_addons').update({ is_available: val }).eq('id', id)
+    if (error) { console.error('[admin/addons] toggleAvailable failed:', error); return }
     setAddons(a => a.map(x => x.id === id ? { ...x, is_available: val } : x))
   }
 

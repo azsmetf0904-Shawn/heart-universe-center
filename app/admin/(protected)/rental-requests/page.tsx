@@ -4,10 +4,11 @@ import { AdminCalendar } from '@/components/AdminCalendar'
 
 export default async function RentalRequestsPage() {
   const supabase = await createClient()
-  const { data: requests } = await supabase
+  const { data: requests, error } = await supabase
     .from('rental_requests')
     .select('*, venue:venues(name), rental_addons(*, venue_addons(name, price, unit))')
     .order('created_at', { ascending: false })
+  if (error) console.error('[admin/rental-requests] list query failed:', error)
 
   return (
     <div>

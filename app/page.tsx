@@ -142,10 +142,17 @@ async function HomePageContent() {
           </div>
 
           {/* Mobile background photo */}
-          <div className="absolute inset-0 md:hidden pointer-events-none" style={{
-            backgroundImage: `url(https://sdxwufrolnbobstfuvtc.supabase.co/storage/v1/object/public/venues-photos/venues/ee0cbe6d-9043-4bce-9459-23a0a63f3d0e/venue-real-6.jpg)`,
-            backgroundSize: 'cover', backgroundPosition: 'center', opacity: 0.28,
-          }} />
+          <div className="absolute inset-0 md:hidden pointer-events-none">
+            <Image
+              src="https://sdxwufrolnbobstfuvtc.supabase.co/storage/v1/object/public/venues-photos/venues/ee0cbe6d-9043-4bce-9459-23a0a63f3d0e/venue-real-6.jpg"
+              alt=""
+              fill
+              priority
+              className="object-cover"
+              sizes="100vw"
+              style={{ opacity: 0.28 }}
+            />
+          </div>
 
           {/* Decorative rings */}
           <div className="absolute pointer-events-none" style={{ bottom: -80, right: -80, width: 280, height: 280, borderRadius: '50%', border: '1px solid rgba(176,120,80,.12)' }} />
