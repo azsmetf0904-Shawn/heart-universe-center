@@ -130,6 +130,10 @@ CREATE TABLE IF NOT EXISTS event_registrations (
   checked_in_at timestamptz,
   check_in_token uuid DEFAULT gen_random_uuid() UNIQUE,
   line_user_id text,                 -- 綁定的 LINE userId（LIFF 課程報名推播用）
+  payment_last5 varchar,             -- 付費課程：客戶回報的匯款帳號末五碼
+  payment_date date,
+  payment_amount int,
+  payment_reported_at timestamptz,
   created_at timestamptz DEFAULT now()
 );
 

@@ -519,9 +519,128 @@ export function buildCourseMenuFlex() {
   }
 }
 
+function getCoursePaymentLiffUrl() {
+  // 跟 getPaymentLiffUrl() 同樣故意不用 liff.line.me 捷徑，直連自家網域。
+  return `${SITE_URL}/liff/course-payment-report`
+}
+
 export function buildCourseRegistrationConfirmFlex(
   name: string, eventTitle: string, startTime: string, isPaid: boolean, price: number,
 ) {
+  const dateLabel = new Date(startTime).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  const headerColor = isPaid ? '#C4A038' : '#22C55E'
+  const bodyContents: unknown[] = [
+    row('課程', eventTitle),
+    row('時間', dateLabel),
+  ]
+  if (isPaid) {
+    bodyContents.push(
+      { type: 'separator', margin: 'md' },
+      { type: 'text', text: '匯款資訊', weight: 'bold', size: 'sm', margin: 'md', color: '#C4A038' },
+      row('費用', `NT$ ${price.toLocaleString()}`),
+      row('銀行', '中國信託 822 北投'),
+      row('帳號', '680541314031'),
+      row('戶名', '財富女神股份有限公司'),
+      { type: 'text', text: '請於 3 個工作日內完成匯款，並點下方按鈕回報，我們確認入帳後將正式核准報名。', size: 'xs', color: '#888888', margin: 'sm', wrap: true },
+    )
+  } else {
+    bodyContents.push(
+      { type: 'separator', margin: 'md' },
+      { type: 'text', text: '請至活動頁查看簽到 QR Code，活動當天出示即可完成簽到。', size: 'xs', color: '#888888', wrap: true, margin: 'md' },
+    )
+  }
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: headerColor, paddingAll: '16px',
+      contents: [
+        { type: 'text', text: '心宇宙商務中心', color: '#F0D9B0', size: 'xs' },
+        { type: 'text', text: isPaid ? `${name}，報名已收到！` : '✅ 課程報名成功', color: '#FFFFFF', weight: 'bold', size: 'lg' },
+        { type: 'text', text: isPaid ? '請完成匯款以確認名額' : `${name}，期待您的參與！`, color: '#FFFFFF', size: 'sm', wrap: true },
+      ],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: bodyContents,
+    },
+    footer: {
+      type: 'box', layout: 'vertical', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'primary', color: headerColor, height: 'sm',
+          action: isPaid
+            ? { type: 'uri', label: 'LINE 內回報匯款', uri: getCoursePaymentLiffUrl() }
+            : { type: 'uri', label: '查看所有課程', uri: `${SITE_URL}/events` } },
+      ],
+    },
+  }
+}
+
+export function buildAdminNewRegistrationFlex(
+  registrationId: string, name: string, phone: string, email: string,
+  eventTitle: string, startTime: string, isPaid: boolean, price: number,
+) {
+  const dateLabel = new Date(startTime).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
+  const postback = (action: string) => `action=${action}&entity=registration&id=${registrationId}`
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#C4A038', paddingAll: '16px',
+      contents: [{ type: 'text', text: '🎓 新課程報名', color: '#FFFFFF', weight: 'bold', size: 'md' }],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [
+        row('姓名', name), row('電話', phone), row('Email', email),
+        row('課程', eventTitle), row('時間', dateLabel),
+        row('費用', isPaid ? `NT$ ${price.toLocaleString()}（待付款）` : '免費'),
+      ],
+    },
+    footer: isPaid ? undefined : {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '12px',
+      contents: [
+        { type: 'button', style: 'secondary', height: 'sm',
+          action: { type: 'postback', label: '取消報名', data: postback('cancel') } },
+      ],
+    },
+  }
+}
+
+export function buildAdminEventPaymentFlex(
+  registrationId: string, name: string, eventTitle: string,
+  last5: string, paymentDate: string, amount: number,
+) {
+  const postback = (action: string) => `action=${action}&entity=registration&id=${registrationId}`
+  return {
+    type: 'bubble',
+    header: {
+      type: 'box', layout: 'vertical', backgroundColor: '#C4A038', paddingAll: '16px',
+      contents: [{ type: 'text', text: '💰 課程報名已回報匯款', color: '#FFFFFF', weight: 'bold', size: 'md' }],
+    },
+    body: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
+      contents: [
+        row('姓名', name), row('課程', eventTitle),
+        { type: 'separator', margin: 'md' },
+        row('末5碼', last5), row('匯款日', paymentDate), row('金額', `NT$ ${amount.toLocaleString()}`),
+      ],
+    },
+    footer: {
+      type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '12px',
+      contents: [
+        { type: 'box', layout: 'horizontal', spacing: 'sm', contents: [
+          { type: 'button', style: 'primary', color: '#4ade80', height: 'sm',
+            action: { type: 'postback', label: '確認入帳', data: postback('event_payment_confirm') } },
+          { type: 'button', style: 'secondary', height: 'sm',
+            action: { type: 'postback', label: '退回修改', data: postback('event_payment_return') } },
+          { type: 'button', style: 'primary', color: '#f87171', height: 'sm',
+            action: { type: 'postback', label: '取消', data: postback('cancel') } },
+        ]},
+      ],
+    },
+  }
+}
+
+export function buildEventPaymentConfirmedFlex(name: string, eventTitle: string, startTime: string) {
   const dateLabel = new Date(startTime).toLocaleString('zh-TW', { timeZone: 'Asia/Taipei', month: 'numeric', day: 'numeric', hour: '2-digit', minute: '2-digit' })
   return {
     type: 'bubble',
@@ -529,18 +648,14 @@ export function buildCourseRegistrationConfirmFlex(
       type: 'box', layout: 'vertical', backgroundColor: '#22C55E', paddingAll: '16px',
       contents: [
         { type: 'text', text: '心宇宙商務中心', color: '#D1FAE5', size: 'xs' },
-        { type: 'text', text: '✅ 課程報名成功', color: '#FFFFFF', weight: 'bold', size: 'lg' },
-        { type: 'text', text: `${name}，期待您的參與！`, color: '#FFFFFF', size: 'sm', wrap: true },
+        { type: 'text', text: '✅ 付款已確認，報名成立', color: '#FFFFFF', weight: 'bold', size: 'lg' },
       ],
     },
     body: {
       type: 'box', layout: 'vertical', spacing: 'sm', paddingAll: '16px',
       contents: [
-        row('課程', eventTitle),
-        row('時間', dateLabel),
-        ...(isPaid ? [row('費用', `NT$ ${price.toLocaleString()}`)] : []),
-        { type: 'separator', margin: 'md' },
-        { type: 'text', text: '請至活動頁查看簽到 QR Code，活動當天出示即可完成簽到。', size: 'xs', color: '#888888', wrap: true, margin: 'md' },
+        { type: 'text', text: `${name}，期待您的參與！`, size: 'sm', wrap: true },
+        row('課程', eventTitle), row('時間', dateLabel),
       ],
     },
     footer: {
