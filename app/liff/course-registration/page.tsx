@@ -29,6 +29,7 @@ export default function LiffCourseRegistrationPage() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
   const [qrDataUrl, setQrDataUrl] = useState('')
+  const [needsLogin, setNeedsLogin] = useState(false)
 
   const selected = useMemo(() => events.find(e => e.id === selectedId) ?? null, [events, selectedId])
 
@@ -38,7 +39,9 @@ export default function LiffCourseRegistrationPage() {
       try {
         await liff.init({ liffId })
         if (!liff.isLoggedIn()) {
-          liff.login({ redirectUri: window.location.href })
+          // 故意不自動呼叫 liff.login()，見 app/liff/booking/page.tsx 同段註解。
+          setNeedsLogin(true)
+          setLoading(false)
           return
         }
         const token = liff.getAccessToken()
@@ -62,6 +65,10 @@ export default function LiffCourseRegistrationPage() {
       }
     })
   }, [])
+
+  function loginWithLine() {
+    import('@line/liff').then(({ default: liff }) => liff.login({ redirectUri: window.location.href }))
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
@@ -105,6 +112,12 @@ export default function LiffCourseRegistrationPage() {
         </div>
 
         {loading && <div className="flex items-center gap-2 text-sm" style={{ color: 'var(--gray)' }}><Loader2 size={16} className="animate-spin" /> 載入中…</div>}
+
+        {!loading && needsLogin && (
+          <button onClick={loginWithLine} className="btn-gold-fill w-full justify-center px-5 py-3 text-sm tracking-widest">
+            使用 LINE 登入開始報名
+          </button>
+        )}
 
         {!loading && error && (
           <div className="rounded-2xl border p-5" style={{ borderColor: 'rgba(196,160,56,.25)', background: 'rgba(196,160,56,.06)' }}>
