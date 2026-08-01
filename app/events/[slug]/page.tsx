@@ -49,17 +49,39 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
   if (!event) notFound()
 
   const isEnded = event.status === 'ended' || new Date(event.end_time) < new Date()
-  const showReviews = event.status === 'ended'
   const registered = event.event_registrations?.filter((r: { status: string }) => ['registered', 'payment_pending'].includes(r.status)).length ?? 0
   const isFull = event.capacity ? registered >= event.capacity : false
-  const { data: reviews, error: reviewsError } = showReviews
+
+  // 同名課程視為同一個課程系列的不同梯次：其他梯次連結 + 課程見證
+  // 都跨梯次彙整，而不是只綁在「這一場」上——見證應該是課程本身累積的
+  // 口碑，不該因為挑到還沒開課的那個場次就完全看不到過去學員的回饋。
+  const { data: otherSessions, error: sessionsError } = await supabase
+    .from('events')
+    .select('id, slug, start_time')
+    .eq('title', event.title)
+    .neq('id', event.id)
+    .eq('status', 'published')
+    .gte('start_time', new Date().toISOString())
+    .order('start_time', { ascending: true })
+    .limit(5)
+  if (sessionsError) console.error('[events/slug] other sessions query failed:', sessionsError)
+
+  const { data: sameTitleEvents, error: sameTitleError } = await supabase
+    .from('events')
+    .select('id')
+    .eq('title', event.title)
+  if (sameTitleError) console.error('[events/slug] same-title events lookup failed:', sameTitleError)
+  const seriesEventIds = (sameTitleEvents ?? []).map(e => e.id)
+
+  const { data: reviews, error: reviewsError } = seriesEventIds.length > 0
     ? await supabase
         .from('event_reviews')
         .select('id, reviewer_name, content, created_at')
-        .eq('event_id', event.id)
+        .in('event_id', seriesEventIds)
         .order('created_at', { ascending: false })
     : { data: [], error: null }
   if (reviewsError) console.error('[events/slug] reviews query failed:', reviewsError)
+  const showReviewForm = event.status === 'ended'
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -172,10 +194,24 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
               </Link>
             )}
           </div>
+
+          {otherSessions && otherSessions.length > 0 && (
+            <div className="bg-[var(--card-bg)] border border-[var(--border-color)] p-6">
+              <p className="label-tag mb-4">其他梯次</p>
+              <div className="flex flex-col gap-3">
+                {otherSessions.map(s => (
+                  <Link key={s.id} href={`/events/${s.slug}`} className="group block text-sm">
+                    <span className="text-[var(--gold)]">{formatDateTime(s.start_time)}</span>
+                    <ArrowRight size={12} className="inline-block ml-1.5 -mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
-      {showReviews && (
+      {((reviews && reviews.length > 0) || showReviewForm) && (
         <div className="container-narrow mt-16 md:mt-20">
           <div className="mb-8">
             <p className="label-tag mb-3">Reviews</p>
@@ -199,7 +235,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ sl
             </div>
           )}
 
-          <ReviewForm eventId={event.id} />
+          {showReviewForm && <ReviewForm eventId={event.id} />}
         </div>
       )}
     </div>
