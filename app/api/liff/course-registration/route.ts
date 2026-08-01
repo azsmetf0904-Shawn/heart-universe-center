@@ -23,7 +23,10 @@ export async function GET(req: NextRequest) {
     .eq('status', 'published')
     .gte('start_time', new Date().toISOString())
     .order('start_time', { ascending: true })
-  if (error) return NextResponse.json({ ok: false, error: 'lookup_failed' }, { status: 500 })
+  if (error) {
+    console.error('[liff/course-registration] events lookup failed:', error)
+    return NextResponse.json({ ok: false, error: 'lookup_failed' }, { status: 500 })
+  }
   return NextResponse.json({ ok: true, events: data ?? [] })
 }
 
@@ -49,7 +52,10 @@ export async function POST(req: NextRequest) {
     .eq('id', eventId)
     .eq('status', 'published')
     .single()
-  if (eventError || !event) return NextResponse.json({ ok: false, error: 'event_not_found' }, { status: 404 })
+  if (eventError || !event) {
+    console.error('[liff/course-registration] event lookup failed:', eventError)
+    return NextResponse.json({ ok: false, error: 'event_not_found' }, { status: 404 })
+  }
 
   const { data: registration, error } = await supabase.from('event_registrations').insert({
     event_id: eventId,
@@ -58,7 +64,10 @@ export async function POST(req: NextRequest) {
     note: body.note?.trim() || null,
   }).select('id, check_in_token').single()
 
-  if (error || !registration) return NextResponse.json({ ok: false, error: 'insert_failed' }, { status: 500 })
+  if (error || !registration) {
+    console.error('[liff/course-registration] insert failed:', error)
+    return NextResponse.json({ ok: false, error: 'insert_failed' }, { status: 500 })
+  }
 
   await linePushFlex(
     lineUserId, `${name}，課程報名成功！`,

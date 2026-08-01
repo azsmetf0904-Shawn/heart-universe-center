@@ -21,7 +21,10 @@ export async function POST(req: NextRequest) {
   const accessToken = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '').trim() ?? ''
   const identity = await verifyLineAccessToken(accessToken)
   const lineUserId = identity?.userId
-  if (!lineUserId) return NextResponse.json({ ok: false, error: 'line_auth_required' }, { status: 401 })
+  if (!lineUserId) {
+    console.error('[liff/booking] line auth failed, token present:', Boolean(accessToken))
+    return NextResponse.json({ ok: false, error: 'line_auth_required' }, { status: 401 })
+  }
 
   const name = body.name?.trim() ?? ''
   const phone = body.phone?.trim() ?? ''
@@ -30,6 +33,7 @@ export async function POST(req: NextRequest) {
   const bookingDate = body.booking_date?.trim() ?? ''
   const timeSlot = (body.time_slot?.trim() ?? '') as TimeSlot | ''
   if (!name || !phone || !email || !eventTitle || !bookingDate || !timeSlot) {
+    console.error('[liff/booking] invalid_params:', { name: Boolean(name), phone: Boolean(phone), email: Boolean(email), eventTitle: Boolean(eventTitle), bookingDate: Boolean(bookingDate), timeSlot: Boolean(timeSlot) })
     return NextResponse.json({ ok: false, error: 'invalid_params' }, { status: 400 })
   }
 
@@ -59,7 +63,10 @@ export async function POST(req: NextRequest) {
     line_code: generatedCode,
   }).select('id, venues(name)').single()
 
-  if (error || !booking) return NextResponse.json({ ok: false, error: 'insert_failed' }, { status: 500 })
+  if (error || !booking) {
+    console.error('[liff/booking] insert failed:', error)
+    return NextResponse.json({ ok: false, error: 'insert_failed' }, { status: 500 })
+  }
 
   const venueName = (booking.venues as unknown as { name?: string } | null)?.name ?? ''
   const slotLabel = TIME_SLOT_LABEL[timeSlot as TimeSlot] ?? timeSlot
