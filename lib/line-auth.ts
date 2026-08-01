@@ -2,10 +2,11 @@ type LineProfile = { userId: string }
 
 export async function verifyLineAccessToken(accessToken: string): Promise<LineProfile | null> {
   if (!accessToken) return null
-  const verify = await fetch('https://api.line.me/oauth2/v2.1/verify', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ access_token: accessToken }),
+  // 驗證 access token 要用 GET + query string，不是 POST + body。
+  // POST /oauth2/v2.1/verify 是設計給「驗證 id_token」用的（要求欄位是
+  // id_token），之前誤用同一支端點驗證 access_token，導致這個函式從
+  // 未真正驗證成功過（連既有的 /liff/payment-report 也受影響）。
+  const verify = await fetch(`https://api.line.me/oauth2/v2.1/verify?access_token=${encodeURIComponent(accessToken)}`, {
     cache: 'no-store',
   })
   if (!verify.ok) {

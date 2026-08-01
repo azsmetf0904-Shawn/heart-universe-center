@@ -52,8 +52,10 @@ export default function LiffPaymentReportPage() {
         if (!token) throw new Error('LINE access token unavailable')
         setAccessToken(token)
         const res = await fetch('/api/liff/payment-report', { headers: { Authorization: `Bearer ${token}` } })
-        const json = await res.json() as { ok: boolean; bookings?: Booking[] }
-        if (!json.ok || !json.bookings?.length) {
+        const json = await res.json() as { ok: boolean; error?: string; bookings?: Booking[] }
+        if (!json.ok) {
+          setError(json.error === 'line_auth_required' ? 'LINE 登入驗證失敗，請改用網站查詢。' : '載入預約失敗，請改用網站查詢。')
+        } else if (!json.bookings?.length) {
           setError('找不到可回報的預約，請改用網站查詢。')
         } else {
           setBookings(json.bookings)
