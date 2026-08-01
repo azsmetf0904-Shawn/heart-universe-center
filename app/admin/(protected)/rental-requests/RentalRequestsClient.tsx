@@ -127,7 +127,8 @@ export default function RentalRequestsClient({ initialData }: { initialData: Ren
   async function saveNote(id: string) {
     const supabase = createClient()
     const note = adminNotes[id] ?? ''
-    await supabase.from('rental_requests').update({ admin_note: note }).eq('id', id)
+    const { error } = await supabase.from('rental_requests').update({ admin_note: note }).eq('id', id)
+    if (error) { console.error('[admin/rental-requests] saveNote failed:', error); return }
     setRequests(r => r.map(req => req.id === id ? { ...req, admin_note: note } : req))
   }
 

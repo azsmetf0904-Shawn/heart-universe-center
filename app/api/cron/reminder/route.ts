@@ -22,29 +22,33 @@ export async function GET(req: NextRequest) {
   if (endedError) console.error('[cron/reminder] auto-end events failed:', endedError)
 
   // 付款期限到期後自動取消仍未付款的申請，避免場地長期被佔用。
-  const { data: expired, error: expiredError } = await supabase
+  // 用單一 bulk update（帶 .eq('status','pending') 當樂觀鎖）取代逐筆 update，
+  // .select() 回傳的就是「真的被這次更新到」的那些列（排除掉同時間被
+  // 管理員手動確認、狀態已經不是 pending 的列），效果跟逐筆檢查一樣但只打一次 DB。
+  const { data: expiredCandidates, error: expiredLookupError } = await supabase
     .from('rental_requests')
-    .select('id, name, event_title, line_user_id')
+    .select('id')
     .eq('status', 'pending')
     .not('payment_due_at', 'is', null)
     .lt('payment_due_at', new Date().toISOString())
-  if (expiredError) console.error('[cron/reminder] expired-bookings lookup failed:', expiredError)
+  if (expiredLookupError) console.error('[cron/reminder] expired-bookings lookup failed:', expiredLookupError)
 
   const expiredIds: string[] = []
-  for (const booking of expired ?? []) {
-    const { data: updated, error: expireUpdateError } = await supabase
+  const candidateIds = (expiredCandidates ?? []).map(b => b.id)
+  if (candidateIds.length > 0) {
+    const { data: cancelled, error: expireUpdateError } = await supabase
       .from('rental_requests')
       .update({ status: 'cancelled', admin_note: '付款期限已到期，系統自動取消' })
-      .eq('id', booking.id)
+      .in('id', candidateIds)
       .eq('status', 'pending')
-      .select('id')
-      .maybeSingle()
-    if (expireUpdateError) console.error('[cron/reminder] auto-cancel update failed:', booking.id, expireUpdateError)
-    if (!updated) continue
-    expiredIds.push(booking.id)
-    if (booking.line_user_id) {
-      const { buildCancelledFlex } = await import('@/lib/line')
-      await linePushFlex(booking.line_user_id, `${booking.name}，您的場地申請已逾期取消`, buildCancelledFlex(booking.name, booking.event_title)).catch(() => {})
+      .select('id, name, event_title, line_user_id')
+    if (expireUpdateError) console.error('[cron/reminder] auto-cancel update failed:', expireUpdateError)
+    for (const booking of cancelled ?? []) {
+      expiredIds.push(booking.id)
+      if (booking.line_user_id) {
+        const { buildCancelledFlex } = await import('@/lib/line')
+        await linePushFlex(booking.line_user_id, `${booking.name}，您的場地申請已逾期取消`, buildCancelledFlex(booking.name, booking.event_title)).catch(() => {})
+      }
     }
   }
 

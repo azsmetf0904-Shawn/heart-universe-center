@@ -1,7 +1,8 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
 import Link from 'next/link'
-import type { TimeSlot } from '@/lib/types'
+import type { TimeSlot, SlotStatus } from '@/lib/types'
+import { SLOT_STATUS_LABEL } from '@/lib/types'
 import { CTA } from '@/lib/cta'
 
 const SLOTS: TimeSlot[] = ['morning', 'afternoon', 'evening']
@@ -13,7 +14,6 @@ const SLOT_CONFIG: Record<TimeSlot, { label: string; time: string }> = {
   evening:   { label: '晚場', time: '18:30–21:30' },
 }
 
-type SlotStatus = 'available' | 'pending' | 'booked' | 'past'
 type MonthMap = Record<string, Record<string, string>>
 
 function toLocalDateStr(d: Date) {
@@ -40,12 +40,7 @@ const STATUS_BG: Record<SlotStatus, string> = {
   booked:    '#fca5a5',  // red-300
   past:      '#e5e7eb',  // gray-200
 }
-const STATUS_LABEL: Record<SlotStatus, string> = {
-  available: '可預約',
-  pending:   '待確認',
-  booked:    '已預約',
-  past:      '已過期',
-}
+const STATUS_LABEL = SLOT_STATUS_LABEL
 
 interface Props {
   venueId: string

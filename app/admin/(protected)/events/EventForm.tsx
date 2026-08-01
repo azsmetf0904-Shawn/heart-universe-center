@@ -33,6 +33,7 @@ export default function EventForm({ venues, initial }: Props) {
     category: initial?.category ?? CATEGORIES[0],
   })
   const [saving, setSaving] = useState(false)
+  const [saveError, setSaveError] = useState('')
 
   function slugify(v: string) {
     return v.toLowerCase().replace(/[\s_]+/g, '-').replace(/[^a-z0-9一-鿿-]/g, '').slice(0, 60)
@@ -40,6 +41,7 @@ export default function EventForm({ venues, initial }: Props) {
 
   async function handleSave() {
     setSaving(true)
+    setSaveError('')
     const supabase = createClient()
     const payload = {
       title: form.title,
@@ -56,12 +58,15 @@ export default function EventForm({ venues, initial }: Props) {
       external_url: form.external_url || null,
       category: form.category || null,
     }
-    if (initial) {
-      await supabase.from('events').update(payload).eq('id', initial.id)
-    } else {
-      await supabase.from('events').insert(payload)
-    }
+    const { error } = initial
+      ? await supabase.from('events').update(payload).eq('id', initial.id)
+      : await supabase.from('events').insert(payload)
     setSaving(false)
+    if (error) {
+      console.error('[admin/events] save failed:', error)
+      setSaveError('儲存失敗，請確認欄位後再試一次。')
+      return
+    }
     router.push('/admin/events')
     router.refresh()
   }
@@ -139,6 +144,7 @@ export default function EventForm({ venues, initial }: Props) {
         </select>
       </div>
 
+      {saveError && <p className="text-sm text-red-600">{saveError}</p>}
       <div className="flex gap-3">
         <button onClick={handleSave} disabled={saving} className="px-6 py-2.5 bg-[var(--gold)] text-white text-sm hover:bg-[var(--gold-dark)] transition-colors disabled:opacity-50">
           {saving ? '儲存中…' : '儲存'}

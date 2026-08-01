@@ -13,7 +13,8 @@ import { SITE_URL as SITE, HEART_UNIVERSE_ADDRESS } from '@/lib/seo'
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params
   const supabase = await createClient()
-  const { data } = await supabase.from('venues').select('name, description').eq('slug', slug).single()
+  const { data, error: metaError } = await supabase.from('venues').select('name, description').eq('slug', slug).single()
+  if (metaError) console.error('[venues/slug] generateMetadata query failed:', metaError)
   return {
     title: `台北松山場地租借｜${data?.name ?? '場地詳情'}`,
     description: data?.description ?? `心宇宙商務中心 ${data?.name ?? '場地'} — 台北松山八德路企業培訓、講座與工作坊場地租借`,
@@ -102,16 +103,17 @@ function LayoutTable({ capacities }: { capacities: Partial<Record<LayoutType, nu
 export default async function VenueDetailPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
   const supabase = await createClient()
-  const { data: venue } = await supabase
+  const { data: venue, error: venueError } = await supabase
     .from('venues')
     .select('*, venue_photos(image_url, alt_text, sort_order), venue_pricing(*)')
     .eq('slug', slug)
     .eq('is_active', true)
     .single()
+  if (venueError) console.error('[venues/slug] venue query failed:', venueError)
 
   if (!venue) notFound()
 
-  const { data: upcomingEvents } = await supabase
+  const { data: upcomingEvents, error: eventsError } = await supabase
     .from('events')
     .select('id, title, slug, start_time')
     .eq('venue_id', venue.id)
@@ -119,6 +121,7 @@ export default async function VenueDetailPage({ params }: { params: Promise<{ sl
     .gte('start_time', new Date().toISOString())
     .order('start_time', { ascending: true })
     .limit(3)
+  if (eventsError) console.error('[venues/slug] upcoming events query failed:', eventsError)
 
   const photos = (venue.venue_photos ?? []).sort((a: { sort_order: number; alt_text?: string }, b: { sort_order: number }) => a.sort_order - b.sort_order)
   const pricing: VenuePricing[] = venue.venue_pricing ?? []

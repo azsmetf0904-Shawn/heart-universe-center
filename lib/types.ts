@@ -168,6 +168,18 @@ export const RENTAL_STATUS_LABEL: Record<RentalStatus, string> = {
   waitlist: '候補',
 }
 
+// 場地月曆單一時段的可用性狀態，跟 RentalStatus（單筆申請的審核狀態）
+// 是不同概念——月曆格子只反映「這個時段有沒有被佔用」，不是申請本身的狀態。
+// AvailabilityCalendar / BookingCalendar 原本各自手刻一份這個 map，容易漂移。
+export type SlotStatus = 'available' | 'pending' | 'booked' | 'past'
+
+export const SLOT_STATUS_LABEL: Record<SlotStatus, string> = {
+  available: '可預約',
+  pending: '待確認',
+  booked: '已預約',
+  past: '已過期',
+}
+
 export const EVENT_STATUS_LABEL: Record<EventStatus, string> = {
   draft: '草稿',
   published: '已發布',

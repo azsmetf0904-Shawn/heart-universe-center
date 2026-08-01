@@ -21,7 +21,8 @@ export default function EventsAdminClient({
 
   async function changeStatus(id: string, status: EventStatus) {
     const supabase = createClient()
-    await supabase.from('events').update({ status }).eq('id', id)
+    const { error } = await supabase.from('events').update({ status }).eq('id', id)
+    if (error) { console.error('[admin/events] changeStatus failed:', error); return }
     setEvents(e => e.map(ev => ev.id === id ? { ...ev, status } : ev))
   }
 
@@ -30,7 +31,7 @@ export default function EventsAdminClient({
   }
 
   function registeredCount(ev: Event) {
-    return ev.event_registrations?.filter((r: { status: string }) => r.status === 'registered').length ?? 0
+    return ev.event_registrations?.filter((r: { status: string }) => r.status === 'registered' || r.status === 'payment_pending').length ?? 0
   }
 
   return (

@@ -58,7 +58,8 @@ export default function LiffBookingPage() {
         setDisplayName(p.displayName)
 
         const supabase = createClient()
-        const { data } = await supabase.from('venues').select('*, venue_pricing(*)').eq('is_active', true)
+        const { data, error: venuesError } = await supabase.from('venues').select('*, venue_pricing(*)').eq('is_active', true)
+        if (venuesError) console.error('[liff/booking] venues query failed:', venuesError)
         setVenues(data ?? [])
       } catch {
         setError('LINE 登入失敗，請改用網站預約。')

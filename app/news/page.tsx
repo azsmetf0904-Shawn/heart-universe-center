@@ -18,11 +18,12 @@ function formatDate(s: string) {
 export default async function NewsPage() {
   const supabase = await createClient()
 
-  const { data: events } = await supabase
+  const { data: events, error } = await supabase
     .from('events')
     .select('id, title, slug, start_time, external_url, status, cover_image_url, organizer_name')
     .not('external_url', 'is', null)
     .order('start_time', { ascending: false })
+  if (error) console.error('[news] list query failed:', error)
 
   const withLinks = events?.filter(e => e.external_url) ?? []
 

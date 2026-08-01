@@ -13,12 +13,13 @@ export const metadata: Metadata = {
 
 export default async function AvailabilityPage() {
   const supabase = await createClient()
-  const { data: venues } = await supabase
+  const { data: venues, error } = await supabase
     .from('venues')
     .select('id, name, slug')
     .eq('is_active', true)
     .order('created_at')
     .limit(1)
+  if (error) console.error('[availability] venue query failed:', error)
 
   const venue = venues?.[0] ?? null
 

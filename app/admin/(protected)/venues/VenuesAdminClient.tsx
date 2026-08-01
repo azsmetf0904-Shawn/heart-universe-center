@@ -31,19 +31,21 @@ function PricingManager({ venue, pricing: initialPricing }: { venue: Venue; pric
     const supabase = createClient()
     const existing = pricing.find(p => p.day_type === dayType && p.time_slot === slot)
     if (existing) {
-      await supabase.from('venue_pricing').update({
+      const { error } = await supabase.from('venue_pricing').update({
         price: parseFloat(v.price),
         overtime_per_30min: parseFloat(v.overtime || '0'),
       }).eq('id', existing.id)
-      setPricing(p => p.map(x => x.id === existing.id ? { ...x, price: parseFloat(v.price), overtime_per_30min: parseFloat(v.overtime || '0') } : x))
+      if (error) console.error('[admin/venues] pricing update failed:', error)
+      else setPricing(p => p.map(x => x.id === existing.id ? { ...x, price: parseFloat(v.price), overtime_per_30min: parseFloat(v.overtime || '0') } : x))
     } else {
-      const { data } = await supabase.from('venue_pricing').insert({
+      const { data, error } = await supabase.from('venue_pricing').insert({
         venue_id: venue.id,
         day_type: dayType,
         time_slot: slot,
         price: parseFloat(v.price),
         overtime_per_30min: parseFloat(v.overtime || '0'),
       }).select().single()
+      if (error) console.error('[admin/venues] pricing insert failed:', error)
       if (data) setPricing(p => [...p, data])
     }
     setSaving(null)
@@ -126,7 +128,7 @@ export default function VenuesAdminClient({ initialData }: { initialData: Venue[
   async function createVenue() {
     const supabase = createClient()
     const layouts = parseLayouts(newForm.layout_capacities)
-    const { data } = await supabase.from('venues').insert({
+    const { data, error } = await supabase.from('venues').insert({
       name: newForm.name,
       slug: newForm.slug || slugify(newForm.name),
       description: newForm.description || null,
@@ -135,6 +137,7 @@ export default function VenuesAdminClient({ initialData }: { initialData: Venue[
       equipment: newForm.equipment ? newForm.equipment.split('、').map(s => s.trim()) : null,
       layout_capacities: layouts,
     }).select('*, venue_photos(id, image_url, sort_order), venue_pricing(*)').single()
+    if (error) console.error('[admin/venues] createVenue failed:', error)
     if (data) {
       setVenues(v => [...v, data])
       setShowNew(false)
@@ -146,7 +149,8 @@ export default function VenuesAdminClient({ initialData }: { initialData: Venue[
     const label = val ? '上架' : '下架'
     if (!window.confirm(`確定要${label}此場地嗎？`)) return
     const supabase = createClient()
-    await supabase.from('venues').update({ is_active: val }).eq('id', id)
+    const { error } = await supabase.from('venues').update({ is_active: val }).eq('id', id)
+    if (error) { console.error('[admin/venues] toggleActive failed:', error); return }
     setVenues(v => v.map(x => x.id === id ? { ...x, is_active: val } : x))
   }
 
@@ -156,11 +160,12 @@ export default function VenuesAdminClient({ initialData }: { initialData: Venue[
     for (const file of Array.from(files)) {
       const path = `venues/${venueId}/${Date.now()}-${file.name}`
       const { data: upload, error } = await supabase.storage.from('venues-photos').upload(path, file)
-      if (error || !upload) continue
+      if (error || !upload) { console.error('[admin/venues] photo upload failed:', error); continue }
       const { data: url } = supabase.storage.from('venues-photos').getPublicUrl(upload.path)
-      const { data: photo } = await supabase.from('venue_photos').insert({
+      const { data: photo, error: insertError } = await supabase.from('venue_photos').insert({
         venue_id: venueId, image_url: url.publicUrl, sort_order: 0,
       }).select().single()
+      if (insertError) console.error('[admin/venues] venue_photos insert failed:', insertError)
       if (photo) {
         setVenues(v => v.map(x => x.id === venueId
           ? { ...x, venue_photos: [...(x.venue_photos ?? []), photo] } : x))
@@ -171,8 +176,12 @@ export default function VenuesAdminClient({ initialData }: { initialData: Venue[
   async function deletePhoto(venueId: string, photoId: string, imageUrl: string) {
     const supabase = createClient()
     const path = imageUrl.split('/venues-photos/')[1]
-    if (path) await supabase.storage.from('venues-photos').remove([path])
-    await supabase.from('venue_photos').delete().eq('id', photoId)
+    if (path) {
+      const { error: removeError } = await supabase.storage.from('venues-photos').remove([path])
+      if (removeError) console.error('[admin/venues] photo storage remove failed:', removeError)
+    }
+    const { error } = await supabase.from('venue_photos').delete().eq('id', photoId)
+    if (error) { console.error('[admin/venues] venue_photos delete failed:', error); return }
     setVenues(v => v.map(x => x.id === venueId
       ? { ...x, venue_photos: x.venue_photos?.filter(p => p.id !== photoId) } : x))
   }

@@ -2,6 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/server'
 import { rateLimit, requestIp } from '@/lib/rate-limit'
 
+// ILIKE 的 % 和 _ 是萬用字元，使用者輸入必須跳脫成字面值，
+// 否則送 "%@%" 這種字串會比對到資料表裡每一筆有 @ 的 email，
+// 等於未經授權就能撈出全部客戶的預約紀錄。
+function escapeIlike(input: string): string {
+  return input.replace(/[\\%_]/g, ch => `\\${ch}`)
+}
+
 // Normalise Taiwanese phone to multiple candidate formats
 function phoneVariants(input: string): string[] {
   const stripped = input.replace(/[\s-]/g, '')
@@ -37,7 +44,7 @@ export async function POST(req: NextRequest) {
     ? supabase.from('rental_requests').select(select).in('phone', phones)
     : Promise.resolve({ data: [], error: null })
   const emailQuery = trimmed.includes('@')
-    ? supabase.from('rental_requests').select(select).ilike('email', trimmed)
+    ? supabase.from('rental_requests').select(select).ilike('email', escapeIlike(trimmed))
     : Promise.resolve({ data: [], error: null })
   const [{ data: phoneData, error: phoneError }, { data: emailData, error: emailError }] = await Promise.all([phoneQuery, emailQuery])
   if (phoneError) console.error('[my-booking] phone lookup failed:', phoneError)
